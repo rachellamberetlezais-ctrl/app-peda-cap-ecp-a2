@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fonctions Affines & Pente - CMA Formation Sainte-Clotilde</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --cma-bordeaux: #A50F23;
+      --cma-corail: #EE3C3D;
+      --cma-bg: #F8FAFC;
+      --cma-text: #1E293B;
+    }
+    body {
+      font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--cma-bg);
+      color: var(--cma-text);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app-header {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 20px;
+    }
+    .cma-wave-border {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: 14px;
+      margin: 0;
+      border: 0;
+      background-image: url("ruban_vague.png");
+      background-repeat: repeat-x;
+      background-size: 102.941176px 102.941176px;
+      background-position: left -46.941176px;
+    }
+    .app-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .icon-bullet {
+      height: 18px;
+      width: 18px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      margin-right: 6px;
+    }
+    .btn-step {
+      min-height: 44px;
+      padding: 0.6rem 1rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn-step.active {
+      background-color: #A50F23;
+      color: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(165, 15, 35, 0.3);
+    }
+    .btn-step.inactive {
+      background-color: #ffffff;
+      color: #475569;
+      border: 1px solid #E2E8F0;
+    }
+    .custom-input {
+      min-height: 44px;
+      font-size: 16px;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-attestation, #printable-attestation * {
+        visibility: visible;
+      }
+      #printable-attestation {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <header class="app-header bg-white shadow-sm border-b border-slate-100">
+    <div class="max-w-4xl mx-auto px-4 pt-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="Logo CMA Formation" class="app-logo" onerror="this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation'">
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-[#A50F23] leading-tight">CMA Formation Sainte-Clotilde</h1>
+          <p class="text-xs text-slate-500 font-medium">CAP Esthétique Cosmétique • Maths Séance A2 S4 M2</p>
+        </div>
+      </div>
+      <div class="text-right hidden sm:block">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Formateur Référent</span>
+        <p class="text-xs font-bold text-slate-700">R. Lamberet-Lezais</p>
+      </div>
+    </div>
+    <div class="cma-wave-border"></div>
+  </header>
+
+  <div class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
+    <div class="max-w-4xl mx-auto px-4 pt-2">
+      <!-- Progression générale 8px -->
+      <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-2">
+        <div id="general-progress-bar" class="bg-[#EE3C3D] h-2 rounded-full transition-all duration-300" style="width: 25%"></div>
+      </div>
+      <div class="flex items-center justify-between text-xs text-slate-600 mb-2 font-medium">
+        <span id="progress-text-socle">Socle CAP : 0%</span>
+        <span id="progress-text-bonus" class="text-[#A50F23] font-semibold">Bonus d'excellence : 0 / 7</span>
+      </div>
+      <!-- Onglets d'étapes défilables horizontalement -->
+      <nav class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none" aria-label="Étapes">
+        <button onclick="switchStep(1)" id="tab-step-1" class="btn-step active">
+          1. Découverte Péi
+        </button>
+        <button onclick="switchStep(2)" id="tab-step-2" class="btn-step inactive">
+          2. Cours & Simulateur
+        </button>
+        <button onclick="switchStep(3)" id="tab-step-3" class="btn-step inactive">
+          3. Entraînement
+        </button>
+        <button onclick="switchStep(4)" id="tab-step-4" class="btn-step inactive">
+          4. Bilan & Attestation
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 1 : DÉCOUVERTE & INVESTIGATION PÉI   -->
+    <!-- ========================================== -->
+    <section id="step-1" class="space-y-6">
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+        <div class="flex items-center mb-3">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h2 class="text-lg sm:text-xl font-bold text-[#A50F23]">Situation Professionnelle : Alizé Beauté à Sainte-Clotilde</h2>
+        </div>
+        <div class="p-4 bg-red-50/60 rounded-xl border-l-4 border-[#A50F23] text-sm leading-relaxed text-slate-700 space-y-2">
+          <p>
+            Vous exercez comme esthéticienne responsable de cabine à l'institut <strong>« Alizé Beauté »</strong> à Sainte-Clotilde (La Réunion). 
+            Pour la modernisation des cabines et le confort ergonomique des soins corps et visage, l'institut acquiert une <strong>table d'esthétique motorisée haut de gamme à 3 moteurs</strong> au prix d'achat de <strong>2 400 €</strong>.
+          </p>
+          <p>
+            Sous l'environnement tropical (chaleur, humidité de l'air et utilisation 6 jours sur 7), le plan comptable retient un <strong>amortissement linéaire sur 3 ans</strong> (36 mois) sans valeur résiduelle finale.
+            Chaque année, la valeur nette comptable (VNC) diminue d'une annuité constante : 
+            $$\frac{2~400\text{ €}}{3} = 800\text{ € par an}.$$
+          </p>
+          <p class="font-medium text-[#A50F23]">
+            Problématique : Comment modéliser la perte de valeur à l'aide d'une fonction affine $V(x) = ax + b$ et qu'expriment concrètement la pente $a$ et l'ordonnée à l'origine $b$ ?
+          </p>
+        </div>
+      </div>
+
+      <!-- Investigation Q1 à Q7 -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-6">
+        <div class="flex items-center mb-2">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h3 class="text-base sm:text-lg font-bold text-slate-800">Démarche d'Investigation Mathématique</h3>
+        </div>
+
+        <!-- Q1 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q1. (C1) Valeur initiale d'achat de la table à $x = 0$ an, notée $V(0)$ :
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" inputmode="decimal" id="inv-q1" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#A50F23] focus:border-transparent">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">€</span>
+            </div>
+            <button onclick="checkInvestigation('q1')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q1" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q2. (C2) Valeur nette comptable après 1 an $V(1)$ puis après 2 ans $V(2)$ :
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <div class="relative">
+              <span class="block text-xs text-slate-500 mb-1">V(1) en € :</span>
+              <input type="text" inputmode="decimal" id="inv-q2-1" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#A50F23] focus:border-transparent">
+            </div>
+            <div class="relative">
+              <span class="block text-xs text-slate-500 mb-1">V(2) en € :</span>
+              <input type="text" inputmode="decimal" id="inv-q2-2" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#A50F23] focus:border-transparent">
+            </div>
+          </div>
+          <button onclick="checkInvestigation('q2')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider Q2</button>
+          <div id="feedback-inv-q2" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q3. (C3) Variation annuelle de valeur $\Delta V = V(1) - V(0)$ en € :
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" inputmode="decimal" id="inv-q3" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#A50F23] focus:border-transparent">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">€</span>
+            </div>
+            <button onclick="checkInvestigation('q3')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q3" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q4 & Q5 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q4 & Q5. (C1/C2) Dans l'expression $V(x) = ax + b$, identifier la pente $a$ et l'ordonnée à l'origine $b$ :
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <div>
+              <span class="block text-xs text-slate-500 mb-1">Pente $a$ (taux annuel) :</span>
+              <input type="text" inputmode="decimal" id="inv-q5-a" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#A50F23] focus:border-transparent">
+            </div>
+            <div>
+              <span class="block text-xs text-slate-500 mb-1">Ordonnée à l'origine $b$ (€) :</span>
+              <input type="text" inputmode="decimal" id="inv-q5-b" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#A50F23] focus:border-transparent">
+            </div>
+          </div>
+          <button onclick="checkInvestigation('q45')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider coefficients</button>
+          <div id="feedback-inv-q45" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q6. (C3) Valeur nette comptable au bout de 3 ans $V(3)$ en € :
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" inputmode="decimal" id="inv-q6" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">€</span>
+            </div>
+            <button onclick="checkInvestigation('q6')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q6" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q7. (C4) Au bout de combien d'années la table a perdu la moitié de sa valeur ($V(x) = 1~200$ €) ?
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" inputmode="decimal" id="inv-q7" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">années</span>
+            </div>
+            <button onclick="checkInvestigation('q7')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q7" class="mt-2 text-sm"></div>
+        </div>
+
+        <div class="pt-2 text-right">
+          <button onclick="switchStep(2)" class="min-h-[44px] px-6 py-2.5 bg-[#A50F23] text-white font-bold rounded-xl shadow-md hover:bg-red-800 transition">
+            Passer à l'Étape 2 : Cours & Simulateur →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 2 : COURS & SIMULATEUR INTERACTIF    -->
+    <!-- ========================================== -->
+    <section id="step-2" class="space-y-6 hidden">
+      <!-- Synthèse de cours -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center mb-2">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h2 class="text-lg sm:text-xl font-bold text-[#A50F23]">Synthèse de Cours : Fonctions Affines $f(x) = ax + b$</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 mb-2 text-base">1. Définition & Rôle des Coefficients</h4>
+            <p class="mb-2">Une fonction affine associe à tout nombre $x$ : <strong>$f(x) = ax + b$</strong>.</p>
+            <ul class="list-disc pl-5 space-y-1.5 text-slate-600">
+              <li><strong>$a$ : Coefficient directeur (pente)</strong>. Taux de variation régulier :
+                $$a = \frac{y_2 - y_1}{x_2 - x_1}$$
+              </li>
+              <li><strong>$b$ : Ordonnée à l'origine</strong>. C'est l'image de 0 : $f(0) = b$. Graphiquement, la droite coupe l'axe vertical au point $(0\,;\,b)$.</li>
+            </ul>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 mb-2 text-base">2. Sens de Variation</h4>
+            <ul class="space-y-2 text-slate-600">
+              <li class="flex items-center gap-2">
+                <span class="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-xs">a &gt; 0</span>
+                <span>Fonction strictement <strong>croissante</strong> (la droite monte).</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="inline-block px-2 py-0.5 bg-rose-100 text-rose-800 font-bold rounded text-xs">a &lt; 0</span>
+                <span>Fonction strictement <strong>décroissante</strong> (la droite descend).</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="inline-block px-2 py-0.5 bg-slate-200 text-slate-800 font-bold rounded text-xs">a = 0</span>
+                <span>Fonction <strong>constante</strong> (droite horizontale $f(x)=b$).</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-sm">
+          <h4 class="font-bold text-amber-900 mb-1">Application à la table d'esthétique :</h4>
+          <p class="text-amber-800">
+            $V(x) = -800x + 2~400$ sur $[0\,;\,3]$.<br>
+            • Pente $a = -800\text{ €/an}$ : dépréciation annuelle constante.<br>
+            • Ordonnée à l'origine $b = 2~400\text{ €}$ : valeur d'achat neuve.<br>
+            • Au bout de $3$ ans : $V(3) = -800(3) + 2~400 = 0\text{ €}$ (matériel totalement amorti).
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center">
+            <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800">Simulateur Interactif d'Amortissement Linéaire</h3>
+          </div>
+          <span class="text-xs bg-red-100 text-[#A50F23] font-semibold px-2.5 py-1 rounded-full">Calcul en temps réel</span>
+        </div>
+
+        <!-- Contrôles du simulateur -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" for="sim-valeur-achat">
+              Valeur neuve $b$ : <span id="label-sim-b" class="font-bold text-[#A50F23]">2 400 €</span>
+            </label>
+            <input type="range" id="sim-valeur-achat" min="500" max="5000" step="100" value="2400" class="w-full accent-[#A50F23]" oninput="updateSimulator()">
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" for="sim-duree">
+              Durée amortissement : <span id="label-sim-duree" class="font-bold text-[#A50F23]">3 ans</span>
+            </label>
+            <input type="range" id="sim-duree" min="1" max="10" step="1" value="3" class="w-full accent-[#A50F23]" oninput="updateSimulator()">
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" for="sim-annee-x">
+              Année testée $x$ : <span id="label-sim-x" class="font-bold text-[#A50F23]">1,5 an</span>
+            </label>
+            <input type="range" id="sim-annee-x" min="0" max="3" step="0.25" value="1.5" class="w-full accent-[#A50F23]" oninput="updateSimulator()">
+          </div>
+        </div>
+
+        <!-- Résultats calculés -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="block text-xs text-slate-500 font-medium">Pente $a$</span>
+            <span id="sim-res-a" class="text-base sm:text-lg font-bold text-slate-800">-800 €/an</span>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="block text-xs text-slate-500 font-medium">Ordonnée $b$</span>
+            <span id="sim-res-b" class="text-base sm:text-lg font-bold text-slate-800">2 400 €</span>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="block text-xs text-slate-500 font-medium">Formule $V(x)$</span>
+            <span id="sim-res-formule" class="text-xs sm:text-sm font-bold text-[#A50F23]">-800x + 2400</span>
+          </div>
+          <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
+            <span class="block text-xs text-red-700 font-medium">Valeur nette $V(x)$</span>
+            <span id="sim-res-vx" class="text-base sm:text-lg font-bold text-[#A50F23]">1 200 €</span>
+          </div>
+        </div>
+
+        <!-- Canvas du graphique -->
+        <div class="w-full bg-slate-900 rounded-xl p-3 shadow-inner overflow-hidden">
+          <canvas id="sim-canvas" class="w-full h-64 sm:h-80 block"></canvas>
+        </div>
+
+        <div class="pt-2 text-right">
+          <button onclick="switchStep(3)" class="min-h-[44px] px-6 py-2.5 bg-[#A50F23] text-white font-bold rounded-xl shadow-md hover:bg-red-800 transition">
+            Passer aux Exercices d'Entraînement →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 3 : ENTRAÎNEMENT GAMIFIÉ SÉQUENTIEL  -->
+    <!-- ========================================== -->
+    <section id="step-3" class="space-y-6 hidden">
+      <!-- Sélecteur de niveau avec verrous -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] mb-3 flex items-center">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          Parcours d'Entraînement Différencié
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Niveau 1 -->
+          <button onclick="selectLevel(1)" id="btn-lvl-1" class="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-left transition flex items-center justify-between">
+            <div>
+              <div class="text-xs uppercase font-bold text-emerald-700">🟢 Niveau 1</div>
+              <div class="text-sm font-semibold text-slate-800">Socle CAP (5 exos)</div>
+            </div>
+            <span id="badge-stat-1" class="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">Actif</span>
+          </button>
+
+          <!-- Niveau 2 -->
+          <button onclick="selectLevel(2)" id="btn-lvl-2" class="p-3 rounded-xl border border-slate-200 bg-slate-100 text-left opacity-70 cursor-not-allowed transition flex items-center justify-between" disabled>
+            <div>
+              <div class="text-xs uppercase font-bold text-amber-700">🟡 Niveau 2</div>
+              <div class="text-sm font-semibold text-slate-800">Bonus Dépassement</div>
+            </div>
+            <span id="lock-icon-2" class="text-slate-400 font-bold">🔒</span>
+          </button>
+
+          <!-- Niveau 3 -->
+          <button onclick="selectLevel(3)" id="btn-lvl-3" class="p-3 rounded-xl border border-slate-200 bg-slate-100 text-left opacity-70 cursor-not-allowed transition flex items-center justify-between" disabled>
+            <div>
+              <div class="text-xs uppercase font-bold text-rose-700">🔴 Niveau 3</div>
+              <div class="text-sm font-semibold text-slate-800">Bonus Excellence</div>
+            </div>
+            <span id="lock-icon-3" class="text-slate-400 font-bold">🔒</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="container-lvl-1" class="space-y-6">
+        <!-- Exercice 1.1 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.1 • Socle CAP</span>
+            <span id="status-ex-1-1" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Identification de la pente $a$ et de l'ordonnée à l'origine $b$</h3>
+          <p class="text-sm text-slate-600">Pour chaque fonction affine ci-dessous, renseignez les valeurs numériques de $a$ et $b$ :</p>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <!-- f(x) -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <span class="font-bold text-[#A50F23]">$f(x) = 5x + 20$</span>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$a =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-fa" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$b =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-fb" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+            </div>
+
+            <!-- g(x) -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <span class="font-bold text-[#A50F23]">$g(x) = -15x + 300$</span>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$a =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-ga" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$b =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-gb" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+            </div>
+
+            <!-- h(x) -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <span class="font-bold text-[#A50F23]">$h(x) = 2,5x - 8$</span>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$a =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-ha" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$b =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-hb" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+            </div>
+
+            <!-- k(x) -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <span class="font-bold text-[#A50F23]">$k(x) = -4x$</span>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$a =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-ka" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-8 text-xs text-slate-500">$b =$</span>
+                <input type="text" inputmode="decimal" id="ex-1-1-kb" placeholder="Votre résultat..." class="custom-input flex-1 px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+            </div>
+          </div>
+          <button onclick="checkEx1_1()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier l'Exercice 1.1</button>
+          <div id="fb-ex-1-1" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.2 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.2 • Socle CAP</span>
+            <span id="status-ex-1-2" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Calcul d'images simples d'un appareil à haute fréquence</h3>
+          <p class="text-sm text-slate-600">
+            La valeur d'un appareil à haute fréquence après $x$ années d'usage est modélisée par $f(x) = -250x + 1~500$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">$f(0)$ en € :</label>
+              <input type="text" inputmode="decimal" id="ex-1-2-f0" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">$f(2)$ en € :</label>
+              <input type="text" inputmode="decimal" id="ex-1-2-f2" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">$f(4)$ en € :</label>
+              <input type="text" inputmode="decimal" id="ex-1-2-f4" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx1_2()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier l'Exercice 1.2</button>
+          <div id="fb-ex-1-2" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.3 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.3 • Socle CAP</span>
+            <span id="status-ex-1-3" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Calcul d'antécédent</h3>
+          <p class="text-sm text-slate-600">
+            En utilisant la fonction $f(x) = -250x + 1~500$, déterminer par le calcul la valeur de $x$ telle que $f(x) = 750$.
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-1-3-x" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500">années</span>
+            </div>
+            <button onclick="checkEx1_3()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier</button>
+          </div>
+          <div id="fb-ex-1-3" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.4 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.4 • Socle CAP</span>
+            <span id="status-ex-1-4" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Tableau de valeurs et tracé de droite</h3>
+          <p class="text-sm text-slate-600">
+            Soit la fonction $g(x) = 2x + 10$ sur $[0\,;\,10]$. Calculez les images des points $A(0\,;\,y_A)$ et $B(5\,;\,y_B)$ :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Pour $x = 0$, $y_A = g(0)$ :</label>
+              <input type="text" inputmode="decimal" id="ex-1-4-yA" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Pour $x = 5$, $y_B = g(5)$ :</label>
+              <input type="text" inputmode="decimal" id="ex-1-4-yB" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx1_4()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier les coordonnées</button>
+          <div id="fb-ex-1-4" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.5 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.5 • Socle CAP</span>
+            <span id="status-ex-1-5" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Calcul de pente entre deux points</h3>
+          <p class="text-sm text-slate-600">
+            La droite représentant la consommation d'énergie d'un chauffe-cire passe par les points $A(1\,;\,12)$ et $B(4\,;\,27)$.
+            Calculer le coefficient directeur $a$ à l'aide de la formule $a = \frac{y_B - y_A}{x_B - x_A}$ :
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-1-5-a" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <button onclick="checkEx1_5()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider la pente</button>
+          </div>
+          <div id="fb-ex-1-5" class="text-sm"></div>
+        </div>
+      </div>
+
+      <div id="container-lvl-2" class="space-y-6 hidden">
+        <!-- 2.1 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.1 • Dépassement</span>
+            <span id="status-ex-2-1" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Amortissement d'un Vapozone à Saint-Denis</h3>
+          <p class="text-sm text-slate-600">
+            Un institut achète un Vapozone au prix de 900 €. L'appareil est amorti sur 5 ans (perte constante de 180 € par an).
+          </p>
+          <div class="space-y-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Pente $a$ et ordonnée $b$ de $V(x) = ax + b$ :</label>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" inputmode="decimal" id="ex-2-1-a" placeholder="Pente a..." class="custom-input px-3 py-1.5 border border-slate-300 rounded-lg">
+                <input type="text" inputmode="decimal" id="ex-2-1-b" placeholder="Ordonnée b..." class="custom-input px-3 py-1.5 border border-slate-300 rounded-lg">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">3) Valeur comptable au bout de 3 ans et demi ($x = 3,5$) en € :</label>
+              <input type="text" inputmode="decimal" id="ex-2-1-val" placeholder="Votre résultat..." class="custom-input w-full max-w-xs px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx2_1()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 2.1</button>
+          <div id="fb-ex-2-1" class="text-sm"></div>
+        </div>
+
+        <!-- 2.2 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.2 • Dépassement</span>
+            <span id="status-ex-2-2" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Tarification à domicile à Sainte-Marie</h3>
+          <p class="text-sm text-slate-600">
+            Forfait fixe de déplacement de 15 € plus un tarif horaire de 35 € par heure de soin : $P(x) = 35x + 15$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Coût pour un soin de 1 h 30 ($x = 1,5$) en € :</label>
+              <input type="text" inputmode="decimal" id="ex-2-2-cout" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Une cliente règle 85 €. Durée du soin (en heures) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-2-duree" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx2_2()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 2.2</button>
+          <div id="fb-ex-2-2" class="text-sm"></div>
+        </div>
+
+        <!-- 2.3 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.3 • Dépassement</span>
+            <span id="status-ex-2-3" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Détermination complète de la formule d'un stérilisateur UV</h3>
+          <p class="text-sm text-slate-600">
+            Valeur comptable de 450 € après 1 an ($x_1=1$, $y_1=450$) et de 150 € après 3 ans ($x_2=3$, $y_2=150$).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Pente $a$ :</label>
+              <input type="text" inputmode="decimal" id="ex-2-3-a" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Valeur initiale $b$ (€) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-3-b" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Années pour valeur nulle ($V(x)=0$) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-3-zero" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx2_3()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 2.3</button>
+          <div id="fb-ex-2-3" class="text-sm"></div>
+        </div>
+
+        <!-- 2.4 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.4 • Dépassement</span>
+            <span id="status-ex-2-4" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Reconnaissance de pente</h3>
+          <p class="text-sm text-slate-600">
+            Trois droites de dépréciation ont pour pentes : $a_1 = -400$, $a_2 = -150$ et $a_3 = -600$.
+            Quel est le montant de la perte annuelle maximale (en valeur absolue) correspondant à l'appareil qui perd de la valeur le plus vite ?
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-2-4-pente" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500">€/an</span>
+            </div>
+            <button onclick="checkEx2_4()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="fb-ex-2-4" class="text-sm"></div>
+        </div>
+      </div>
+
+      <div id="container-lvl-3" class="space-y-6 hidden">
+        <!-- 3.1 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full">Exercice 3.1 • Excellence</span>
+            <span id="status-ex-3-1" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Amortissement comparé de deux tables de modelage à Saint-Gilles</h3>
+          <p class="text-sm text-slate-600">
+            Table Alpha : $V_A(x) = -600x + 3~000$.<br>
+            Table Bêta : $V_B(x) = -550x + 2~200$.
+          </p>
+          <div class="space-y-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Au bout de combien d'années ont-elles la même valeur ($V_A(x) = V_B(x)$) ?</label>
+              <input type="text" inputmode="decimal" id="ex-3-1-x" placeholder="Votre résultat..." class="custom-input w-full max-w-xs px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Quelle est la valeur de la table Alpha au bout de 3 ans ($V_A(3)$) en € ?</label>
+              <input type="text" inputmode="decimal" id="ex-3-1-va3" placeholder="Votre résultat..." class="custom-input w-full max-w-xs px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx3_1()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 3.1</button>
+          <div id="fb-ex-3-1" class="text-sm"></div>
+        </div>
+
+        <!-- 3.2 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full">Exercice 3.2 • Excellence</span>
+            <span id="status-ex-3-2" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Seuil de renouvellement d'un appareil à ultrasons à Sainte-Clotilde</h3>
+          <p class="text-sm text-slate-600">
+            Achat à 4 800 €. $V(x) = -1~200x + 4~800$. Revente d'occasion dès que la VNC atteint 25% du prix initial.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Valeur de revente cible (25% de 4 800 €) en € :</label>
+              <input type="text" inputmode="decimal" id="ex-3-2-cible" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">2) Durée optimale de détention ($V(x)=1~200$ €) en années :</label>
+              <input type="text" inputmode="decimal" id="ex-3-2-duree" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx3_2()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 3.2</button>
+          <div id="fb-ex-3-2" class="text-sm"></div>
+        </div>
+
+        <!-- 3.3 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full">Exercice 3.3 • Excellence</span>
+            <span id="status-ex-3-3" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Impact climatique réunionnais sur la dépréciation accélérée</h3>
+          <p class="text-sm text-slate-600">
+            Achat à 1 800 €. Taux d'amortissement annuel tropicalisé de 432 € par an : $V_{\text{trop}}(x) = -432x + 1~800$.
+          </p>
+          <div class="space-y-3 text-sm">
+            <label class="block text-xs font-medium text-slate-600">Au bout de combien d'années et de mois la table est totalement dépréciée ($V=0$) ? (Indiquez la durée en années décimales, ex : 4,17) :</label>
+            <div class="flex items-center gap-3">
+              <input type="text" inputmode="decimal" id="ex-3-3-duree" placeholder="Votre résultat..." class="custom-input w-full max-w-xs px-3 py-1.5 border border-slate-300 rounded-lg">
+              <button onclick="checkEx3_3()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 3.3</button>
+            </div>
+          </div>
+          <div id="fb-ex-3-3" class="text-sm"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 4 : BILAN, BADGES & ATTESTATION      -->
+    <!-- ========================================== -->
+    <section id="step-4" class="space-y-6 hidden">
+      <!-- Récapitulatif apprenant -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 no-print space-y-4">
+        <div class="flex items-center mb-2">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h2 class="text-lg sm:text-xl font-bold text-[#A50F23]">Bilan des Compétences & Badges Obtenus</h2>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <label class="block text-sm font-semibold text-slate-700">Nom et Prénom de l'apprenant(e) :</label>
+          <div class="flex gap-2 max-w-md">
+            <input type="text" id="student-name-input" placeholder="Ex: Marie PAYET" class="custom-input flex-1 px-4 py-2 border border-slate-300 rounded-lg" oninput="updateStudentName()">
+            <button onclick="updateStudentName()" class="min-h-[44px] px-4 bg-slate-800 text-white font-medium rounded-lg">Actualiser</button>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div id="badge-card-1" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center gap-3">
+            <div class="text-3xl">🎯</div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Socle CAP 100%</h4>
+              <p class="text-xs text-slate-500" id="badge-desc-1">En attente de validation</p>
+            </div>
+          </div>
+
+          <div id="badge-card-2" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center gap-3 opacity-60">
+            <div class="text-3xl">⭐</div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Dépassement</h4>
+              <p class="text-xs text-slate-500" id="badge-desc-2">Niveau 2 non validé</p>
+            </div>
+          </div>
+
+          <div id="badge-card-3" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center gap-3 opacity-60">
+            <div class="text-3xl">🏆</div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Excellence Pro</h4>
+              <p class="text-xs text-slate-500" id="badge-desc-3">Niveau 3 non validé</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3">
+          <button onclick="window.print()" class="min-h-[44px] px-6 py-2.5 bg-[#A50F23] text-white font-bold rounded-xl shadow-md hover:bg-red-800 transition flex items-center gap-2">
+            <span>Imprimer / Sauvegarder en PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ATTESTATION OFFICIELLE PRINTABLE -->
+      <div id="printable-attestation" class="bg-white rounded-2xl p-8 shadow-md border-2 border-[#A50F23] relative">
+        <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4 mb-6">
+          <img src="logo.png" alt="Logo CMA Formation" class="app-logo" style="max-height:48px;" onerror="this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation'">
+          <div class="text-right">
+            <span class="text-xs uppercase font-bold text-[#A50F23] tracking-widest block">Attestation Pédagogique de Réussite</span>
+            <span class="text-xs text-slate-500 font-medium">CMA Formation de Sainte-Clotilde • La Réunion</span>
+          </div>
+        </div>
+
+        <div class="text-center my-6 space-y-2">
+          <p class="text-sm text-slate-500 uppercase tracking-wider font-semibold">Attestation délivrée à</p>
+          <h3 id="attestation-student-name" class="text-2xl sm:text-3xl font-extrabold text-[#A50F23]">Apprenant(e)</h3>
+          <p class="text-sm text-slate-600 max-w-xl mx-auto">
+            pour avoir suivi et validé avec succès les compétences mathématiques de la séance :
+          </p>
+          <div class="p-3 bg-red-50 rounded-xl inline-block font-bold text-slate-800 text-base border border-red-200">
+            Séance A2 S4 M2 : Fonctions affines, pente & modélisation d'amortissement
+          </div>
+        </div>
+
+        <!-- Scores certifiés -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 my-6 text-center">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-xs font-semibold text-slate-500">Socle Fondamental CAP</span>
+            <span id="attestation-socle" class="text-xl font-bold text-emerald-600">0%</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-xs font-semibold text-slate-500">Défis Bonus Réalisés</span>
+            <span id="attestation-bonus" class="text-xl font-bold text-[#A50F23]">0 / 7</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 col-span-2 sm:col-span-1">
+            <span class="block text-xs font-semibold text-slate-500">Date d'évaluation</span>
+            <span id="attestation-date" class="text-sm font-bold text-slate-700">--/--/----</span>
+          </div>
+        </div>
+
+        <!-- Compétences du référentiel -->
+        <div class="my-6">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Compétences du Référentiel CAP Évaluées</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc pl-5">
+            <li><strong>C1 (S'informer) :</strong> Extraire des grandeurs économiques d'un contexte de salon (valeur neuve, annuité).</li>
+            <li><strong>C2 (Exécuter) :</strong> Calculer des images et antécédents, déterminer l'expression $f(x)=ax+b$.</li>
+            <li><strong>C3 (Appliquer / Raisonner) :</strong> Déterminer la pente $a = \frac{y_2-y_1}{x_2-x_1}$ et interpréter le sens de variation.</li>
+            <li><strong>C4 (Communiquer) :</strong> Interpréter la valeur nette comptable et anticiper le renouvellement du matériel.</li>
+          </ul>
+        </div>
+
+        <div class="border-t border-slate-200 pt-4 flex items-center justify-between text-xs text-slate-500">
+          <div>
+            <p><strong>Rachel Lamberet-Lezais</strong></p>
+            <p>Formatrice Référente Mathématiques / Sciences</p>
+          </div>
+          <div class="text-right">
+            <p>Validé numériquement</p>
+            <p class="font-mono text-[10px] text-slate-400">ID: CMA-RUN-MATHS-A2S4M2</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 no-print">
+    <p>© CMA Formation de Sainte-Clotilde • Île de La Réunion • CAP Esthétique Cosmétique Parfumerie</p>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- LOGIQUE JAVASCRIPT DE L'APPLICATION SPA    -->
+  <!-- ========================================== -->
+  <script>
+    const appState = {
+      currentStep: 1,
+      studentName: 'Apprenant(e)',
+      investigationDone: { q1: false, q2: false, q3: false, q45: false, q6: false, q7: false },
+      exercisesDone: {
+        '1.1': false,
+        '1.2': false,
+        '1.3': false,
+        '1.4': false,
+        '1.5': false,
+        '2.1': false,
+        '2.2': false,
+        '2.3': false,
+        '2.4': false,
+        '3.1': false,
+        '3.2': false,
+        '3.3': false
+      },
+      unlockedLevels: { 1: true, 2: false, 3: false },
+      currentLevel: 1
+    };
+
+    function switchStep(stepNumber) {
+      for (let i = 1; i <= 4; i++) {
+        const sec = document.getElementById('step-' + i);
+        const tab = document.getElementById('tab-step-' + i);
+        if (sec && tab) {
+          if (i === stepNumber) {
+            sec.classList.remove('hidden');
+            tab.className = 'btn-step active';
+          } else {
+            sec.classList.add('hidden');
+            tab.className = 'btn-step inactive';
+          }
+        }
+      }
+      appState.currentStep = stepNumber;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (stepNumber === 2) {
+        setTimeout(updateSimulator, 50);
+      }
+      if (stepNumber === 4) {
+        updateAttestationView();
+      }
+      updateGlobalProgress();
+    }
+
+    function parseInput(val) {
+      if (!val) return NaN;
+      const clean = String(val).trim().replace(',', '.');
+      return parseFloat(clean);
+    }
+
+    function isClose(inputVal, targetVal, tol = 0.1) {
+      const v = parseInput(inputVal);
+      if (isNaN(v)) return false;
+      return Math.abs(v - targetVal) <= tol;
+    }
+
+    function checkInvestigation(q) {
+      if (q === 'q1') {
+        const val = document.getElementById('inv-q1').value;
+        const fb = document.getElementById('feedback-inv-q1');
+        if (isClose(val, 2400)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! V(0) = 2 400 € correspond au montant d\'achat initial neuf de la table motorisée.</span>';
+          appState.investigationDone.q1 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Relevez le montant d\'acquisition indiqué dans la situation professionnelle (2 400 €).</span>';
+        }
+      } else if (q === 'q2') {
+        const v1 = document.getElementById('inv-q2-1').value;
+        const v2 = document.getElementById('inv-q2-2').value;
+        const fb = document.getElementById('feedback-inv-q2');
+        if (isClose(v1, 1600) && isClose(v2, 800)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Très bien ! V(1) = 2 400 − 800 = 1 600 € et V(2) = 1 600 − 800 = 800 €.</span>';
+          appState.investigationDone.q2 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Rappel : la table perd 800 € chaque année. Calculez 2 400 − 800 puis 1 600 − 800.</span>';
+        }
+      } else if (q === 'q3') {
+        const dv = document.getElementById('inv-q3').value;
+        const fb = document.getElementById('feedback-inv-q3');
+        if (isClose(dv, -800)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Parfait ! ΔV = 1 600 − 2 400 = −800 €. Le signe négatif traduit la dépréciation annuelle régulière.</span>';
+          appState.investigationDone.q3 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Attention au signe : ΔV = V(1) − V(0) = 1 600 − 2 400. La variation est négative (−800 €).</span>';
+        }
+      } else if (q === 'q45') {
+        const a = document.getElementById('inv-q5-a').value;
+        const b = document.getElementById('inv-q5-b').value;
+        const fb = document.getElementById('feedback-inv-q45');
+        if (isClose(a, -800) && isClose(b, 2400)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Excellent ! L\'expression est V(x) = −800x + 2 400 avec a = −800 (pente négative) et b = 2 400 (valeur neuve).</span>';
+          appState.investigationDone.q45 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Vérifiez : la pente a est le taux annuel (−800) et b est la valeur à x=0 (2 400).</span>';
+        }
+      } else if (q === 'q6') {
+        const v3 = document.getElementById('inv-q6').value;
+        const fb = document.getElementById('feedback-inv-q6');
+        if (isClose(v3, 0)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! V(3) = −800(3) + 2 400 = 0 €. Au bout de 3 ans, le matériel est intégralement amorti.</span>';
+          appState.investigationDone.q6 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Calculez −800 × 3 + 2 400.</span>';
+        }
+      } else if (q === 'q7') {
+        const x = document.getElementById('inv-q7').value;
+        const fb = document.getElementById('feedback-inv-q7');
+        if (isClose(x, 1.5)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! −800x + 2 400 = 1 200 donne 800x = 1 200 d\'où x = 1,5 an (soit 1 an et 6 mois).</span>';
+          appState.investigationDone.q7 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Résolvez 2 400 − 800x = 1 200. Isolez x pour trouver la durée.</span>';
+        }
+      }
+      updateGlobalProgress();
+    }
+
+    function updateSimulator() {
+      const b = parseFloat(document.getElementById('sim-valeur-achat').value);
+      const duree = parseFloat(document.getElementById('sim-duree').value);
+      const x = parseFloat(document.getElementById('sim-annee-x').value);
+
+      const sliderX = document.getElementById('sim-annee-x');
+      sliderX.max = duree;
+      const validX = Math.min(x, duree);
+
+      const a = -(b / duree);
+      const vx = Math.max(0, a * validX + b);
+
+      document.getElementById('label-sim-b').textContent = b.toLocaleString('fr-FR') + ' €';
+      document.getElementById('label-sim-duree').textContent = duree + ' ans';
+      document.getElementById('label-sim-x').textContent = validX.toFixed(2).replace('.', ',') + ' an(s)';
+
+      document.getElementById('sim-res-a').textContent = a.toFixed(1).replace('.', ',') + ' €/an';
+      document.getElementById('sim-res-b').textContent = b.toLocaleString('fr-FR') + ' €';
+      document.getElementById('sim-res-formule').textContent = a.toFixed(0) + 'x + ' + b.toFixed(0);
+      document.getElementById('sim-res-vx').textContent = vx.toFixed(1).replace('.', ',') + ' €';
+
+      drawSimulatorGraph(b, duree, validX, a, vx);
+    }
+
+    function drawSimulatorGraph(b, duree, curX, a, curVx) {
+      const canvas = document.getElementById('sim-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const width = canvas.parentElement.clientWidth || 360;
+      const height = canvas.parentElement.clientHeight || 280;
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const margin = { top: 25, right: 30, bottom: 40, left: 55 };
+      const plotW = width - margin.left - margin.right;
+      const plotH = height - margin.top - margin.bottom;
+
+      const maxX = duree * 1.1;
+      const maxY = b * 1.15;
+
+      function toScreenX(valX) {
+        return margin.left + (valX / maxX) * plotW;
+      }
+      function toScreenY(valY) {
+        return margin.top + plotH - (valY / maxY) * plotH;
+      }
+
+      // Grille
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 0.8;
+      ctx.setLineDash([2, 4]);
+
+      for (let y = 0; y <= maxY; y += (b / 4)) {
+        const sy = toScreenY(y);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, sy);
+        ctx.lineTo(margin.left + plotW, sy);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(Math.round(y) + ' €', margin.left - 8, sy + 3);
+      }
+
+      for (let x = 0; x <= duree; x += 1) {
+        const sx = toScreenX(x);
+        ctx.beginPath();
+        ctx.moveTo(sx, margin.top);
+        ctx.lineTo(sx, margin.top + plotH);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(x + ' an', sx, margin.top + plotH + 18);
+      }
+      ctx.setLineDash([]);
+
+      // Axes
+      ctx.strokeStyle = '#64748B';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, margin.top);
+      ctx.lineTo(margin.left, margin.top + plotH);
+      ctx.lineTo(margin.left + plotW, margin.top + plotH);
+      ctx.stroke();
+
+      // Droite V(x) = ax + b
+      ctx.strokeStyle = '#EE3C3D';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(0), toScreenY(b));
+      ctx.lineTo(toScreenX(duree), toScreenY(0));
+      ctx.stroke();
+
+      // Point initial (0, b)
+      ctx.fillStyle = '#A50F23';
+      ctx.beginPath();
+      ctx.arc(toScreenX(0), toScreenY(b), 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Point courant
+      const curSX = toScreenX(curX);
+      const curSY = toScreenY(curVx);
+
+      ctx.strokeStyle = '#F59E0B';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(curSX, margin.top + plotH);
+      ctx.lineTo(curSX, curSY);
+      ctx.lineTo(margin.left, curSY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.arc(curSX, curSY, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Annotation
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(curVx.toFixed(0) + ' €', curSX + 8, curSY - 5);
+    }
+
+    window.addEventListener('resize', () => {
+      if (appState.currentStep === 2) updateSimulator();
+    });
+
+    function selectLevel(lvl) {
+      if (!appState.unlockedLevels[lvl]) return;
+      appState.currentLevel = lvl;
+
+      for (let i = 1; i <= 3; i++) {
+        const cont = document.getElementById('container-lvl-' + i);
+        const btn = document.getElementById('btn-lvl-' + i);
+        if (cont && btn) {
+          if (i === lvl) {
+            cont.classList.remove('hidden');
+            btn.className = 'p-3 rounded-xl border-2 border-[#A50F23] bg-red-50 text-left transition flex items-center justify-between';
+          } else {
+            cont.classList.add('hidden');
+            if (appState.unlockedLevels[i]) {
+              btn.className = 'p-3 rounded-xl border border-slate-200 bg-white text-left transition flex items-center justify-between';
+            }
+          }
+        }
+      }
+    }
+
+    function checkEx1_1() {
+      const fa = document.getElementById('ex-1-1-fa').value;
+      const fb = document.getElementById('ex-1-1-fb').value;
+      const ga = document.getElementById('ex-1-1-ga').value;
+      const gb = document.getElementById('ex-1-1-gb').value;
+      const ha = document.getElementById('ex-1-1-ha').value;
+      const hb = document.getElementById('ex-1-1-hb').value;
+      const ka = document.getElementById('ex-1-1-ka').value;
+      const kb = document.getElementById('ex-1-1-kb').value;
+
+      const okF = isClose(fa, 5) && isClose(fb, 20);
+      const okG = isClose(ga, -15) && isClose(gb, 300);
+      const okH = isClose(ha, 2.5) && isClose(hb, -8);
+      const okK = isClose(ka, -4) && isClose(kb, 0);
+
+      const div = document.getElementById('fb-ex-1-1');
+      if (okF && okG && okH && okK) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! Tous les coefficients sont parfaitement identifiés : pour k(x) = −4x, ordonnée à l\'origine b = 0.</span>';
+        appState.exercisesDone['1.1'] = true;
+        document.getElementById('status-ex-1-1').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Certaines valeurs sont incorrectes. Rappels : pour h(x)=2,5x−8, b = −8 ; pour k(x)=−4x, b = 0.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_2() {
+      const f0 = document.getElementById('ex-1-2-f0').value;
+      const f2 = document.getElementById('ex-1-2-f2').value;
+      const f4 = document.getElementById('ex-1-2-f4').value;
+      const div = document.getElementById('fb-ex-1-2');
+
+      if (isClose(f0, 1500) && isClose(f2, 1000) && isClose(f4, 500)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Excellent ! f(0) = 1 500 €, f(2) = −250(2)+1 500 = 1 000 €, f(4) = 500 €.</span>';
+        appState.exercisesDone['1.2'] = true;
+        document.getElementById('status-ex-1-2').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Revoyez les calculs : remplacez x par 0, 2 puis 4 dans −250x + 1 500.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_3() {
+      const x = document.getElementById('ex-1-3-x').value;
+      const div = document.getElementById('fb-ex-1-3');
+      if (isClose(x, 3)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Très bien ! −250x + 1 500 = 750 donne 250x = 750 d\'où x = 3 ans.</span>';
+        appState.exercisesDone['1.3'] = true;
+        document.getElementById('status-ex-1-3').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Résolvez 1 500 − 750 = 250x.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_4() {
+      const ya = document.getElementById('ex-1-4-yA').value;
+      const yb = document.getElementById('ex-1-4-yB').value;
+      const div = document.getElementById('fb-ex-1-4');
+      if (isClose(ya, 10) && isClose(yb, 20)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Parfait ! Les coordonnées sont A(0 ; 10) et B(5 ; 20). La droite monte (a = 2 &gt; 0).</span>';
+        appState.exercisesDone['1.4'] = true;
+        document.getElementById('status-ex-1-4').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Pour x = 0 : 2(0)+10 = 10. Pour x = 5 : 2(5)+10 = 20.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_5() {
+      const a = document.getElementById('ex-1-5-a').value;
+      const div = document.getElementById('fb-ex-1-5');
+      if (isClose(a, 5)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! a = (27 − 12) / (4 − 1) = 15 / 3 = 5.</span>';
+        appState.exercisesDone['1.5'] = true;
+        document.getElementById('status-ex-1-5').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Appliquez a = (27 − 12) divisé par (4 − 1).</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_1() {
+      const a = document.getElementById('ex-2-1-a').value;
+      const b = document.getElementById('ex-2-1-b').value;
+      const val = document.getElementById('ex-2-1-val').value;
+      const div = document.getElementById('fb-ex-2-1');
+
+      if (isClose(a, -180) && isClose(b, 900) && isClose(val, 270)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! V(x) = −180x + 900 et V(3,5) = −180(3,5) + 900 = 270 €.</span>';
+        appState.exercisesDone['2.1'] = true;
+        document.getElementById('status-ex-2-1').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Vérifiez : la perte annuelle est de 180 € donc a = −180, b = 900. Calculez ensuite pour x = 3,5.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_2() {
+      const cout = document.getElementById('ex-2-2-cout').value;
+      const duree = document.getElementById('ex-2-2-duree').value;
+      const div = document.getElementById('fb-ex-2-2');
+
+      if (isClose(cout, 67.5) && isClose(duree, 2)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Parfait ! P(1,5) = 35(1,5) + 15 = 67,50 €. Pour 85 € : 35x = 70 d\'où x = 2 heures.</span>';
+        appState.exercisesDone['2.2'] = true;
+        document.getElementById('status-ex-2-2').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ 35 × 1,5 + 15 = 67,5. Et pour 85 € : (85 − 15) / 35 = 2.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_3() {
+      const a = document.getElementById('ex-2-3-a').value;
+      const b = document.getElementById('ex-2-3-b').value;
+      const zero = document.getElementById('ex-2-3-zero').value;
+      const div = document.getElementById('fb-ex-2-3');
+
+      if (isClose(a, -150) && isClose(b, 600) && isClose(zero, 4)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Superbe ! a = (150 − 450) / (3 − 1) = −150. b = 450 − (−150)(1) = 600. 600 / 150 = 4 ans.</span>';
+        appState.exercisesDone['2.3'] = true;
+        document.getElementById('status-ex-2-3').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ a = (150 − 450) / (3 − 1) = −150. À x = 1, V(1) = 450 donc b = 600.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_4() {
+      const p = document.getElementById('ex-2-4-pente').value;
+      const div = document.getElementById('fb-ex-2-4');
+      if (isClose(p, 600) || isClose(p, -600)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! La droite (d3) avec la pente de −600 €/an présente la perte de valeur annuelle la plus forte.</span>';
+        appState.exercisesDone['2.4'] = true;
+        document.getElementById('status-ex-2-4').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Comparez les valeurs absolues des pentes : 400, 150 et 600. La perte la plus rapide correspond à 600 €/an.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx3_1() {
+      const x = document.getElementById('ex-3-1-x').value;
+      const va3 = document.getElementById('ex-3-1-va3').value;
+      const div = document.getElementById('fb-ex-3-1');
+
+      if (isClose(x, 16) && isClose(va3, 1200)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! −600x + 3 000 = −550x + 2 200 donne 50x = 800 d\'où x = 16 ans. À 3 ans, V_A(3) = 1 200 € (contre 550 € pour Bêta).</span>';
+        appState.exercisesDone['3.1'] = true;
+        document.getElementById('status-ex-3-1').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Équation : 3 000 − 2 200 = 600x − 550x =&gt; 50x = 800 =&gt; x = 16. Et V_A(3) = 3 000 − 1 800 = 1 200 €.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx3_2() {
+      const cible = document.getElementById('ex-3-2-cible').value;
+      const duree = document.getElementById('ex-3-2-duree').value;
+      const div = document.getElementById('fb-ex-3-2');
+
+      if (isClose(cible, 1200) && isClose(duree, 3)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! 25% de 4 800 € = 1 200 €. Et −1 200x + 4 800 = 1 200 donne 1 200x = 3 600 d\'où x = 3 ans (36 mois).</span>';
+        appState.exercisesDone['3.2'] = true;
+        document.getElementById('status-ex-3-2').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ 4 800 × 0,25 = 1 200 €. Puis (4 800 − 1 200) / 1 200 = 3 ans.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx3_3() {
+      const dur = document.getElementById('ex-3-3-duree').value;
+      const div = document.getElementById('fb-ex-3-3');
+
+      if (isClose(dur, 4.17, 0.15)) {
+        div.innerHTML = '<span class="text-emerald-600 font-bold">✔ Impressionnant ! 1 800 / 432 ≈ 4,17 ans (soit exactement 4 ans et 2 mois à La Réunion, au lieu de 5 ans en métropole).</span>';
+        appState.exercisesDone['3.3'] = true;
+        document.getElementById('status-ex-3-3').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        div.innerHTML = '<span class="text-rose-600 font-semibold">✖ Calculez 1 800 divisé par 432 (environ 4,17).</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function updateStudentName() {
+      const input = document.getElementById('student-name-input');
+      const val = input.value.trim();
+      appState.studentName = val || 'Apprenant(e)';
+      const target = document.getElementById('attestation-student-name');
+      if (target) {
+        target.textContent = appState.studentName;
+      }
+    }
+
+    function updateGlobalProgress() {
+      // Calcul Niveau 1 (Socle CAP)
+      const lvl1Keys = ['1.1', '1.2', '1.3', '1.4', '1.5'];
+      const lvl1Done = lvl1Keys.filter(k => appState.exercisesDone[k]).length;
+      const soclePct = Math.round((lvl1Done / lvl1Keys.length) * 100);
+
+      // Calcul Bonus Niveaux 2 et 3
+      const bonusKeys = ['2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3'];
+      const bonusDone = bonusKeys.filter(k => appState.exercisesDone[k]).length;
+
+      // Affichage barre
+      document.getElementById('progress-text-socle').textContent = 'Socle CAP : ' + soclePct + '%';
+      document.getElementById('progress-text-bonus').textContent = 'Bonus d\'excellence : ' + bonusDone + ' / 7';
+
+      // Barre visuelle basée sur le socle prioritaire
+      const generalBar = document.getElementById('general-progress-bar');
+      if (generalBar) {
+        const totalVisual = Math.min(100, Math.round(soclePct * 0.75 + (bonusDone / 7) * 25));
+        generalBar.style.width = Math.max(10, totalVisual) + '%';
+      }
+
+      // Déblocage niveau 2 si socle 100%
+      if (soclePct === 100 && !appState.unlockedLevels[2]) {
+        appState.unlockedLevels[2] = true;
+        const b2 = document.getElementById('btn-lvl-2');
+        if (b2) {
+          b2.disabled = false;
+          b2.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-slate-100');
+          b2.classList.add('bg-white', 'border-amber-400');
+          document.getElementById('lock-icon-2').textContent = '🔓';
+        }
+      }
+
+      // Déblocage niveau 3 si niveau 2 terminé (4 exos)
+      const lvl2Keys = ['2.1', '2.2', '2.3', '2.4'];
+      const lvl2Done = lvl2Keys.filter(k => appState.exercisesDone[k]).length;
+      if (lvl2Done === 4 && !appState.unlockedLevels[3]) {
+        appState.unlockedLevels[3] = true;
+        const b3 = document.getElementById('btn-lvl-3');
+        if (b3) {
+          b3.disabled = false;
+          b3.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-slate-100');
+          b3.classList.add('bg-white', 'border-rose-400');
+          document.getElementById('lock-icon-3').textContent = '🔓';
+        }
+      }
+
+      // Mise à jour de l'attestation
+      const attSocle = document.getElementById('attestation-socle');
+      const attBonus = document.getElementById('attestation-bonus');
+      if (attSocle) attSocle.textContent = soclePct + '%';
+      if (attBonus) attBonus.textContent = bonusDone + ' / 7';
+
+      // Badges
+      if (soclePct === 100) {
+        const bCard1 = document.getElementById('badge-card-1');
+        bCard1.className = 'p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center gap-3';
+        document.getElementById('badge-desc-1').textContent = 'Validé avec succès (100%)';
+      }
+      if (lvl2Done >= 3) {
+        const bCard2 = document.getElementById('badge-card-2');
+        bCard2.className = 'p-4 rounded-xl border-2 border-amber-500 bg-amber-50 flex items-center gap-3';
+        bCard2.classList.remove('opacity-60');
+        document.getElementById('badge-desc-2').textContent = 'Validé (' + lvl2Done + '/4 réussis)';
+      }
+      if (bonusDone >= 6) {
+        const bCard3 = document.getElementById('badge-card-3');
+        bCard3.className = 'p-4 rounded-xl border-2 border-rose-500 bg-rose-50 flex items-center gap-3';
+        bCard3.classList.remove('opacity-60');
+        document.getElementById('badge-desc-3').textContent = 'Excellence Pro certifiée';
+      }
+    }
+
+    function updateAttestationView() {
+      updateStudentName();
+      const d = new Date();
+      const str = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      document.getElementById('attestation-date').textContent = str;
+      updateGlobalProgress();
+    }
+
+    window.onload = function() {
+      updateSimulator();
+      updateGlobalProgress();
+      updateAttestationView();
+    };
+  </script>
+</body>
+</html>

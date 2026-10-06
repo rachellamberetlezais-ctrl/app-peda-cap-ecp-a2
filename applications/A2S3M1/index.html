@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A2 S3 M1 - Équations ax + b = cx + d | CMA Formation Sainte-Clotilde</title>
+
+  <!-- Script MathJax v3 obligatoire pour le rendu des formules statiques -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --cma-bordeaux: #A50F23;
+      --cma-corail: #EE3C3D;
+      --bg-main: #F8FAFC;
+      --text-main: #1E293B;
+      --card-bg: #FFFFFF;
+      --border-color: #E2E8F0;
+      --success-green: #10B981;
+      --warning-amber: #F59E0B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 12px;
+      padding-bottom: 60px;
+    }
+
+    /* En-tête épuré officiel CMA Formation */
+    .app-header {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 18px 16px 14px 16px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+      border-top: 5px solid var(--cma-bordeaux);
+      border-bottom: 3px solid var(--cma-corail);
+    }
+
+    .app-logo {
+      max-height: 55px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 10px auto;
+    }
+
+    .header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--cma-bordeaux);
+      background: #FEE2E2;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    .header-tag img {
+      height: 12px;
+      width: auto;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--cma-bordeaux);
+      margin-bottom: 4px;
+    }
+
+    .app-subtitle {
+      font-size: 0.85rem;
+      color: #64748B;
+    }
+
+    /* Puce officielle CMA réutilisable */
+    .cma-bullet {
+      height: 15px;
+      width: auto;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    /* Gamification & Progression */
+    .gamification-bar-box {
+      background: var(--card-bg);
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .gamification-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .progress-bar-bg {
+      height: 10px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cma-bordeaux), var(--cma-corail));
+      transition: width 0.4s ease;
+    }
+
+    /* Onglets de navigation hauts */
+    .nav-steps {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      scrollbar-width: thin;
+    }
+
+    .nav-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 8px;
+      border: 2px solid transparent;
+      background: #E2E8F0;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+    }
+
+    .nav-btn.active {
+      background: var(--cma-bordeaux);
+      color: #FFFFFF;
+      box-shadow: 0 4px 10px rgba(165, 15, 35, 0.3);
+    }
+
+    /* Vues d'étapes */
+    .step-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .step-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cartes UI */
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .card-header-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--cma-bordeaux);
+    }
+
+    .card-subtitle {
+      font-size: 0.82rem;
+      color: #64748B;
+      margin-bottom: 8px;
+    }
+
+    /* Accordéons pédagogiques */
+    details {
+      background: #F8FAFC;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      border: 1px solid #E2E8F0;
+    }
+
+    summary {
+      font-weight: 700;
+      color: var(--cma-bordeaux);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "➕";
+      font-size: 0.8rem;
+    }
+
+    details[open] summary::after {
+      content: "➖";
+    }
+
+    /* Formulaires de saisie */
+    .input-field-group {
+      margin: 10px 0;
+    }
+
+    .input-field-group label {
+      display: block;
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #334155;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #CBD5E1;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background: #FFFFFF;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus {
+      border-color: var(--cma-bordeaux);
+    }
+
+    .unit-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #64748B;
+      white-space: nowrap;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--cma-bordeaux);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 10px;
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Simulateur */
+    .sim-slider-box {
+      background: #FFF5F5;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #FECACA;
+      margin-bottom: 12px;
+    }
+
+    .slider-range {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      accent-color: var(--cma-bordeaux);
+      margin: 10px 0;
+    }
+
+    .sim-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .stat-box {
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #E2E8F0;
+    }
+
+    .stat-box h4 {
+      font-size: 0.78rem;
+      color: #64748B;
+      margin-bottom: 4px;
+    }
+
+    .stat-box p {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--cma-bordeaux);
+    }
+
+    /* Feedbacks d'exercice */
+    .feedback-box {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .feedback-box.show {
+      display: block;
+    }
+
+    .feedback-box.correct {
+      background: #DCFCE7;
+      color: #166534;
+      border: 1px solid #86EFAC;
+    }
+
+    .feedback-box.incorrect {
+      background: #FEE2E2;
+      color: #991B1B;
+      border: 1px solid #FCA5A5;
+    }
+
+    /* Verrouillage des niveaux */
+    .level-card {
+      position: relative;
+    }
+
+    .level-card.locked {
+      opacity: 0.55;
+      filter: grayscale(0.85);
+      pointer-events: none;
+    }
+
+    .locked-banner {
+      position: absolute;
+      inset: 0;
+      background: rgba(248, 250, 252, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      font-weight: 800;
+      color: #475569;
+      text-align: center;
+      padding: 20px;
+      z-index: 10;
+    }
+
+    /* Badges */
+    .badge-capsule {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .badge-cap-gold {
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FCD34D;
+    }
+
+    /* Attestation Numérique */
+    .certificate-box {
+      background: #FFFFFF;
+      border: 4px double var(--cma-bordeaux);
+      border-radius: 16px;
+      padding: 24px 18px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(165,15,35,0.08);
+      margin-top: 10px;
+    }
+
+    .certificate-seal {
+      display: inline-block;
+      background: var(--cma-bordeaux);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .certificate-box, .certificate-box * {
+        visibility: visible;
+      }
+      .certificate-box {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: 2px solid var(--cma-bordeaux);
+        box-shadow: none;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER OFFICIEL CMA FORMATION -->
+  <header class="app-header">
+    <img src="logo.png" alt="Logo CMA Formation" class="app-logo" />
+    <span class="header-tag">
+      <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+      CMA Formation Sainte-Clotilde • CAP Esthétique
+    </span>
+    <h1 class="app-title">Résolution d'équations : $ax + b = cx + d$</h1>
+    <p class="app-subtitle">Séance A2 S3 M1 • Rentabilité en Institut Réunionnais</p>
+  </header>
+
+  <!-- BARRE DE PROGRESSION GLOBALE -->
+  <section class="gamification-bar-box">
+    <div class="gamification-info">
+      <span>Objectif CAP : <strong id="capStatusText">0%</strong></span>
+      <span id="scoreBadgeView">Points : <strong>0</strong> pts</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="globalProgressBar"></div>
+    </div>
+    <div id="capMainBadgeUnlocked" style="display:none; font-size:0.82rem; color:#166534; font-weight:700; margin-top:4px;">
+      🏆 Objectif CAP 100 % Validé ! Attestation disponible à l'Étape 4.
+    </div>
+  </section>
+
+  <!-- NAVIGATION MOBILE-FIRST HAUTE -->
+  <nav class="nav-steps">
+    <button class="nav-btn active" onclick="switchStep(1)">1. Découverte</button>
+    <button class="nav-btn" onclick="switchStep(2)">2. Cours & Simu</button>
+    <button class="nav-btn" onclick="switchStep(3)">3. Entraînement</button>
+    <button class="nav-btn" onclick="switchStep(4)">4. Bilan & Diplôme</button>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- ÉTAPE 1 : DÉCOUVERTE & INVESTIGATION PROFESSIONNELLE                      -->
+  <!-- ========================================================================= -->
+  <main id="step1" class="step-section active">
+    <div class="card">
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <h2 class="card-title">Contexte Institut « Beauté Zen Réunion »</h2>
+      </div>
+      <p style="font-size:0.88rem; color:#475569; margin-bottom:10px;">
+        À Sainte-Clotilde, sous le climat tropical chaud et humide, la peau subit une sécrétion sébacée accrue entraînant des pores obstrués. Votre directrice d'institut souhaite acquérir un <strong>appareil professionnel à spatule ultrasons</strong> pour proposer des soins purifiants et désincrustants en profondeur.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin: 12px 0;">
+        <div style="background:#FFF1F2; border:1px solid #FECDD3; border-radius:10px; padding:10px;">
+          <h3 style="font-size:0.85rem; color:var(--cma-bordeaux); font-weight:800; display:flex; align-items:center; gap:6px;">
+            <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Modèle A (Pro-Run)
+          </h3>
+          <p style="font-size:0.8rem; color:#334155; margin-top:4px;">
+            • Coût fixe d'achat : <strong>1 200 €</strong> TTC<br>
+            • Consommables (gel aloe vera local + embout) : <strong>4 €</strong> / soin
+          </p>
+        </div>
+        <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:10px;">
+          <h3 style="font-size:0.85rem; color:#166534; font-weight:800; display:flex; align-items:center; gap:6px;">
+            <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Modèle B (Eco-Tech)
+          </h3>
+          <p style="font-size:0.8rem; color:#334155; margin-top:4px;">
+            • Coût fixe d'achat : <strong>750 €</strong> TTC<br>
+            • Consommables spécifiques : <strong>10 €</strong> / soin
+          </p>
+        </div>
+      </div>
+
+      <p style="font-weight:700; font-size:0.88rem; color:var(--cma-bordeaux);">
+        🎯 Problématique : Pour quel nombre exact de soins ultrasons $x$ le coût total des deux appareils sera-t-il rigoureusement équivalent ? Quel modèle préconiser si l'institut prévoit 120 soins sur l'année ?
+      </p>
+    </div>
+
+    <!-- Investigation pas à pas -->
+    <div class="card">
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <h3 class="card-title">Investigation Guidée pas à pas</h3>
+      </div>
+
+      <p class="card-subtitle">Étape 1 : Modélisation des coûts $C_A(x)$ et $C_B(x)$</p>
+      <div class="input-field-group">
+        <label>Modèle A : Coût variable unitaire $a$ ($C_A(x) = ax + b$)</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_varA" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+      <div class="input-field-group">
+        <label>Modèle A : Coût fixe d'achat $b$</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_fixA" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+      <div class="input-field-group">
+        <label>Modèle B : Coût variable unitaire $c$ ($C_B(x) = cx + d$)</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_varB" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+      <div class="input-field-group">
+        <label>Modèle B : Coût fixe d'achat $d$</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_fixB" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+
+      <p class="card-subtitle" style="margin-top:14px;">Étape 2 & 3 : Résolution algébrique $4x + 1200 = 10x + 750$</p>
+      <div class="input-field-group">
+        <label>1. Regroupement en $x$ : $4x - 10x =$</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_diffX" placeholder="Votre résultat..." />
+          <span class="unit-label">terme en $x$</span>
+        </div>
+      </div>
+      <div class="input-field-group">
+        <label>2. Regroupement constant : $750 - 1200 =$</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_diffConst" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+      <div class="input-field-group">
+        <label>3. Seuil d'équivalence $x$ (nombre de soins) :</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_solutionX" placeholder="Votre résultat..." />
+          <span class="unit-label">soins</span>
+        </div>
+      </div>
+
+      <p class="card-subtitle" style="margin-top:14px;">Étape 4 : Choix pour 120 soins prévus sur l'année</p>
+      <div class="input-field-group">
+        <label>Coût réel Modèle A pour 120 soins : $C_A(120)$</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_coutA120" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+      <div class="input-field-group">
+        <label>Coût réel Modèle B pour 120 soins : $C_B(120)$</label>
+        <div class="input-wrap">
+          <input type="number" id="s1_coutB120" placeholder="Votre résultat..." />
+          <span class="unit-label">€</span>
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="checkStep1Investigation()">
+        Valider la situation d'investigation
+      </button>
+
+      <div id="feedbackStep1" class="feedback-box"></div>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- ÉTAPE 2 : COURS & SIMULATEUR INTERACTIF                                  -->
+  <!-- ========================================================================= -->
+  <section id="step2" class="step-section">
+    <div class="card">
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <h2 class="card-title">Apport Théorique : Équation $ax + b = cx + d$</h2>
+      </div>
+
+      <details open>
+        <summary>1. Règle fondamentale de la balance</summary>
+        <p style="font-size:0.86rem; color:#475569; margin-top:8px;">
+          Une équation reste équivalente si on <strong>ajoute</strong>, <strong>soustrait</strong>, <strong>multiplie</strong> ou <strong>divise</strong> par un même nombre non nul chaque membre.
+        </p>
+      </details>
+
+      <details>
+        <summary>2. Méthode en 4 étapes systématiques</summary>
+        <div style="font-size:0.85rem; color:#334155; margin-top:8px; display:flex; flex-direction:column; gap:6px;">
+          <p><strong>Étape 1 :</strong> Éliminer $cx$ à droite : soustraire $cx$ aux deux membres $\implies (a - c)x + b = d$.</p>
+          <p><strong>Étape 2 :</strong> Éliminer la constante $b$ à gauche : soustraire $b$ aux deux membres $\implies (a - c)x = d - b$.</p>
+          <p><strong>Étape 3 :</strong> Isoler $x$ en divisant par $(a - c)$ : $x = \frac{d - b}{a - c}$.</p>
+          <p><strong>Étape 4 :</strong> Vérifier la solution par substitution dans chaque membre initial.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Simulateur interactif de rentabilité cabine -->
+    <div class="card">
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <h3 class="card-title">Simulateur Visuel de Rentabilité Cabine</h3>
+      </div>
+      <p style="font-size:0.85rem; color:#64748B; margin-bottom:10px;">
+        Ajustez le volume annuel prévisionnel de soins pour comparer les coûts en temps réel :
+      </p>
+
+      <div class="sim-slider-box">
+        <div style="display:flex; justify-content:space-between; font-weight:700;">
+          <span>Volume de soins annuels (<em>x</em>) :</span>
+          <span id="sliderValLabel" style="color:var(--cma-bordeaux); font-size:1.1rem;">75 soins</span>
+        </div>
+        <input type="range" min="0" max="200" value="75" class="slider-range" id="simSlider" oninput="updateSimulator(this.value)" />
+      </div>
+
+      <div class="sim-stats-grid">
+        <div class="stat-box">
+          <h4>Coût Modèle A (Pro-Run)</h4>
+          <p id="costAVal">1 500 €</p>
+          <small style="color:#64748B; font-size:0.75rem;">1 200 + 4 × <em>x</em></small>
+        </div>
+        <div class="stat-box">
+          <h4>Coût Modèle B (Eco-Tech)</h4>
+          <p id="costBVal">1 500 €</p>
+          <small style="color:#64748B; font-size:0.75rem;">750 + 10 × <em>x</em></small>
+        </div>
+      </div>
+
+      <div id="simVerdictBox" style="margin-top:12px; padding:10px; border-radius:8px; font-weight:700; font-size:0.85rem; text-align:center; background:#FEF3C7; color:#92400E;">
+        ⚖️ Au seuil exact de 75 soins, les deux appareils coûtent rigoureusement la même somme !
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- ÉTAPE 3 : ENTRAÎNEMENT PROGRESSIF (3 NIVEAUX QUALIOPI)                   -->
+  <!-- ========================================================================= -->
+  <section id="step3" class="step-section">
+    <!-- NIVEAU 1 : SOCLE CAP -->
+    <div class="card level-card" id="cardLevel1">
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <div>
+          <h2 class="card-title">Niveau 1 : Débutant (Socle Officiel CAP)</h2>
+          <span class="card-subtitle">Exigences 100 % CAP • Débloque l'Attestation Numérique</span>
+        </div>
+      </div>
+
+      <!-- Ex 1.1 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 1.1 : Résoudre $8x + 50 = 3x + 150$
+        </p>
+        <div class="input-field-group">
+          <label>a) Soustraire $3x$ aux 2 membres $\implies (\dots)x + 50 = 150$ :</label>
+          <input type="number" id="n1_ex1_a" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>b) Soustraire 50 aux 2 membres $\implies 5x = (\dots)$ :</label>
+          <input type="number" id="n1_ex1_b" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>c) Solution $x = \frac{100}{5} =$</label>
+          <input type="number" id="n1_ex1_c" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 1.2 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 1.2 : Résolutions directes
+        </p>
+        <div class="input-field-group">
+          <label>a) $7x + 20 = 2x + 70 \implies x =$</label>
+          <input type="number" id="n1_ex2_a" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>b) $12x + 100 = 6x + 280 \implies x =$</label>
+          <input type="number" id="n1_ex2_b" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>c) $15x + 40 = 5x + 160 \implies x =$</label>
+          <input type="number" id="n1_ex2_c" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 1.3 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 1.3 (Contexte Salon) : Chauffe-cire
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">Chauffe-cire 1 : $C_1 = 3x + 60$. Chauffe-cire 2 : $C_2 = 5x + 20$.</p>
+        <div class="input-field-group">
+          <label>Résoudre $C_1 = C_2$ pour trouver le nombre $x$ de recharges d'équilibre :</label>
+          <input type="number" id="n1_ex3" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 1.4 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 1.4 : Test de validité
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">On teste si $x = 15$ est solution de $9x + 45 = 5x + 105$.</p>
+        <div class="input-field-group">
+          <label>Calculer le membre de gauche pour $x=15$ : $9 \times 15 + 45 =$</label>
+          <input type="number" id="n1_ex4_gauche" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>Calculer le membre de droite pour $x=15$ : $5 \times 15 + 105 =$</label>
+          <input type="number" id="n1_ex4_droite" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="validateLevel1()">
+        Valider le Niveau 1 (Socle CAP)
+      </button>
+      <div id="feedbackN1" class="feedback-box"></div>
+    </div>
+
+    <!-- NIVEAU 2 : AVANCÉ -->
+    <div class="card level-card locked" id="cardLevel2">
+      <div class="locked-banner" id="lockBanner2">
+        🔒 Niveau 2 Verrouillé<br>
+        <span style="font-size:0.8rem; font-weight:500; margin-top:4px;">Validez le Niveau 1 sans faute pour débloquer la suite</span>
+      </div>
+
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <div>
+          <h2 class="card-title">Niveau 2 : Avancé (Dépassement)</h2>
+          <span class="card-subtitle">Situations avec décimaux et rénovation d'institut</span>
+        </div>
+      </div>
+
+      <!-- Ex 2.1 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 2.1 : Équations à coefficients décimaux / négatifs
+        </p>
+        <div class="input-field-group">
+          <label>a) $4,5x + 120 = 2x + 245 \implies x =$</label>
+          <input type="number" id="n2_ex1_a" step="any" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>b) $14x - 35 = 6x + 85 \implies x =$</label>
+          <input type="number" id="n2_ex1_b" step="any" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>c) $2,8x + 350 = 4,2x + 140 \implies x =$</label>
+          <input type="number" id="n2_ex1_c" step="any" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 2.2 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 2.2 : Rénovation Cabine Spa à Saint-Gilles
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">
+          • Réunion Lumière : $90 + 45h$<br>
+          • Océan Élec : $150 + 35h$
+        </p>
+        <div class="input-field-group">
+          <label>Durée $h$ pour laquelle les 2 devis sont égaux :</label>
+          <input type="number" id="n2_ex2_h" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>Coût Réunion Lumière pour 8 h de chantier (€) :</label>
+          <input type="number" id="n2_ex2_c1" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>Coût Océan Élec pour 8 h de chantier (€) :</label>
+          <input type="number" id="n2_ex2_c2" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 2.3 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 2.3 : Formulation Huile d'Ylang-Ylang à Saint-Leu
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">
+          • Machine manuelle : $C_{man}(x) = 1,20x + 180$<br>
+          • Machine semi-automatique : $C_{auto}(x) = 0,60x + 420$
+        </p>
+        <div class="input-field-group">
+          <label>Seuil de rentabilité $x$ (nombre de flacons) :</label>
+          <input type="number" id="n2_ex3" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 2.4 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 2.4 : Équation avec parenthèses
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">$3(2x + 15) = 2(x + 35) + 15$</p>
+        <div class="input-field-group">
+          <label>Valeur de $x$ :</label>
+          <input type="number" id="n2_ex4" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="validateLevel2()">
+        Valider le Niveau 2 (Avancé)
+      </button>
+      <div id="feedbackN2" class="feedback-box"></div>
+    </div>
+
+    <!-- NIVEAU 3 : EXPERT -->
+    <div class="card level-card locked" id="cardLevel3">
+      <div class="locked-banner" id="lockBanner3">
+        🔒 Niveau 3 Verrouillé<br>
+        <span style="font-size:0.8rem; font-weight:500; margin-top:4px;">Validez le Niveau 2 pour accéder au Défi Expert</span>
+      </div>
+
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <div>
+          <h2 class="card-title">Niveau 3 : Expert (Excellence / Bac Pro)</h2>
+          <span class="card-subtitle">Analyse stratégique et rentabilité nette</span>
+        </div>
+      </div>
+
+      <!-- Ex 3.1 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 3.1 : Contrats de maintenance en cabine
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">
+          • Contrat A : $280 + 18x$<br>
+          • Contrat B : $160 + 33x$ avec remise de 10% sur les interventions ($33 \times 0,9 = 29,7€$)
+        </p>
+        <div class="input-field-group">
+          <label>Seuil d'équivalence en interventions $x$ (arrondi au centième) :</label>
+          <input type="number" id="n3_ex1" step="any" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <!-- Ex 3.2 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 3.2 : Seuil de Rentabilité Épilation
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">
+          • Option 1 : Achat 680 €, consommable 2,50 € / séance<br>
+          • Option 2 : Achat 1 130 €, consommable 1,25 € / séance<br>
+          • Prestation facturée : 22 € / séance
+        </p>
+        <div class="input-field-group">
+          <label>1. Seuil d'équivalence des coûts (séances) :</label>
+          <input type="number" id="n3_ex2_eq" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>2. Bénéfice net Option 1 pour 500 séances :</label>
+          <div class="input-wrap">
+            <input type="number" id="n3_ex2_b1" placeholder="Votre résultat..." />
+            <span class="unit-label">€</span>
+          </div>
+        </div>
+        <div class="input-field-group">
+          <label>3. Bénéfice net Option 2 pour 500 séances :</label>
+          <div class="input-wrap">
+            <input type="number" id="n3_ex2_b2" placeholder="Votre résultat..." />
+            <span class="unit-label">€</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ex 3.3 -->
+      <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Exercice 3.3 : Équation complexe
+        </p>
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:6px;">$0,85(6x + 200) = 4,2x + 194$</p>
+        <div class="input-field-group">
+          <label>Résolution exacte de $x$ (arrondi au centième) :</label>
+          <input type="number" id="n3_ex3" step="any" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="validateLevel3()">
+        Valider le Défi Expert
+      </button>
+      <div id="feedbackN3" class="feedback-box"></div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- ÉTAPE 4 : BILAN & ATTESTATION NUMÉRIQUE                                  -->
+  <!-- ========================================================================= -->
+  <section id="step4" class="step-section">
+    <!-- ÉVALUATION FORMELLE -->
+    <div class="card no-print">
+      <div class="card-header-bar">
+        <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" />
+        <h2 class="card-title">Évaluation Formelle : Pressothérapie à Sainte-Clotilde</h2>
+      </div>
+      <p style="font-size:0.85rem; color:#475569; margin-bottom:8px;">
+        • Formule Sérénité (A) : 180 €/mois + 2,50 €/séance<br>
+        • Formule Liberté (B) : 90 €/mois + 5,50 €/séance
+      </p>
+
+      <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid #E2E8F0; margin-bottom:10px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Partie A : Automatismes (8 pts)
+        </p>
+        <div class="input-field-group">
+          <label>Coût Formule A pour 20 séances (€) :</label>
+          <input type="number" id="eval_a_20" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>Coût Formule B pour 20 séances (€) :</label>
+          <input type="number" id="eval_b_20" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid #E2E8F0; margin-bottom:10px;">
+        <p style="font-weight:700; font-size:0.85rem; color:var(--cma-bordeaux); display:flex; align-items:center; gap:6px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="cma-bullet" style="height:12px;" /> Partie B : Résolution & Seuil d'équilibre (8 pts)
+        </p>
+        <div class="input-field-group">
+          <label>Seuil d'équivalence $x$ en séances ($2,5x + 180 = 5,5x + 90$) :</label>
+          <input type="number" id="eval_seuil" placeholder="Votre résultat..." />
+        </div>
+        <div class="input-field-group">
+          <label>Montant commun aux 2 formules au seuil (€) :</label>
+          <input type="number" id="eval_cout_commun" placeholder="Votre résultat..." />
+        </div>
+      </div>
+
+      <button class="action-btn" onclick="validateEvaluation()">
+        Valider l'évaluation formelle
+      </button>
+      <div id="feedbackEval" class="feedback-box"></div>
+    </div>
+
+    <!-- ATTESTATION NUMÉRIQUE OFFICIELLE -->
+    <div class="certificate-box" id="attestationPrintArea">
+      <img src="logo.png" alt="Logo CMA Formation" style="max-height: 50px; display:block; margin:0 auto 8px auto;" />
+      <div class="certificate-seal">CMA FORMATION SAINTE-CLOTILDE</div>
+      <h2 style="font-size:1.3rem; color:var(--cma-bordeaux); font-weight:900; margin-bottom:4px;">
+        ATTESTATION DE RÉUSSITE NUMÉRIQUE
+      </h2>
+      <p style="font-size:0.85rem; color:#475569;">Séance Mathématiques A2 S3 M1 • Résolution d'équations</p>
+
+      <div style="margin: 14px 0; padding:12px; background:#F8FAFC; border-radius:10px; border:1px solid #E2E8F0; text-align:left;">
+        <div class="input-field-group no-print">
+          <label style="font-weight:700;">Nom & Prénom de l'Alternant(e) :</label>
+          <input type="text" id="certifNomPrenom" placeholder="Ex : Marie DIJOUX" oninput="updateCertifName(this.value)" />
+        </div>
+        <p style="font-size:0.95rem; margin-top:6px;">
+          Apprenant(e) : <strong id="displayName" style="color:var(--cma-bordeaux);">[Saisir votre Nom & Prénom]</strong>
+        </p>
+        <p style="font-size:0.85rem; color:#475569;">
+          Centre : <strong>CMA Formation Sainte-Clotilde (La Réunion)</strong> | Section : <strong>CAP Esthétique Cosmétique Parfumerie</strong>
+        </p>
+        <p style="font-size:0.85rem; color:#475569;">
+          Formateur Référent : <strong>Rachel Lamberet-Lezais</strong>
+        </p>
+      </div>
+
+      <div style="display:flex; justify-content:space-around; align-items:center; margin:14px 0; flex-wrap:wrap; gap:8px;">
+        <div>
+          <span style="font-size:0.75rem; color:#64748B;">SOCLE CAP MATHS</span>
+          <p id="certifCapScore" style="font-size:1.3rem; font-weight:900; color:#166534;">0 %</p>
+        </div>
+        <div>
+          <span style="font-size:0.75rem; color:#64748B;">BADGE DIPLÔME</span>
+          <div id="certifBadgeIcon">
+            <span class="badge-capsule" style="background:#E2E8F0; color:#64748B;">En cours</span>
+          </div>
+        </div>
+        <div>
+          <span style="font-size:0.75rem; color:#64748B;">DATE D'ÉMISSION</span>
+          <p id="certifDate" style="font-size:0.9rem; font-weight:700;">--/--/----</p>
+        </div>
+      </div>
+
+      <p id="certifCapStatusMsg" style="font-size:0.85rem; font-weight:700; color:#64748B; margin: 8px 0;">
+        ⚠️ Validez le Niveau 1 (Socle CAP) à 100 % pour officialiser cette attestation.
+      </p>
+
+      <button class="action-btn no-print" onclick="window.print()" style="margin-top:14px;">
+        🖨️ Imprimer ou Sauvegarder en PDF
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- LOGIQUE JAVASCRIPT PUR SANS BALISES LATEX DYNAMIQUES                     -->
+  <!-- ========================================================================= -->
+  <script>
+    let level1Completed = false;
+    let level2Completed = false;
+    let level3Completed = false;
+    let evaluationCompleted = false;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date();
+      document.getElementById("certifDate").innerText = today.toLocaleDateString("fr-FR");
+    });
+
+    function switchStep(stepNum) {
+      document.querySelectorAll(".step-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+
+      document.getElementById(`step${stepNum}`).classList.add("active");
+      document.querySelectorAll(".nav-btn")[stepNum - 1].classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+    }
+
+    function updateProgress() {
+      let score = 0;
+      if (level1Completed) score += 100;
+      if (level2Completed) score += 50;
+      if (level3Completed) score += 50;
+
+      const percent = Math.min(100, Math.round((score / 100) * 100));
+      document.getElementById("globalProgressBar").style.width = percent + "%";
+      document.getElementById("scoreBadgeView").innerHTML = `Score Total : <strong>${score}</strong> pts`;
+
+      if (level1Completed) {
+        document.getElementById("capStatusText").innerText = "100% (Validé 🎉)";
+        document.getElementById("capMainBadgeUnlocked").style.display = "block";
+        document.getElementById("certifCapScore").innerText = "100 %";
+        document.getElementById("certifBadgeIcon").innerHTML = `
+          <span class="badge-capsule badge-cap-gold">🎓 Lauréat CAP Esthétique</span>
+        `;
+        document.getElementById("certifCapStatusMsg").innerHTML = "✅ Objectif CAP 100 % Validé et Certifié !";
+        document.getElementById("certifCapStatusMsg").style.color = "#166534";
+      }
+    }
+
+    function updateCertifName(val) {
+      document.getElementById("displayName").innerText = val.trim() ? val.trim().toUpperCase() : "[Saisir votre Nom & Prénom]";
+    }
+
+    // -------------------------------------------------------------------------
+    // ÉTAPE 1 : INVESTIGATION
+    // -------------------------------------------------------------------------
+    function checkStep1Investigation() {
+      const varA = parseFloat(document.getElementById("s1_varA").value);
+      const fixA = parseFloat(document.getElementById("s1_fixA").value);
+      const varB = parseFloat(document.getElementById("s1_varB").value);
+      const fixB = parseFloat(document.getElementById("s1_fixB").value);
+      const diffX = parseFloat(document.getElementById("s1_diffX").value);
+      const diffConst = parseFloat(document.getElementById("s1_diffConst").value);
+      const solX = parseFloat(document.getElementById("s1_solutionX").value);
+      const cA120 = parseFloat(document.getElementById("s1_coutA120").value);
+      const cB120 = parseFloat(document.getElementById("s1_coutB120").value);
+
+      const fb = document.getElementById("feedbackStep1");
+      fb.classList.add("show");
+
+      const isCorrect = (varA === 4 && fixA === 1200 && varB === 10 && fixB === 750 &&
+                         diffX === -6 && diffConst === -450 && solX === 75 &&
+                         cA120 === 1680 && cB120 === 1950);
+
+      if (isCorrect) {
+        fb.className = "feedback-box show correct";
+        fb.innerHTML = `
+          ✨ <strong>Excellente analyse !</strong><br>
+          • Au seuil de <strong>75 soins</strong>, les 2 appareils coûtent exactement 1 500 €.<br>
+          • Pour 120 soins : Modèle A = 1 680 € vs Modèle B = 1 950 €.<br>
+          👉 <strong>Recommandation :</strong> Pour 120 soins, le Modèle Pro-Run (A) est le plus économique et permet d'économiser 270 € sur l'année !
+        `;
+      } else {
+        fb.className = "feedback-box show incorrect";
+        fb.innerHTML = `
+          ⚠️ <strong>Certaines valeurs sont à revoir :</strong><br>
+          Vérifiez bien :<br>
+          • Coûts fixes d'achat : <strong>1 200 €</strong> et <strong>750 €</strong><br>
+          • Consommables unitaires : <strong>4 €</strong> et <strong>10 €</strong><br>
+          • Soustractions : <em>4x − 10x = −6x</em> et <em>750 − 1 200 = −450</em><br>
+          • Seuil : <em>x = −450 / −6 = 75 soins</em><br>
+          • Pour 120 soins : <em>CA = 4 × 120 + 1 200 = 1 680 €</em> et <em>CB = 10 × 120 + 750 = 1 950 €</em>.
+        `;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // ÉTAPE 2 : SIMULATEUR
+    // -------------------------------------------------------------------------
+    function updateSimulator(val) {
+      const x = parseInt(val, 10);
+      document.getElementById("sliderValLabel").innerText = `${x} soin${x > 1 ? 's' : ''}`;
+
+      const costA = 1200 + 4 * x;
+      const costB = 750 + 10 * x;
+
+      document.getElementById("costAVal").innerText = `${costA.toLocaleString("fr-FR")} €`;
+      document.getElementById("costBVal").innerText = `${costB.toLocaleString("fr-FR")} €`;
+
+      const verdict = document.getElementById("simVerdictBox");
+      if (x < 75) {
+        verdict.style.background = "#EFF6FF";
+        verdict.style.color = "#1E40AF";
+        verdict.innerHTML = `💡 Pour ${x} soins (< 75), le <strong>Modèle B (Eco-Tech)</strong> est plus avantageux grâce à son coût d'achat initial inférieur.`;
+      } else if (x === 75) {
+        verdict.style.background = "#FEF3C7";
+        verdict.style.color = "#92400E";
+        verdict.innerHTML = `⚖️ À exactement <strong>75 soins</strong>, les deux modèles coûtent la même somme : 1 500 € !`;
+      } else {
+        verdict.style.background = "#ECFDF5";
+        verdict.style.color = "#065F46";
+        verdict.innerHTML = `🚀 Pour ${x} soins (> 75), le <strong>Modèle A (Pro-Run)</strong> devient largement plus rentable grâce aux consommables à 4 € !`;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // ÉTAPE 3 : EXERCICES PAR NIVEAU
+    // -------------------------------------------------------------------------
+    function validateLevel1() {
+      const ex1_a = parseFloat(document.getElementById("n1_ex1_a").value);
+      const ex1_b = parseFloat(document.getElementById("n1_ex1_b").value);
+      const ex1_c = parseFloat(document.getElementById("n1_ex1_c").value);
+
+      const ex2_a = parseFloat(document.getElementById("n1_ex2_a").value);
+      const ex2_b = parseFloat(document.getElementById("n1_ex2_b").value);
+      const ex2_c = parseFloat(document.getElementById("n1_ex2_c").value);
+
+      const ex3 = parseFloat(document.getElementById("n1_ex3").value);
+      const ex4_g = parseFloat(document.getElementById("n1_ex4_gauche").value);
+      const ex4_d = parseFloat(document.getElementById("n1_ex4_droite").value);
+
+      const fb = document.getElementById("feedbackN1");
+      fb.classList.add("show");
+
+      const ok = (ex1_a === 5 && ex1_b === 100 && ex1_c === 20 &&
+                  ex2_a === 10 && ex2_b === 30 && ex2_c === 12 &&
+                  ex3 === 20 &&
+                  ex4_g === 180 && ex4_d === 180);
+
+      if (ok) {
+        level1Completed = true;
+        fb.className = "feedback-box show correct";
+        fb.innerHTML = `
+          🎉 <strong>FÉLICITATIONS ! SOCLE CAP VALIDÉ À 100 % !</strong><br>
+          Vous avez réussi l'intégralité du Niveau 1. Votre attestation officielle est débloquée ! Le Niveau 2 est accessible ci-dessous.
+        `;
+        document.getElementById("cardLevel2").classList.remove("locked");
+        document.getElementById("lockBanner2").style.display = "none";
+        updateProgress();
+      } else {
+        fb.className = "feedback-box show incorrect";
+        fb.innerHTML = `
+          Courage ! Certaines réponses sont à revoir :<br>
+          • 1.1 : <em>8x − 3x = 5x</em>, <em>150 − 50 = 100</em>, <em>x = 20</em><br>
+          • 1.2 : <em>5x = 50 ⟹ x = 10</em>, <em>6x = 180 ⟹ x = 30</em>, <em>10x = 120 ⟹ x = 12</em><br>
+          • 1.3 : <em>3x + 60 = 5x + 20 ⟹ 2x = 40 ⟹ x = 20</em><br>
+          • 1.4 : Calculer séparément <em>9 × 15 + 45</em> et <em>5 × 15 + 105</em>.
+        `;
+      }
+    }
+
+    function validateLevel2() {
+      const e1_a = parseFloat(document.getElementById("n2_ex1_a").value);
+      const e1_b = parseFloat(document.getElementById("n2_ex1_b").value);
+      const e1_c = parseFloat(document.getElementById("n2_ex1_c").value);
+
+      const e2_h = parseFloat(document.getElementById("n2_ex2_h").value);
+      const e2_c1 = parseFloat(document.getElementById("n2_ex2_c1").value);
+      const e2_c2 = parseFloat(document.getElementById("n2_ex2_c2").value);
+
+      const e3 = parseFloat(document.getElementById("n2_ex3").value);
+      const e4 = parseFloat(document.getElementById("n2_ex4").value);
+
+      const fb = document.getElementById("feedbackN2");
+      fb.classList.add("show");
+
+      const ok = (e1_a === 50 && e1_b === 15 && e1_c === 150 &&
+                  e2_h === 6 && e2_c1 === 450 && e2_c2 === 430 &&
+                  e3 === 400 && e4 === 10);
+
+      if (ok) {
+        level2Completed = true;
+        fb.className = "feedback-box show correct";
+        fb.innerHTML = `
+          ⭐ <strong>Bravo ! Niveau 2 (Avancé) Validé !</strong><br>
+          +50 points Bonus obtenus. Le niveau Défi Expert est déverrouillé !
+        `;
+        document.getElementById("cardLevel3").classList.remove("locked");
+        document.getElementById("lockBanner3").style.display = "none";
+        updateProgress();
+      } else {
+        fb.className = "feedback-box show incorrect";
+        fb.innerHTML = `
+          Revoyez les étapes intermédiaires :<br>
+          • 2.1 c : <em>2,8x − 4,2x = −1,4x</em> et <em>140 − 350 = −210 ⟹ x = 150</em><br>
+          • 2.2 : <em>45h − 35h = 10h</em> et <em>150 − 90 = 60 ⟹ h = 6 h</em>. Pour 8h : <em>90 + 45 × 8 = 450 €</em> et <em>150 + 35 × 8 = 430 €</em><br>
+          • 2.3 : <em>1,20x − 0,60x = 0,60x</em> et <em>420 − 180 = 240 ⟹ x = 400 flacons</em><br>
+          • 2.4 : Développez : <em>6x + 45 = 2x + 85 ⟹ 4x = 40 ⟹ x = 10</em>.
+        `;
+      }
+    }
+
+    function validateLevel3() {
+      const e1 = parseFloat(document.getElementById("n3_ex1").value);
+      const e2_eq = parseFloat(document.getElementById("n3_ex2_eq").value);
+      const e2_b1 = parseFloat(document.getElementById("n3_ex2_b1").value);
+      const e2_b2 = parseFloat(document.getElementById("n3_ex2_b2").value);
+      const e3 = parseFloat(document.getElementById("n3_ex3").value);
+
+      const fb = document.getElementById("feedbackN3");
+      fb.classList.add("show");
+
+      const okE1 = (Math.abs(e1 - 10.26) < 0.1 || Math.abs(e1 - 10.25) < 0.1 || Math.abs(e1 - 10.3) < 0.1);
+      const okE3 = (Math.abs(e3 - 26.67) < 0.1 || Math.abs(e3 - 26.7) < 0.1);
+
+      if (okE1 && e2_eq === 360 && e2_b1 === 9070 && e2_b2 === 9245 && okE3) {
+        level3Completed = true;
+        fb.className = "feedback-box show correct";
+        fb.innerHTML = `
+          🏆 <strong>CHAPEAU BAS ! NIVEAU EXPERT VALIDÉ AVEC SUCCÈS !</strong><br>
+          Vous maîtrisez l'optimisation financière de cabine au niveau d'un responsable d'institut !
+        `;
+        updateProgress();
+      } else {
+        fb.className = "feedback-box show incorrect";
+        fb.innerHTML = `
+          Précision sur les calculs experts :<br>
+          • 3.1 : Contrat B remisé : <em>33 × 0,9 = 29,7 €</em>. Équilibre : <em>11,7x = 120 ⟹ x ≈ 10,26 interventions</em><br>
+          • 3.2 : Équivalence : <em>1,25x = 450 ⟹ 360 séances</em>. Pour 500 séances : Recette = 11 000 €. Bénéfice Option 1 = 11 000 − 1 930 = 9 070 €. Bénéfice Option 2 = 11 000 − 1 755 = 9 245 €.<br>
+          • 3.3 : Développez : <em>5,1x + 170 = 4,2x + 194 ⟹ 0,9x = 24 ⟹ x ≈ 26,67</em>.
+        `;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // ÉTAPE 4 : ÉVALUATION FORMELLE
+    // -------------------------------------------------------------------------
+    function validateEvaluation() {
+      const a20 = parseFloat(document.getElementById("eval_a_20").value);
+      const b20 = parseFloat(document.getElementById("eval_b_20").value);
+      const seuil = parseFloat(document.getElementById("eval_seuil").value);
+      const coutCom = parseFloat(document.getElementById("eval_cout_commun").value);
+
+      const fb = document.getElementById("feedbackEval");
+      fb.classList.add("show");
+
+      if (a20 === 230 && b20 === 200 && seuil === 30 && coutCom === 255) {
+        evaluationCompleted = true;
+        fb.className = "feedback-box show correct";
+        fb.innerHTML = `
+          ✅ <strong>Évaluation Formelle Réussie (20/20) !</strong><br>
+          • Pour 20 séances : Formule Liberté (B) plus avantageuse (200 € vs 230 €).<br>
+          • Seuil d'équilibre : 30 séances (coût commun : 255 €).<br>
+          • Pour 45 séances prévues : Formule Sérénité (A) à préconiser (292,50 € vs 337,50 €).
+        `;
+      } else {
+        fb.className = "feedback-box show incorrect";
+        fb.innerHTML = `
+          ⚠️ <strong>Revoyez vos calculs :</strong><br>
+          • Formule A (20 soins) : <em>2,5 × 20 + 180 = 230 €</em><br>
+          • Formule B (20 soins) : <em>5,5 × 20 + 90 = 200 €</em><br>
+          • Équilibre : <em>5,5x − 2,5x = 180 − 90 ⟹ 3x = 90 ⟹ x = 30 soins</em><br>
+          • Montant commun au seuil : <em>2,5 × 30 + 180 = 255 €</em>.
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

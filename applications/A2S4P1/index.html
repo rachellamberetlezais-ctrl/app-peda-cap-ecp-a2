@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optique : Réflexion de la Lumière & Miroirs - CMA Formation Sainte-Clotilde</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --cma-bordeaux: #A50F23;
+      --cma-corail: #EE3C3D;
+      --cma-bg: #F8FAFC;
+      --cma-text: #1E293B;
+    }
+    body {
+      font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--cma-bg);
+      color: var(--cma-text);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app-header {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 20px;
+    }
+    .cma-wave-border {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: 14px;
+      margin: 0;
+      border: 0;
+      background-image: url("ruban_vague.png");
+      background-repeat: repeat-x;
+      background-size: 102.941176px 102.941176px;
+      background-position: left -46.941176px;
+    }
+    .app-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .icon-bullet {
+      height: 18px;
+      width: 18px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      margin-right: 6px;
+    }
+    .btn-step {
+      min-height: 44px;
+      padding: 0.6rem 1rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn-step.active {
+      background-color: #A50F23;
+      color: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(165, 15, 35, 0.3);
+    }
+    .btn-step.inactive {
+      background-color: #ffffff;
+      color: #475569;
+      border: 1px solid #E2E8F0;
+    }
+    .custom-input {
+      min-height: 44px;
+      font-size: 16px;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-attestation, #printable-attestation * {
+        visibility: visible;
+      }
+      #printable-attestation {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <header class="app-header bg-white shadow-sm border-b border-slate-100">
+    <div class="max-w-4xl mx-auto px-4 pt-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="Logo CMA Formation" class="app-logo" onerror="this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation'">
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-[#A50F23] leading-tight">CMA Formation Sainte-Clotilde</h1>
+          <p class="text-xs text-slate-500 font-medium">CAP Esthétique Cosmétique • Physique-Chimie Séance A2 S4 P1</p>
+        </div>
+      </div>
+      <div class="text-right hidden sm:block">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Formateur Référent</span>
+        <p class="text-xs font-bold text-slate-700">R. Lamberet-Lezais</p>
+      </div>
+    </div>
+    <div class="cma-wave-border"></div>
+  </header>
+
+  <div class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs no-print">
+    <div class="max-w-4xl mx-auto px-4 pt-2">
+      <!-- Progression générale 8px -->
+      <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-2">
+        <div id="general-progress-bar" class="bg-[#EE3C3D] h-2 rounded-full transition-all duration-300" style="width: 25%"></div>
+      </div>
+      <div class="flex items-center justify-between text-xs text-slate-600 mb-2 font-medium">
+        <span id="progress-text-socle">Socle CAP : 0%</span>
+        <span id="progress-text-bonus" class="text-[#A50F23] font-semibold">Bonus d'excellence : 0 / 7</span>
+      </div>
+      <!-- Onglets d'étapes scrollables horizontalement -->
+      <nav class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none" aria-label="Étapes">
+        <button onclick="switchStep(1)" id="tab-step-1" class="btn-step active">
+          1. Découverte Péi
+        </button>
+        <button onclick="switchStep(2)" id="tab-step-2" class="btn-step inactive">
+          2. Cours & Banc Optique
+        </button>
+        <button onclick="switchStep(3)" id="tab-step-3" class="btn-step inactive">
+          3. Entraînement
+        </button>
+        <button onclick="switchStep(4)" id="tab-step-4" class="btn-step inactive">
+          4. Bilan & Attestation
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 1 : DÉCOUVERTE & INVESTIGATION PÉI   -->
+    <!-- ========================================== -->
+    <section id="step-1" class="space-y-6">
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+        <div class="flex items-center mb-3">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h2 class="text-lg sm:text-xl font-bold text-[#A50F23]">Situation Professionnelle : Institut « Fleur de Lotus » à Sainte-Clotilde</h2>
+        </div>
+        <div class="p-4 bg-red-50/60 rounded-xl border-l-4 border-[#A50F23] text-sm leading-relaxed text-slate-700 space-y-2">
+          <p>
+            Vous exercez comme esthéticienne qualifiée à l'institut <strong>« Fleur de Lotus »</strong> à Sainte-Clotilde (La Réunion). 
+            Dans l'espace maquillage professionnel et diagnostic cutané, l'agencement lumineux est primordial pour éviter tout éblouissement de la cliente et garantir une fidélité visuelle parfaite lors des prestations (mise en beauté, restructuration des sourcils et maquillage mariée).
+          </p>
+          <p>
+            Le poste de maquillage est équipé d'un grand miroir plan central et d'un miroir d'appoint grossissant orientable monté sur bras articulé, éclairés par des projecteurs directionnels à LED lumière du jour ($IRC > 90$).
+            Lors d'un atelier pratique de maquillage événementiel, l'esthéticienne constate une zone d'éblouissement gênante dans les yeux de la cliente assise dans le fauteuil : le faisceau d'un spot LED se réfléchit directement sur la surface polie du miroir plan vers le visage de la cliente.
+          </p>
+          <p class="font-medium text-[#A50F23]">
+            Problématique professionnelle : Comment exploiter les lois géométriques de la réflexion de la lumière ($i = r$) pour orienter correctement l'éclairage de cabine et prédire la trajectoire du faisceau lumineux réfléchi par les miroirs sans jamais éblouir la cliente ?
+          </p>
+        </div>
+      </div>
+
+      <!-- Investigation Q1 à Q7 -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-6">
+        <div class="flex items-center mb-2">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h3 class="text-base sm:text-lg font-bold text-slate-800">Démarche d'Investigation & Expérimentation Optique</h3>
+        </div>
+
+        <!-- Q1 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q1. (C1) Dans cette situation de cabine, qui produit directement la lumière (source primaire) ?
+          </label>
+          <p class="text-xs text-slate-500 mb-2">Tapez le mot correspondant (ex : spot, lampe ou projecteur) :</p>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" id="inv-q1" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <button onclick="checkInvestigation('q1')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q1" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q2. (C1) Quel angle (en degrés) forme la NORMALE avec la surface plane du miroir ?
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" inputmode="decimal" id="inv-q2" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">°</span>
+            </div>
+            <button onclick="checkInvestigation('q2')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q2" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q3 & Q4 Mesures de réflexion -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q3 & Q4. (C2/C3) Mesures expérimentales au banc d'optique (ou simulateur) : complétez l'angle de réflexion $r$ mesuré pour chaque angle d'incidence $i$ par rapport à la normale :
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+            <div class="p-2 bg-white rounded-lg border border-slate-200 text-center">
+              <span class="block text-xs font-bold text-slate-700">Pour $i = 35^\circ$</span>
+              <span class="text-xs text-slate-500">Angle $r$ attendu :</span>
+              <input type="text" inputmode="decimal" id="inv-q4-35" placeholder="Votre résultat..." class="custom-input w-full text-center px-2 py-1 mt-1 border border-slate-300 rounded-md">
+            </div>
+            <div class="p-2 bg-white rounded-lg border border-slate-200 text-center">
+              <span class="block text-xs font-bold text-slate-700">Pour $i = 20^\circ$</span>
+              <span class="text-xs text-slate-500">Angle $r$ attendu :</span>
+              <input type="text" inputmode="decimal" id="inv-q4-20" placeholder="Votre résultat..." class="custom-input w-full text-center px-2 py-1 mt-1 border border-slate-300 rounded-md">
+            </div>
+            <div class="p-2 bg-white rounded-lg border border-slate-200 text-center">
+              <span class="block text-xs font-bold text-slate-700">Pour $i = 45^\circ$</span>
+              <span class="text-xs text-slate-500">Angle $r$ attendu :</span>
+              <input type="text" inputmode="decimal" id="inv-q4-45" placeholder="Votre résultat..." class="custom-input w-full text-center px-2 py-1 mt-1 border border-slate-300 rounded-md">
+            </div>
+            <div class="p-2 bg-white rounded-lg border border-slate-200 text-center">
+              <span class="block text-xs font-bold text-slate-700">Pour $i = 60^\circ$</span>
+              <span class="text-xs text-slate-500">Angle $r$ attendu :</span>
+              <input type="text" inputmode="decimal" id="inv-q4-60" placeholder="Votre résultat..." class="custom-input w-full text-center px-2 py-1 mt-1 border border-slate-300 rounded-md">
+            </div>
+          </div>
+          <button onclick="checkInvestigation('q34')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider les mesures</button>
+          <div id="feedback-inv-q34" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q5 & Q6 Piège de l'angle à la surface -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q6. (C2) Un rayon arrive avec un angle de $50^\circ$ par rapport à la SURFACE du miroir.
+            Quel est son angle d'incidence $i$ par rapport à la NORMALE ?
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" inputmode="decimal" id="inv-q6" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">°</span>
+            </div>
+            <button onclick="checkInvestigation('q6')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q6" class="mt-2 text-sm"></div>
+        </div>
+
+        <!-- Q7 Recommandation technique -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-sm font-semibold text-slate-800 mb-2">
+            Q7. (C4) Pour que le rayon réfléchi parte vers le bas du visage sans éblouir les yeux, doit-on orienter le spot plus vers le haut ou plus vers le bas ? (Tapez « bas » ou « haut ») :
+          </label>
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="text" id="inv-q7" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <button onclick="checkInvestigation('q7')" class="min-h-[44px] px-5 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="feedback-inv-q7" class="mt-2 text-sm"></div>
+        </div>
+
+        <div class="pt-2 text-right">
+          <button onclick="switchStep(2)" class="min-h-[44px] px-6 py-2.5 bg-[#A50F23] text-white font-bold rounded-xl shadow-md hover:bg-red-800 transition">
+            Passer à l'Étape 2 : Cours & Banc Optique →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 2 : COURS & SIMULATEUR INTERACTIF    -->
+    <!-- ========================================== -->
+    <section id="step-2" class="space-y-6 hidden">
+      <!-- Synthèse de cours structurée -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center mb-2">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h2 class="text-lg sm:text-xl font-bold text-[#A50F23]">Synthèse de Cours : Lois de Descartes pour la Réflexion</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 mb-2 text-base">1. Vocabulaire Géométrique du Rayon</h4>
+            <ul class="list-disc pl-5 space-y-1.5 text-slate-600">
+              <li><strong>Point d'incidence $I$ :</strong> point de contact où le rayon lumineux heurte la surface réfléchissante.</li>
+              <li><strong>Normale $(N)$ :</strong> droite perpendiculaire ($90^\circ$) à la surface du miroir au point $I$.</li>
+              <li><strong>Rayon incident :</strong> rayon issu de la source se propageant vers le miroir.</li>
+              <li><strong>Rayon réfléchi :</strong> rayon qui repart du point $I$ après avoir rencontré le miroir.</li>
+              <li><strong>Angle d'incidence $i$ :</strong> angle entre le rayon incident et la <em>normale</em>.</li>
+              <li><strong>Angle de réflexion $r$ :</strong> angle entre le rayon réfléchi et la <em>normale</em>.</li>
+            </ul>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 mb-2 text-base">2. Lois Fondamentales & Miroirs</h4>
+            <div class="p-3 bg-red-50 rounded-lg border border-red-200 mb-3">
+              <span class="block font-bold text-[#A50F23] text-sm">Deuxième loi de Descartes :</span>
+              <p class="text-base font-extrabold text-slate-800">$$i = r$$</p>
+              <p class="text-xs text-slate-600">L'angle de réflexion est strictement égal à l'angle d'incidence (en degrés).</p>
+            </div>
+            <ul class="space-y-1 text-slate-600 text-xs">
+              <li>• <strong>Miroir plan :</strong> produit une image virtuelle, droite, de même taille et symétrique.</li>
+              <li>• <strong>Miroir concave grossissant :</strong> fait converger les faisceaux lumineux pour former une image agrandie des détails de la peau.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-sm">
+          <h4 class="font-bold text-amber-900 mb-1">⚠️ Piège fréquent aux épreuves de CAP :</h4>
+          <p class="text-amber-800">
+            Les angles $i$ et $r$ se mesurent <strong>TOUJOURS par rapport à la NORMALE</strong> (axe vertical perpendiculaire), et JAMAIS directement par rapport à la surface horizontale du miroir !<br>
+            Si l'angle avec la surface est $\alpha$, alors $i = 90^\circ - \alpha$.
+          </p>
+        </div>
+      </div>
+
+      <!-- Simulateur Interactif Banc d'Optique -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center">
+            <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+            <h3 class="text-base sm:text-lg font-bold text-slate-800">Banc d'Optique Interactif & Disque Gradué</h3>
+          </div>
+          <span class="text-xs bg-red-100 text-[#A50F23] font-semibold px-2.5 py-1 rounded-full">Simulation $i = r$ en direct</span>
+        </div>
+
+        <!-- Contrôles du banc d'optique -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-semibold text-slate-700" for="sim-angle-i">Angle d'incidence $i$ :</label>
+              <span id="label-sim-i" class="font-bold text-[#A50F23] text-base">35°</span>
+            </div>
+            <input type="range" id="sim-angle-i" min="0" max="85" step="1" value="35" class="w-full accent-[#A50F23]" oninput="updateOpticsSimulator()">
+            <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+              <span>0° (perpendiculaire)</span>
+              <span>45°</span>
+              <span>85° (rasant)</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Type d'équipement cabine :</label>
+            <div class="flex gap-2">
+              <button id="btn-mirror-flat" onclick="setMirrorType('flat')" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold border-2 border-[#A50F23] bg-red-50 text-[#A50F23]">
+                Miroir Plan d'Ambiance
+              </button>
+              <button id="btn-mirror-concave" onclick="setMirrorType('concave')" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-600">
+                Miroir Concave Grossissant
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Données en direct -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="block text-xs text-slate-500 font-medium">Angle d'incidence $i$</span>
+            <span id="sim-val-i" class="text-base sm:text-lg font-bold text-blue-600">35°</span>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="block text-xs text-slate-500 font-medium">Angle de réflexion $r$</span>
+            <span id="sim-val-r" class="text-base sm:text-lg font-bold text-emerald-600">35°</span>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="block text-xs text-slate-500 font-medium">Écart total $(i + r)$</span>
+            <span id="sim-val-total" class="text-base sm:text-lg font-bold text-amber-600">70°</span>
+          </div>
+          <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
+            <span class="block text-xs text-red-700 font-medium">Angle / Surface</span>
+            <span id="sim-val-surf" class="text-base sm:text-lg font-bold text-[#A50F23]">55°</span>
+          </div>
+        </div>
+
+        <!-- Canvas d'optique -->
+        <div class="w-full bg-slate-900 rounded-xl p-3 shadow-inner overflow-hidden">
+          <canvas id="optics-canvas" class="w-full h-64 sm:h-80 block"></canvas>
+        </div>
+
+        <div class="pt-2 text-right">
+          <button onclick="switchStep(3)" class="min-h-[44px] px-6 py-2.5 bg-[#A50F23] text-white font-bold rounded-xl shadow-md hover:bg-red-800 transition">
+            Passer aux Exercices d'Entraînement →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 3 : ENTRAÎNEMENT GAMIFIÉ SÉQUENTIEL  -->
+    <!-- ========================================== -->
+    <section id="step-3" class="space-y-6 hidden">
+      <!-- Sélecteur de niveau avec badges et verrous -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] mb-3 flex items-center">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          Parcours d'Entraînement Différencié & Gamifié
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Niveau 1 -->
+          <button onclick="selectLevel(1)" id="btn-lvl-1" class="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-left transition flex items-center justify-between">
+            <div>
+              <div class="text-xs uppercase font-bold text-emerald-700">🟢 Niveau 1</div>
+              <div class="text-sm font-semibold text-slate-800">Socle CAP (5 exos)</div>
+            </div>
+            <span id="badge-stat-1" class="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded font-bold">Actif</span>
+          </button>
+
+          <!-- Niveau 2 -->
+          <button onclick="selectLevel(2)" id="btn-lvl-2" class="p-3 rounded-xl border border-slate-200 bg-slate-100 text-left opacity-70 cursor-not-allowed transition flex items-center justify-between" disabled>
+            <div>
+              <div class="text-xs uppercase font-bold text-amber-700">🟡 Niveau 2</div>
+              <div class="text-sm font-semibold text-slate-800">Bonus Dépassement</div>
+            </div>
+            <span id="lock-icon-2" class="text-slate-400 font-bold">🔒</span>
+          </button>
+
+          <!-- Niveau 3 -->
+          <button onclick="selectLevel(3)" id="btn-lvl-3" class="p-3 rounded-xl border border-slate-200 bg-slate-100 text-left opacity-70 cursor-not-allowed transition flex items-center justify-between" disabled>
+            <div>
+              <div class="text-xs uppercase font-bold text-rose-700">🔴 Niveau 3</div>
+              <div class="text-sm font-semibold text-slate-800">Bonus Excellence</div>
+            </div>
+            <span id="lock-icon-3" class="text-slate-400 font-bold">🔒</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CONTENEUR NIVEAU 1 : SOCLE CAP -->
+      <div id="container-lvl-1" class="space-y-6">
+        <!-- Exercice 1.1 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.1 • Socle CAP</span>
+            <span id="status-ex-1-1" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Application directe de la loi $i = r$</h3>
+          <p class="text-sm text-slate-600">
+            Un rayon de lumière issu d'une lampe LED frappe la surface d'un miroir de maquillage avec un angle d'incidence de $i = 28^\circ$ par rapport à la normale.
+            Déterminer la valeur de l'angle de réflexion $r$ :
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-1-1-r" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">°</span>
+            </div>
+            <button onclick="checkEx1_1()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider</button>
+          </div>
+          <div id="fb-ex-1-1" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.2 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.2 • Socle CAP</span>
+            <span id="status-ex-1-2" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Calcul de l'angle par rapport à la normale</h3>
+          <p class="text-sm text-slate-600">
+            Un faisceau lumineux arrive sur un miroir plan en faisant un angle de $40^\circ$ avec la surface du miroir.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Angle miroir-normale (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-1-2-norm" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">2) Angle d'incidence $i$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-1-2-i" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">3) Angle de réflexion $r$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-1-2-r" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx1_2()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier l'Exercice 1.2</button>
+          <div id="fb-ex-1-2" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.3 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.3 • Socle CAP</span>
+            <span id="status-ex-1-3" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Rayon incident perpendiculaire</h3>
+          <p class="text-sm text-slate-600">
+            Un rayon lumineux arrive perpendiculairement à la surface d'un miroir de cabine (le long de la normale).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Angle d'incidence $i$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-1-3-i" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">2) Angle de réflexion $r$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-1-3-r" placeholder="Votre résultat..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx1_3()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier l'Exercice 1.3</button>
+          <div id="fb-ex-1-3" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.4 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.4 • Socle CAP</span>
+            <span id="status-ex-1-4" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Vocabulaire & Schéma d'optique</h3>
+          <p class="text-sm text-slate-600">
+            Sur un schéma d'optique montrant un miroir plan horizontal, renseignez les termes scientifiques exacts :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Droite verticale en pointillés perpendiculaire au miroir :</label>
+              <input type="text" id="ex-1-4-normale" placeholder="Ex: normale..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Point de contact où la lumière frappe le miroir :</label>
+              <input type="text" id="ex-1-4-point" placeholder="Ex: point d'incidence..." class="custom-input w-full px-3 py-2 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx1_4()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier le Vocabulaire</button>
+          <div id="fb-ex-1-4" class="text-sm"></div>
+        </div>
+
+        <!-- Exercice 1.5 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">Exercice 1.5 • Socle CAP</span>
+            <span id="status-ex-1-5" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Angle total entre les rayons</h3>
+          <p class="text-sm text-slate-600">
+            Le rayon réfléchi fait un angle de $r = 45^\circ$ avec la normale.
+            Calculer l'angle total séparant le rayon incident du rayon réfléchi (angle d'écart total $i + r$) :
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-1-5-total" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">°</span>
+            </div>
+            <button onclick="checkEx1_5()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider l'Exercice 1.5</button>
+          </div>
+          <div id="fb-ex-1-5" class="text-sm"></div>
+        </div>
+      </div>
+
+      <!-- CONTENEUR NIVEAU 2 : DÉPASSEMENT / BONUS -->
+      <div id="container-lvl-2" class="space-y-6 hidden">
+        <!-- 2.1 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.1 • Dépassement</span>
+            <span id="status-ex-2-1" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Éclairage de coiffeuse à Saint-Denis</h3>
+          <p class="text-sm text-slate-600">
+            Dans un salon à Saint-Denis, un projecteur éclaire un miroir. L'angle total mesuré entre le rayon incident et le rayon réfléchi est de $70^\circ$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Angle d'incidence $i$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-1-i" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">2) Angle avec la surface du miroir (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-1-surf" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx2_1()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 2.1</button>
+          <div id="fb-ex-2-1" class="text-sm"></div>
+        </div>
+
+        <!-- 2.2 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.2 • Dépassement</span>
+            <span id="status-ex-2-2" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Miroir d'ambiance et distance de vision</h3>
+          <p class="text-sm text-slate-600">
+            Une cliente est assise à une distance de $25\text{ cm}$ devant le grand miroir plan de l'institut.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Distance de l'image virtuelle derrière le miroir (en cm) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-2-d1" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Distance totale perçue entre la cliente et son image (en cm) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-2-dtot" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx2_2()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 2.2</button>
+          <div id="fb-ex-2-2" class="text-sm"></div>
+        </div>
+
+        <!-- 2.3 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.3 • Dépassement</span>
+            <span id="status-ex-2-3" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Rotation d'un miroir de courtoisie</h3>
+          <p class="text-sm text-slate-600">
+            Un miroir est orienté avec $i = 20^\circ$. L'esthéticienne incline le miroir de $15^\circ$ supplémentaires, ce qui porte l'incidence à $i' = 35^\circ$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Nouvel angle de réflexion $r'$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-3-r" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Déviation angulaire totale du rayon réfléchi (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-2-3-rot" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx2_3()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 2.3</button>
+          <div id="fb-ex-2-3" class="text-sm"></div>
+        </div>
+
+        <!-- 2.4 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">Exercice 2.4 • Dépassement</span>
+            <span id="status-ex-2-4" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Contrôle de conformité de deux miroirs</h3>
+          <p class="text-sm text-slate-600">
+            Mesures relevées : Miroir A : $i=32^\circ, r=32^\circ$ | Miroir B : $i=45^\circ, r=42^\circ$.
+            Quel est l'écart absolu (en degrés) constaté sur le miroir B par rapport à la loi $i = r$ ?
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-2-4-ecart" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">°</span>
+            </div>
+            <button onclick="checkEx2_4()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider 2.4</button>
+          </div>
+          <div id="fb-ex-2-4" class="text-sm"></div>
+        </div>
+      </div>
+
+      <!-- CONTENEUR NIVEAU 3 : EXCELLENCE / EXPERT -->
+      <div id="container-lvl-3" class="space-y-6 hidden">
+        <!-- 3.1 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full">Exercice 3.1 • Excellence</span>
+            <span id="status-ex-3-1" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Système à double miroir à angle droit ($90^\circ$) à Sainte-Clotilde</h3>
+          <p class="text-sm text-slate-600">
+            Deux miroirs sont perpendiculaires. Un rayon frappe le premier miroir avec $i_1 = 30^\circ$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Angle réfléchi $r_1$ (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-3-1-r1" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">2) Angle d'incidence $i_2$ sur le 2d miroir :</label>
+              <input type="text" inputmode="decimal" id="ex-3-1-i2" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">3) Angle réfléchi $r_2$ sur le 2d miroir :</label>
+              <input type="text" inputmode="decimal" id="ex-3-1-r2" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx3_1()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 3.1</button>
+          <div id="fb-ex-3-1" class="text-sm"></div>
+        </div>
+
+        <!-- 3.2 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full">Exercice 3.2 • Excellence</span>
+            <span id="status-ex-3-2" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Étude d'éblouissement en cabine d'institut à Saint-Gilles</h3>
+          <p class="text-sm text-slate-600">
+            Un spot au plafond envoie un faisceau faisant un angle de $65^\circ$ avec la VERTICALE vers un grand miroir mural vertical.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">1) Angle d'incidence $i$ sur la normale horizontale du miroir (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-3-2-i" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">2) Angle de réflexion $r$ correspondant (en °) :</label>
+              <input type="text" inputmode="decimal" id="ex-3-2-r" placeholder="Votre résultat..." class="custom-input w-full px-3 py-1.5 border border-slate-300 rounded-lg">
+            </div>
+          </div>
+          <button onclick="checkEx3_2()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Vérifier 3.2</button>
+          <div id="fb-ex-3-2" class="text-sm"></div>
+        </div>
+
+        <!-- 3.3 -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full">Exercice 3.3 • Excellence</span>
+            <span id="status-ex-3-3" class="text-xs font-semibold text-slate-400">À compléter</span>
+          </div>
+          <h3 class="font-bold text-slate-800 text-base">Miroir plan vs Miroir sphérique concave</h3>
+          <p class="text-sm text-slate-600">
+            Pour un miroir concave grossissant de rayon de courbure $R = 40\text{ cm}$, le foyer $F$ se situe à mi-distance ($f = R / 2$).
+            À quelle distance maximale du miroir (en cm) l'esthéticienne doit-elle placer le visage pour rester en zone d'agrandissement droit (image virtuelle droite et grossie) ?
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-xs">
+              <input type="text" inputmode="decimal" id="ex-3-3-f" placeholder="Votre résultat..." class="custom-input w-full px-4 py-2 border border-slate-300 rounded-lg">
+              <span class="absolute right-3 top-2.5 text-sm text-slate-500 font-medium">cm</span>
+            </div>
+            <button onclick="checkEx3_3()" class="min-h-[44px] px-6 py-2 bg-[#A50F23] text-white font-semibold rounded-lg hover:bg-red-800 transition">Valider 3.3</button>
+          </div>
+          <div id="fb-ex-3-3" class="text-sm"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ÉTAPE 4 : BILAN, BADGES & ATTESTATION      -->
+    <!-- ========================================== -->
+    <section id="step-4" class="space-y-6 hidden">
+      <!-- Récapitulatif apprenant -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 no-print space-y-4">
+        <div class="flex items-center mb-2">
+          <img src="fleche_rouge.png" alt="Puce" class="icon-bullet" onerror="this.style.display='none'">
+          <h2 class="text-lg sm:text-xl font-bold text-[#A50F23]">Bilan des Compétences & Badges Obtenus</h2>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <label class="block text-sm font-semibold text-slate-700">Nom et Prénom de l'apprenant(e) :</label>
+          <div class="flex gap-2 max-w-md">
+            <input type="text" id="student-name-input" placeholder="Ex: Sarah DIJOUX" class="custom-input flex-1 px-4 py-2 border border-slate-300 rounded-lg" oninput="updateStudentName()">
+            <button onclick="updateStudentName()" class="min-h-[44px] px-4 bg-slate-800 text-white font-medium rounded-lg">Actualiser</button>
+          </div>
+        </div>
+
+        <!-- Badges Gamifiés -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div id="badge-card-1" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center gap-3">
+            <div class="text-3xl">🎯</div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Socle CAP 100%</h4>
+              <p class="text-xs text-slate-500" id="badge-desc-1">En attente de validation</p>
+            </div>
+          </div>
+
+          <div id="badge-card-2" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center gap-3 opacity-60">
+            <div class="text-3xl">⭐</div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Dépassement</h4>
+              <p class="text-xs text-slate-500" id="badge-desc-2">Niveau 2 non validé</p>
+            </div>
+          </div>
+
+          <div id="badge-card-3" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center gap-3 opacity-60">
+            <div class="text-3xl">🏆</div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Excellence Pro</h4>
+              <p class="text-xs text-slate-500" id="badge-desc-3">Niveau 3 non validé</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3">
+          <button onclick="window.print()" class="min-h-[44px] px-6 py-2.5 bg-[#A50F23] text-white font-bold rounded-xl shadow-md hover:bg-red-800 transition flex items-center gap-2">
+            <span>Imprimer / Sauvegarder en PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ATTESTATION NUMÉRIQUE OFFICIELLE PRINTABLE -->
+      <div id="printable-attestation" class="bg-white rounded-2xl p-8 shadow-md border-2 border-[#A50F23] relative">
+        <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4 mb-6">
+          <img src="logo.png" alt="Logo CMA Formation" class="app-logo" style="max-height:48px;" onerror="this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation'">
+          <div class="text-right">
+            <span class="text-xs uppercase font-bold text-[#A50F23] tracking-widest block">Attestation Pédagogique de Réussite</span>
+            <span class="text-xs text-slate-500 font-medium">CMA Formation de Sainte-Clotilde • La Réunion</span>
+          </div>
+        </div>
+
+        <div class="text-center my-6 space-y-2">
+          <p class="text-sm text-slate-500 uppercase tracking-wider font-semibold">Attestation délivrée à</p>
+          <h3 id="attestation-student-name" class="text-2xl sm:text-3xl font-extrabold text-[#A50F23]">Apprenant(e)</h3>
+          <p class="text-sm text-slate-600 max-w-xl mx-auto">
+            pour avoir suivi et validé avec succès les compétences scientifiques de la séance :
+          </p>
+          <div class="p-3 bg-red-50 rounded-xl inline-block font-bold text-slate-800 text-base border border-red-200">
+            Séance A2 S4 P1 : Optique - Réflexion de la lumière & Lois de Descartes appliquées aux miroirs de cabine
+          </div>
+        </div>
+
+        <!-- Scores certifiés -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 my-6 text-center">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-xs font-semibold text-slate-500">Socle Fondamental CAP</span>
+            <span id="attestation-socle" class="text-xl font-bold text-emerald-600">0%</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="block text-xs font-semibold text-slate-500">Défis Bonus Réalisés</span>
+            <span id="attestation-bonus" class="text-xl font-bold text-[#A50F23]">0 / 7</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 col-span-2 sm:col-span-1">
+            <span class="block text-xs font-semibold text-slate-500">Date d'évaluation</span>
+            <span id="attestation-date" class="text-sm font-bold text-slate-700">--/--/----</span>
+          </div>
+        </div>
+
+        <!-- Compétences du référentiel -->
+        <div class="my-6">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Compétences du Référentiel CAP Évaluées</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc pl-5">
+            <li><strong>C1 (S'informer) :</strong> Identifier le rayon incident, la normale $(N)$, le rayon réfléchi et les sources de cabine.</li>
+            <li><strong>C2 (Exécuter) :</strong> Mesurer et calculer les angles d'incidence et de réflexion par rapport à la normale.</li>
+            <li><strong>C3 (Appliquer / Raisonner) :</strong> Appliquer la deuxième loi de Descartes $i = r$ et déduire les écarts géométriques.</li>
+            <li><strong>C4 (Communiquer) :</strong> Formuler des recommandations professionnelles pour prévenir les risques d'éblouissement.</li>
+          </ul>
+        </div>
+
+        <div class="border-t border-slate-200 pt-4 flex items-center justify-between text-xs text-slate-500">
+          <div>
+            <p><strong>Rachel Lamberet-Lezais</strong></p>
+            <p>Formatrice Référente Physique-Chimie</p>
+          </div>
+          <div class="text-right">
+            <p>Validé numériquement</p>
+            <p class="font-mono text-[10px] text-slate-400">ID: CMA-RUN-PHYS-A2S4P1</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 no-print">
+    <p>© CMA Formation de Sainte-Clotilde • Île de La Réunion • CAP Esthétique Cosmétique Parfumerie</p>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- LOGIQUE JAVASCRIPT DE L'APPLICATION SPA    -->
+  <!-- ========================================== -->
+  <script>
+    const appState = {
+      currentStep: 1,
+      studentName: 'Apprenant(e)',
+      mirrorType: 'flat', // 'flat' ou 'concave'
+      investigationDone: { q1: false, q2: false, q34: false, q6: false, q7: false },
+      exercisesDone: {
+        '1.1': false,
+        '1.2': false,
+        '1.3': false,
+        '1.4': false,
+        '1.5': false,
+        '2.1': false,
+        '2.2': false,
+        '2.3': false,
+        '2.4': false,
+        '3.1': false,
+        '3.2': false,
+        '3.3': false
+      },
+      unlockedLevels: { 1: true, 2: false, 3: false },
+      currentLevel: 1
+    };
+
+    function switchStep(stepNumber) {
+      for (let i = 1; i <= 4; i++) {
+        const sec = document.getElementById('step-' + i);
+        const tab = document.getElementById('tab-step-' + i);
+        if (sec && tab) {
+          if (i === stepNumber) {
+            sec.classList.remove('hidden');
+            tab.className = 'btn-step active';
+          } else {
+            sec.classList.add('hidden');
+            tab.className = 'btn-step inactive';
+          }
+        }
+      }
+      appState.currentStep = stepNumber;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (stepNumber === 2) {
+        setTimeout(updateOpticsSimulator, 50);
+      }
+      if (stepNumber === 4) {
+        updateAttestationView();
+      }
+      updateGlobalProgress();
+    }
+
+    // Helper de validation numérique
+    function parseInput(val) {
+      if (!val) return NaN;
+      const clean = String(val).trim().replace(',', '.');
+      return parseFloat(clean);
+    }
+
+    function isClose(inputVal, targetVal, tol = 0.1) {
+      const v = parseInput(inputVal);
+      if (isNaN(v)) return false;
+      return Math.abs(v - targetVal) <= tol;
+    }
+
+    function checkInvestigation(q) {
+      if (q === 'q1') {
+        const val = document.getElementById('inv-q1').value.trim().toLowerCase();
+        const fb = document.getElementById('feedback-inv-q1');
+        if (val.includes('spot') || val.includes('led') || val.includes('lampe') || val.includes('projecteur')) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! La source primaire est le projecteur / spot LED qui émet son propre faisceau lumineux.</span>';
+          appState.investigationDone.q1 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Identifiez l\'élément qui émet la lumière dans la cabine (spot ou lampe LED).</span>';
+        }
+      } else if (q === 'q2') {
+        const val = document.getElementById('inv-q2').value;
+        const fb = document.getElementById('feedback-inv-q2');
+        if (isClose(val, 90)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Parfait ! La normale est par définition perpendiculaire (90°) à la surface du miroir.</span>';
+          appState.investigationDone.q2 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Rappel : une droite normale est perpendiculaire au plan, soit un angle de 90°.</span>';
+        }
+      } else if (q === 'q34') {
+        const r35 = document.getElementById('inv-q4-35').value;
+        const r20 = document.getElementById('inv-q4-20').value;
+        const r45 = document.getElementById('inv-q4-45').value;
+        const r60 = document.getElementById('inv-q4-60').value;
+        const fb = document.getElementById('feedback-inv-q34');
+        if (isClose(r35, 35) && isClose(r20, 20) && isClose(r45, 45) && isClose(r60, 60)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! Dans chaque cas, on constate expérimentalement que l\'angle réfléchi r est égal à l\'angle incident i (i = r).</span>';
+          appState.investigationDone.q34 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Mesurez avec soin : selon la loi de la réflexion, l\'angle r doit être égal à i.</span>';
+        }
+      } else if (q === 'q6') {
+        const val = document.getElementById('inv-q6').value;
+        const fb = document.getElementById('feedback-inv-q6');
+        if (isClose(val, 40)) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Excellent ! L\'angle avec la normale est i = 90° − 50° = 40°. C\'est la valeur essentielle pour tracer le rayon réfléchi.</span>';
+          appState.investigationDone.q6 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Attention : l\'angle par rapport à la normale vaut 90° − 50°. Calculez la différence.</span>';
+        }
+      } else if (q === 'q7') {
+        const val = document.getElementById('inv-q7').value.trim().toLowerCase();
+        const fb = document.getElementById('feedback-inv-q7');
+        if (val.includes('bas')) {
+          fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Très bien formulé ! Orienter les spots plus vers le bas permet d\'augmenter l\'angle d\'incidence et d\'orienter le flux sous les yeux.</span>';
+          appState.investigationDone.q7 = true;
+        } else {
+          fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Pour éviter les yeux de la cliente assise, il faut diriger les faisceaux vers le bas.</span>';
+        }
+      }
+      updateGlobalProgress();
+    }
+
+    function setMirrorType(type) {
+      appState.mirrorType = type;
+      const bFlat = document.getElementById('btn-mirror-flat');
+      const bConc = document.getElementById('btn-mirror-concave');
+      if (type === 'flat') {
+        bFlat.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold border-2 border-[#A50F23] bg-red-50 text-[#A50F23]';
+        bConc.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-600';
+      } else {
+        bConc.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold border-2 border-[#A50F23] bg-red-50 text-[#A50F23]';
+        bFlat.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-600';
+      }
+      updateOpticsSimulator();
+    }
+
+    function updateOpticsSimulator() {
+      const slider = document.getElementById('sim-angle-i');
+      if (!slider) return;
+      const angleI = parseFloat(slider.value);
+      const angleR = angleI;
+      const angleTotal = angleI + angleR;
+      const angleSurf = 90 - angleI;
+
+      document.getElementById('label-sim-i').textContent = angleI + '°';
+      document.getElementById('sim-val-i').textContent = angleI + '°';
+      document.getElementById('sim-val-r').textContent = angleR + '°';
+      document.getElementById('sim-val-total').textContent = angleTotal + '°';
+      document.getElementById('sim-val-surf').textContent = angleSurf + '°';
+
+      drawOpticsCanvas(angleI, appState.mirrorType);
+    }
+
+    function drawOpticsCanvas(angleDeg, mirrorType) {
+      const canvas = document.getElementById('optics-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const width = canvas.parentElement.clientWidth || 360;
+      const height = canvas.parentElement.clientHeight || 280;
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height - 40; // Point d'incidence I sur le miroir
+      const rayLen = Math.min(width * 0.42, height * 0.75);
+
+      // 1. Miroir (horizontal ou concave)
+      if (mirrorType === 'flat') {
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillRect(cx - rayLen * 1.1, cy, rayLen * 2.2, 10);
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx - rayLen * 1.1, cy, rayLen * 2.2, 10);
+
+        // Hachures arrière du miroir
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1;
+        for (let x = cx - rayLen * 1.05; x < cx + rayLen * 1.05; x += 12) {
+          ctx.beginPath();
+          ctx.moveTo(x, cy + 10);
+          ctx.lineTo(x - 8, cy + 18);
+          ctx.stroke();
+        }
+      } else {
+        // Miroir concave
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = '#94A3B8';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 120, 130, 0.25 * Math.PI, 0.75 * Math.PI, false);
+        ctx.stroke();
+      }
+
+      // 2. Disque gradué / rapporteur
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rayLen * 0.85, Math.PI, 2 * Math.PI);
+      ctx.stroke();
+
+      for (let a = 0; a <= 180; a += 10) {
+        const rad = (a * Math.PI) / 180;
+        const x1 = cx - Math.cos(rad) * (rayLen * 0.82);
+        const y1 = cy - Math.sin(rad) * (rayLen * 0.82);
+        const x2 = cx - Math.cos(rad) * (rayLen * 0.85);
+        const y2 = cy - Math.sin(rad) * (rayLen * 0.85);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      // 3. Normale (N) verticale en pointillés
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx, cy - rayLen);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Normale (N)', cx, cy - rayLen - 6);
+
+      // Calcul des coordonnées du rayon incident et réfléchi
+      const radI = (angleDeg * Math.PI) / 180;
+      const incX = cx - Math.sin(radI) * rayLen;
+      const incY = cy - Math.cos(radI) * rayLen;
+
+      const refX = cx + Math.sin(radI) * rayLen;
+      const refY = cy - Math.cos(radI) * rayLen;
+
+      // 4. Rayon incident (Rouge/Corail vif avec flèche)
+      ctx.strokeStyle = '#EE3C3D';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(incX, incY);
+      ctx.lineTo(cx, cy);
+      ctx.stroke();
+
+      // Flèche sur le rayon incident
+      const midIncX = (incX + cx) / 2;
+      const midIncY = (incY + cy) / 2;
+      drawArrowHead(ctx, incX, incY, cx, cy, midIncX, midIncY, '#EE3C3D');
+
+      // 5. Rayon réfléchi (Émeraude lumineux avec flèche)
+      ctx.strokeStyle = '#10B981';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(refX, refY);
+      ctx.stroke();
+
+      // Flèche sur le rayon réfléchi
+      const midRefX = (cx + refX) / 2;
+      const midRefY = (cy + refY) / 2;
+      drawArrowHead(ctx, cx, cy, refX, refY, midRefX, midRefY, '#10B981');
+
+      // 6. Arcs d'angles
+      if (angleDeg > 2) {
+        // Arc incidence (Bleu)
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 38, -Math.PI / 2 - radI, -Math.PI / 2);
+        ctx.stroke();
+
+        ctx.fillStyle = '#38BDF8';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText('i = ' + angleDeg + '°', cx - 18, cy - 42);
+
+        // Arc réflexion (Vert)
+        ctx.strokeStyle = '#34D399';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 38, -Math.PI / 2, -Math.PI / 2 + radI);
+        ctx.stroke();
+
+        ctx.fillStyle = '#34D399';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('r = ' + angleDeg + '°', cx + 18, cy - 42);
+      }
+
+      // Point I
+      ctx.fillStyle = '#A50F23';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('I', cx, cy + 24);
+    }
+
+    function drawArrowHead(ctx, fromX, fromY, toX, toY, posX, posY, color) {
+      const angle = Math.atan2(toY - fromY, toX - fromX);
+      const arrowLength = 12;
+      ctx.save();
+      ctx.translate(posX, posY);
+      ctx.rotate(angle);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-arrowLength, -5);
+      ctx.lineTo(-arrowLength, 5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    window.addEventListener('resize', () => {
+      if (appState.currentStep === 2) updateOpticsSimulator();
+    });
+
+    function selectLevel(lvl) {
+      if (!appState.unlockedLevels[lvl]) return;
+      appState.currentLevel = lvl;
+
+      for (let i = 1; i <= 3; i++) {
+        const cont = document.getElementById('container-lvl-' + i);
+        const btn = document.getElementById('btn-lvl-' + i);
+        if (cont && btn) {
+          if (i === lvl) {
+            cont.classList.remove('hidden');
+            btn.className = 'p-3 rounded-xl border-2 border-[#A50F23] bg-red-50 text-left transition flex items-center justify-between';
+          } else {
+            cont.classList.add('hidden');
+            if (appState.unlockedLevels[i]) {
+              btn.className = 'p-3 rounded-xl border border-slate-200 bg-white text-left transition flex items-center justify-between';
+            }
+          }
+        }
+      }
+    }
+
+    function checkEx1_1() {
+      const r = document.getElementById('ex-1-1-r').value;
+      const fb = document.getElementById('fb-ex-1-1');
+      if (isClose(r, 28)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! D\'après la 2ème loi de Descartes, r = i = 28°.</span>';
+        appState.exercisesDone['1.1'] = true;
+        document.getElementById('status-ex-1-1').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Rappel de la règle : l\'angle de réflexion r est égal à l\'angle d\'incidence i.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_2() {
+      const norm = document.getElementById('ex-1-2-norm').value;
+      const i = document.getElementById('ex-1-2-i').value;
+      const r = document.getElementById('ex-1-2-r').value;
+      const fb = document.getElementById('fb-ex-1-2');
+
+      if (isClose(norm, 90) && isClose(i, 50) && isClose(r, 50)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Parfait ! La normale fait 90° avec le miroir. Donc i = 90° − 40° = 50° et r = 50°.</span>';
+        appState.exercisesDone['1.2'] = true;
+        document.getElementById('status-ex-1-2').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Vérifiez vos calculs : l\'angle miroir-normale est de 90°. Calculez 90 − 40 pour obtenir i.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_3() {
+      const i = document.getElementById('ex-1-3-i').value;
+      const r = document.getElementById('ex-1-3-r').value;
+      const fb = document.getElementById('fb-ex-1-3');
+
+      if (isClose(i, 0) && isClose(r, 0)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Excellent ! Pour un rayon perpendiculaire, l\'angle avec la normale est i = 0°, donc r = 0°. Le rayon repart sur lui-même.</span>';
+        appState.exercisesDone['1.3'] = true;
+        document.getElementById('status-ex-1-3').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Rappel : l\'angle se mesure par rapport à la normale. Si le rayon suit la normale, l\'angle vaut 0°.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_4() {
+      const norm = document.getElementById('ex-1-4-normale').value.trim().toLowerCase();
+      const pt = document.getElementById('ex-1-4-point').value.trim().toLowerCase();
+      const fb = document.getElementById('fb-ex-1-4');
+
+      const okNorm = norm.includes('normal');
+      const okPt = pt.includes('incidence') || pt.includes('point i') || pt === 'i';
+
+      if (okNorm && okPt) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! Droite en pointillés = la normale (N), et le point de contact = le point d\'incidence (I).</span>';
+        appState.exercisesDone['1.4'] = true;
+        document.getElementById('status-ex-1-4').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Renseignez les termes scientifiques : la droite perpendiculaire est la normale, et le point de contact est le point d\'incidence.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx1_5() {
+      const tot = document.getElementById('ex-1-5-total').value;
+      const fb = document.getElementById('fb-ex-1-5');
+
+      if (isClose(tot, 90)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Très bien ! Si r = 45°, alors i = 45°. L\'angle total entre les deux rayons est i + r = 45° + 45° = 90°.</span>';
+        appState.exercisesDone['1.5'] = true;
+        document.getElementById('status-ex-1-5').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Calculez la somme des deux angles symétriques : i + r = 45° + 45°.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_1() {
+      const i = document.getElementById('ex-2-1-i').value;
+      const surf = document.getElementById('ex-2-1-surf').value;
+      const fb = document.getElementById('fb-ex-2-1');
+
+      if (isClose(i, 35) && isClose(surf, 55)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Bravo ! Angle total 70° = 2i d\'où i = 35°. Angle avec la surface = 90° − 35° = 55°.</span>';
+        appState.exercisesDone['2.1'] = true;
+        document.getElementById('status-ex-2-1').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ 70° divisé par 2 donne i = 35°. Ensuite, l\'angle avec la surface est 90° − 35°.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_2() {
+      const d1 = document.getElementById('ex-2-2-d1').value;
+      const dtot = document.getElementById('ex-2-2-dtot').value;
+      const fb = document.getElementById('fb-ex-2-2');
+
+      if (isClose(d1, 25) && isClose(dtot, 50)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Exact ! L\'image dans un miroir plan est symétrique (25 cm derrière). La distance perçue totale est 25 + 25 = 50 cm.</span>';
+        appState.exercisesDone['2.2'] = true;
+        document.getElementById('status-ex-2-2').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Un miroir plan forme une image symétrique à la même distance : 25 cm, soit un total de 50 cm.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_3() {
+      const r = document.getElementById('ex-2-3-r').value;
+      const rot = document.getElementById('ex-2-3-rot').value;
+      const fb = document.getElementById('fb-ex-2-3');
+
+      if (isClose(r, 35) && (isClose(rot, 30) || isClose(rot, 15))) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Superbe ! r\' = 35°. Quand le miroir tourne de 15°, le rayon réfléchi tourne de 2 × 15° = 30° au total !</span>';
+        appState.exercisesDone['2.3'] = true;
+        document.getElementById('status-ex-2-3').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ r\' vaut 35°. Propriété optique : une rotation du miroir de θ fait tourner le rayon réfléchi de 2θ (soit 30°).</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx2_4() {
+      const ecart = document.getElementById('ex-2-4-ecart').value;
+      const fb = document.getElementById('fb-ex-2-4');
+
+      if (isClose(ecart, 3)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Très bien ! Écart = 45° − 42° = 3°. Cet écart s\'explique par un défaut de planéité ou une imprécision de visée.</span>';
+        appState.exercisesDone['2.4'] = true;
+        document.getElementById('status-ex-2-4').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Calculez la différence entre i = 45° et r = 42°.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx3_1() {
+      const r1 = document.getElementById('ex-3-1-r1').value;
+      const i2 = document.getElementById('ex-3-1-i2').value;
+      const r2 = document.getElementById('ex-3-1-r2').value;
+      const fb = document.getElementById('fb-ex-3-1');
+
+      if (isClose(r1, 30) && isClose(i2, 60) && isClose(r2, 60)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Impressionnant ! r1 = 30°. Dans le triangle rectangle formé par les miroirs, i2 = 90° − 30° = 60°, donc r2 = 60°. Le rayon émergeant repart parallèlement !</span>';
+        appState.exercisesDone['3.1'] = true;
+        document.getElementById('status-ex-3-1').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ r1 = 30°. Dans un angle droit (90°), l\'angle complémentaire sur le second miroir est 90° − 30° = 60°.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx3_2() {
+      const i = document.getElementById('ex-3-2-i').value;
+      const r = document.getElementById('ex-3-2-r').value;
+      const fb = document.getElementById('fb-ex-3-2');
+
+      if (isClose(i, 25) && isClose(r, 25)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Parfait ! Le miroir étant vertical, sa normale est horizontale (90° avec la verticale). L\'angle d\'incidence est donc i = 90° − 65° = 25°, et r = 25°.</span>';
+        appState.exercisesDone['3.2'] = true;
+        document.getElementById('status-ex-3-2').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ La normale d\'un miroir vertical est horizontale. Donc i = 90° − 65°.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkEx3_3() {
+      const f = document.getElementById('ex-3-3-f').value;
+      const fb = document.getElementById('fb-ex-3-3');
+
+      if (isClose(f, 20)) {
+        fb.innerHTML = '<span class="text-emerald-600 font-bold">✔ Excellent niveau d\'expertise ! La distance focale est f = R / 2 = 40 / 2 = 20 cm. Pour avoir une image grossie droite (effet loupe de maquillage), le visage doit se situer à moins de 20 cm du miroir.</span>';
+        appState.exercisesDone['3.3'] = true;
+        document.getElementById('status-ex-3-3').innerHTML = '<span class="text-emerald-600 font-bold">✔ Validé</span>';
+      } else {
+        fb.innerHTML = '<span class="text-rose-600 font-semibold">✖ Le foyer se situe à la moitié du rayon : f = 40 / 2 = 20 cm.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function updateStudentName() {
+      const input = document.getElementById('student-name-input');
+      const val = input.value.trim();
+      appState.studentName = val || 'Apprenant(e)';
+      const target = document.getElementById('attestation-student-name');
+      if (target) {
+        target.textContent = appState.studentName;
+      }
+    }
+
+    function updateGlobalProgress() {
+      // Calcul Niveau 1 (Socle CAP)
+      const lvl1Keys = ['1.1', '1.2', '1.3', '1.4', '1.5'];
+      const lvl1Done = lvl1Keys.filter(k => appState.exercisesDone[k]).length;
+      const soclePct = Math.round((lvl1Done / lvl1Keys.length) * 100);
+
+      // Calcul Bonus Niveaux 2 et 3
+      const bonusKeys = ['2.1', '2.2', '2.3', '2.4', '3.1', '3.2', '3.3'];
+      const bonusDone = bonusKeys.filter(k => appState.exercisesDone[k]).length;
+
+      // Affichage textes
+      document.getElementById('progress-text-socle').textContent = 'Socle CAP : ' + soclePct + '%';
+      document.getElementById('progress-text-bonus').textContent = 'Bonus d\'excellence : ' + bonusDone + ' / 7';
+
+      // Barre visuelle basée sur le socle prioritaire
+      const generalBar = document.getElementById('general-progress-bar');
+      if (generalBar) {
+        const totalVisual = Math.min(100, Math.round(soclePct * 0.75 + (bonusDone / 7) * 25));
+        generalBar.style.width = Math.max(10, totalVisual) + '%';
+      }
+
+      // Déblocage niveau 2 si socle 100%
+      if (soclePct === 100 && !appState.unlockedLevels[2]) {
+        appState.unlockedLevels[2] = true;
+        const b2 = document.getElementById('btn-lvl-2');
+        if (b2) {
+          b2.disabled = false;
+          b2.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-slate-100');
+          b2.classList.add('bg-white', 'border-amber-400');
+          document.getElementById('lock-icon-2').textContent = '🔓';
+        }
+      }
+
+      // Déblocage niveau 3 si niveau 2 terminé (4 exos)
+      const lvl2Keys = ['2.1', '2.2', '2.3', '2.4'];
+      const lvl2Done = lvl2Keys.filter(k => appState.exercisesDone[k]).length;
+      if (lvl2Done === 4 && !appState.unlockedLevels[3]) {
+        appState.unlockedLevels[3] = true;
+        const b3 = document.getElementById('btn-lvl-3');
+        if (b3) {
+          b3.disabled = false;
+          b3.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-slate-100');
+          b3.classList.add('bg-white', 'border-rose-400');
+          document.getElementById('lock-icon-3').textContent = '🔓';
+        }
+      }
+
+      // Attestation
+      const attSocle = document.getElementById('attestation-socle');
+      const attBonus = document.getElementById('attestation-bonus');
+      if (attSocle) attSocle.textContent = soclePct + '%';
+      if (attBonus) attBonus.textContent = bonusDone + ' / 7';
+
+      // Badges
+      if (soclePct === 100) {
+        const bCard1 = document.getElementById('badge-card-1');
+        bCard1.className = 'p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center gap-3';
+        document.getElementById('badge-desc-1').textContent = 'Validé avec succès (100%)';
+      }
+      if (lvl2Done >= 3) {
+        const bCard2 = document.getElementById('badge-card-2');
+        bCard2.className = 'p-4 rounded-xl border-2 border-amber-500 bg-amber-50 flex items-center gap-3';
+        bCard2.classList.remove('opacity-60');
+        document.getElementById('badge-desc-2').textContent = 'Validé (' + lvl2Done + '/4 réussis)';
+      }
+      if (bonusDone >= 6) {
+        const bCard3 = document.getElementById('badge-card-3');
+        bCard3.className = 'p-4 rounded-xl border-2 border-rose-500 bg-rose-50 flex items-center gap-3';
+        bCard3.classList.remove('opacity-60');
+        document.getElementById('badge-desc-3').textContent = 'Excellence Pro certifiée';
+      }
+    }
+
+    function updateAttestationView() {
+      updateStudentName();
+      const d = new Date();
+      const str = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      document.getElementById('attestation-date').textContent = str;
+      updateGlobalProgress();
+    }
+
+    window.onload = function() {
+      updateOpticsSimulator();
+      updateGlobalProgress();
+      updateAttestationView();
+    };
+  </script>
+</body>
+</html>

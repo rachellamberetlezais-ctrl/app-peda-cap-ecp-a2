@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physique-Chimie CAP Esthétique - Séance A2 S3 P1 | CMA Formation</title>
+  
+  <!-- Configuration & Chargement MathJax v3 -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --cma-red: #A50F23;
+      --cma-bright-red: #EE3C3D;
+      --cma-dark: #1E293B;
+      --cma-light: #F8FAFC;
+      --cma-card-bg: #FFFFFF;
+      --cma-border: #E2E8F0;
+      --cma-success: #16A34A;
+      --cma-warning: #D97706;
+      --cma-info: #2563EB;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #F1F5F9;
+      color: var(--cma-dark);
+      line-height: 1.5;
+      padding-bottom: 40px;
+    }
+
+    /* HEADER & NAVIGATION */
+    header {
+      background: #FFFFFF;
+      padding: 12px 16px 0 16px;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1000px;
+      margin: 0 auto;
+      gap: 12px;
+    }
+
+    .app-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .header-title-box {
+      flex-grow: 1;
+    }
+
+    .header-title-box h1 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--cma-red);
+      line-height: 1.2;
+    }
+
+    .header-title-box p {
+      font-size: 0.75rem;
+      color: #64748B;
+      font-weight: 500;
+    }
+
+    .cma-wave-border {
+      width: 100%;
+      height: 14px;
+      background-image: url('ruban_vague.png');
+      background-repeat: repeat-x;
+      background-position: center bottom;
+      background-size: auto 26px;
+      margin-top: 8px;
+      border-bottom: 2px solid var(--cma-bright-red);
+    }
+
+    /* PROGRESS BAR */
+    .progress-container {
+      max-width: 1000px;
+      margin: 10px auto 4px auto;
+      padding: 0 16px;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background-color: #CBD5E1;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 25%;
+      background: linear-gradient(90deg, var(--cma-red), var(--cma-bright-red));
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* STEP TABS */
+    .tabs-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      max-width: 1000px;
+      margin: 8px auto 14px auto;
+      padding: 0 16px;
+    }
+
+    .tab-btn {
+      background: #FFFFFF;
+      border: 1px solid var(--cma-border);
+      border-radius: 20px;
+      padding: 8px 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #64748B;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn.active {
+      background-color: var(--cma-red);
+      color: #FFFFFF;
+      border-color: var(--cma-red);
+      box-shadow: 0 4px 10px rgba(165, 15, 35, 0.25);
+    }
+
+    .tab-btn span.tab-num {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    /* CONTAINER & CARDS */
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .step-section {
+      display: none;
+      animation: fadeIn 0.25s ease-in-out forwards;
+    }
+
+    .step-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--cma-card-bg);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 16px;
+      border: 1px solid var(--cma-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #FEE2E2;
+      color: var(--cma-red);
+      margin-bottom: 10px;
+    }
+
+    h2, h3 {
+      color: var(--cma-dark);
+      display: flex;
+      align-items: center;
+      font-weight: 800;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 0.98rem;
+      margin: 14px 0 8px 0;
+    }
+
+    .icon-bullet {
+      height: 18px;
+      width: 18px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      margin-right: 6px;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .highlight-box {
+      background: #F8FAFC;
+      border-left: 4px solid var(--cma-bright-red);
+      padding: 12px 14px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 12px 0;
+      font-size: 0.88rem;
+    }
+
+    .badge-soft {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #E2E8F0;
+      color: #334155;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    /* STEP 1: INTERACTIVE EXPLORATION */
+    .reunion-banner {
+      background: linear-gradient(135deg, #FFF1F2, #FFE4E6);
+      border: 1px solid #FECDD3;
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .interactive-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .interactive-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .interactive-card {
+      border: 1px solid var(--cma-border);
+      border-radius: 10px;
+      padding: 14px;
+      background: #FAFAFA;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .interactive-card:hover, .interactive-card.selected {
+      border-color: var(--cma-red);
+      background: #FFF5F5;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* STEP 2: SIMULATEUR OSCILLOSCOPE */
+    .oscillo-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .screen-container {
+      background: #022C22;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    canvas#oscilloCanvas {
+      width: 100%;
+      height: 240px;
+      display: block;
+      background-color: #042f2e;
+      border-radius: 6px;
+    }
+
+    .oscillo-controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 600px) {
+      .oscillo-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .control-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--cma-border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .control-panel label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: var(--cma-dark);
+    }
+
+    .range-slider {
+      width: 100%;
+      accent-color: var(--cma-red);
+      height: 6px;
+    }
+
+    .readings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .reading-box {
+      background: #FFFFFF;
+      border: 1px solid var(--cma-border);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .reading-box .val-title {
+      font-size: 0.72rem;
+      color: #64748B;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .reading-box .val-num {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--cma-red);
+    }
+
+    /* STEP 3: EXERCICES GAMIFIÉS */
+    .level-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .level-btn {
+      flex: 1;
+      min-width: 105px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 20px;
+      border: 1px solid var(--cma-border);
+      background: #FFFFFF;
+      color: #64748B;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .level-btn.active {
+      border-color: var(--cma-red);
+      background: var(--cma-red);
+      color: #FFFFFF;
+    }
+
+    .level-btn.locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: #F1F5F9;
+    }
+
+    .exercise-card {
+      background: #FFFFFF;
+      border-radius: var(--radius);
+      border: 1px solid var(--cma-border);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .question-block {
+      margin: 14px 0;
+      padding: 12px;
+      background: #F8FAFC;
+      border-radius: 8px;
+      border: 1px solid #E2E8F0;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .input-row {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    input[type="number"], input[type="text"] {
+      padding: 10px 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      width: 100%;
+      max-width: 220px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus {
+      border-color: var(--cma-bright-red);
+      box-shadow: 0 0 0 3px rgba(238, 60, 61, 0.15);
+    }
+
+    .btn-verify {
+      background: var(--cma-dark);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-verify:hover {
+      background: #0F172A;
+    }
+
+    .feedback-msg {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .feedback-msg.success {
+      display: block;
+      background: #DCFCE7;
+      color: #166534;
+      border: 1px solid #BBF7D0;
+    }
+
+    .feedback-msg.error {
+      display: block;
+      background: #FEE2E2;
+      color: #991B1B;
+      border: 1px solid #FECDD3;
+    }
+
+    /* STEP 4: ATTESTATION OFFICIELLE */
+    .attestation-wrapper {
+      background: #FFFFFF;
+      border: 3px double #CBD5E1;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 780px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    .attestation-header {
+      text-align: center;
+      border-bottom: 2px solid var(--cma-red);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .attestation-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--cma-red);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .attestation-subtitle {
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .student-id-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    @media (min-width: 550px) {
+      .student-id-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .badges-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+      justify-content: center;
+    }
+
+    .badge-card {
+      background: #F8FAFC;
+      border: 1px solid var(--cma-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .badge-card.unlocked {
+      background: #FEF2F2;
+      border-color: #FECDD3;
+    }
+
+    .badge-card .badge-icon {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+
+    .badge-card .badge-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--cma-dark);
+    }
+
+    .badge-card .badge-status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #64748B;
+    }
+
+    .badge-card.unlocked .badge-status {
+      color: var(--cma-red);
+    }
+
+    .qualiopi-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.8rem;
+    }
+
+    .qualiopi-table th, .qualiopi-table td {
+      border: 1px solid #E2E8F0;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .qualiopi-table th {
+      background-color: #F1F5F9;
+      color: var(--cma-dark);
+      font-weight: 700;
+    }
+
+    .btn-action-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn-primary {
+      background: var(--cma-red);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(165, 15, 35, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: #870C1C;
+    }
+
+    /* ACCORDIONS */
+    .accordion-item {
+      border: 1px solid var(--cma-border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .accordion-trigger {
+      width: 100%;
+      padding: 12px 14px;
+      background: #F8FAFC;
+      border: none;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--cma-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .accordion-trigger:hover {
+      background: #F1F5F9;
+    }
+
+    .accordion-content {
+      padding: 12px 14px;
+      display: none;
+      font-size: 0.85rem;
+      background: #FFFFFF;
+      border-top: 1px solid var(--cma-border);
+    }
+
+    .accordion-content.open {
+      display: block;
+    }
+
+    @media print {
+      header, .tabs-nav, .progress-container, .btn-action-row, .step-section:not(#step-4) {
+        display: none !important;
+      }
+      body, main {
+        background: #FFFFFF !important;
+        padding: 0 !important;
+      }
+      #step-4 {
+        display: block !important;
+      }
+      .attestation-wrapper {
+        border: 2px solid #000000 !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- EN-TÊTE OFFICIEL CMA -->
+  <header>
+    <div class="header-main">
+      <img src="logo.png" alt="Logo CMA Formation" class="app-logo">
+      <div class="header-title-box">
+        <h1>Physique-Chimie CAP Esthétique</h1>
+        <p>Séance A2 S3 P1 : Période, Fréquence & Valeur Efficace | Sainte-Clotilde</p>
+      </div>
+    </div>
+    <div class="cma-wave-border"></div>
+  </header>
+
+  <!-- BARRE DE PROGRESSION GLOBALE -->
+  <div class="progress-container">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="globalProgressBar"></div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS HORIZONTALE -->
+  <nav class="tabs-nav">
+    <button class="tab-btn active" onclick="switchStep(1)" id="tabBtn1">
+      <span class="tab-num">Étape 1</span>
+      <span>Découverte</span>
+    </button>
+    <button class="tab-btn" onclick="switchStep(2)" id="tabBtn2">
+      <span class="tab-num">Étape 2</span>
+      <span>Cours & Lab</span>
+    </button>
+    <button class="tab-btn" onclick="switchStep(3)" id="tabBtn3">
+      <span class="tab-num">Étape 3</span>
+      <span>Entraînement</span>
+    </button>
+    <button class="tab-btn" onclick="switchStep(4)" id="tabBtn4">
+      <span class="tab-num">Étape 4</span>
+      <span>Attestation</span>
+    </button>
+  </nav>
+
+  <main>
+    <!-- ========================================================================= -->
+    <!-- ÉTAPE 1 : DÉCOUVERTE & SITUATION PROFESSIONNELLE (LA RÉUNION)               -->
+    <!-- ========================================================================= -->
+    <section id="step-1" class="step-section active">
+      <div class="card">
+        <div class="card-header-badge">
+          <span>Mission Institut</span>
+          <span>•</span>
+          <span>CAP Esthétique Cosmétique Parfumerie</span>
+        </div>
+        <h2>
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Situation Professionnelle : Soin Haute Fréquence en Institut Réunionnais
+        </h2>
+        
+        <div class="reunion-banner">
+          <p><strong>Contexte Local (Saint-Denis de La Réunion) :</strong> Vous exercez à l'institut <em>« Fleur de Vanille »</em>. Avec le climat tropical humide propice à la transpiration et à l'obstruction des pores, les soins purifiants pour peaux grasses et acnéiques sont essentiels. Vous utilisez un appareil d'électro-esthétique à haute fréquence muni d'électrodes en verre à effluve violette assainissante.</p>
+        </div>
+
+        <p>Lors de la maintenance préventive semestrielle, le technicien biomédical contrôle l'appareil à l'aide d'un oscilloscope numérique et relève les données suivantes :</p>
+        
+        <div class="highlight-box">
+          <p><strong>Réglages de l'oscilloscope :</strong></p>
+          <p>• Sensibilité verticale : <strong>Sv = 15 V/div</strong></p>
+          <p>• Base de temps (balayage horizontal) : <strong>Sh = 2,5 ms/div</strong></p>
+          <p>• Signal observé : <strong>3 divisions</strong> de crête maximale ($Y = 3\text{ div}$) et <strong>4 divisions</strong> pour un motif complet ($X = 4\text{ div}$).</p>
+          <p>• <strong>Cahier des charges de sécurité :</strong> Tension efficace $U_{\text{eff}} \le 35\text{ V}$ et Fréquence $f$ comprise entre <strong>90 Hz et 110 Hz</strong>.</p>
+        </div>
+
+        <h3>
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Exploration Interactive des Composants du Soin
+        </h3>
+        <p>Touchez un élément pour analyser son rôle technique en cabine :</p>
+
+        <div class="interactive-grid">
+          <div class="interactive-card" onclick="showExplo(this, 'L\'électrode champignon en verre contient un gaz rare (argon ou néon). Sous l\'effet de la tension alternative périodique, elle produit une effluve créant de l\'ozone purifiant et antibactérien.')">
+            <strong>Électrode en Verre & Ozone</strong>
+            <p style="font-size:0.8rem; color:#64748B; margin:4px 0 0 0;">Action germicide et assainissante</p>
+          </div>
+          <div class="interactive-card" onclick="showExplo(this, 'L\'oscilloscope traduit en temps réel la variation de tension aux bornes de l\'appareil. Il permet de mesurer la période T sur l\'axe horizontal X et la tension crête Umax sur l\'axe vertical Y.')">
+            <strong>Contrôle Métrologique (Oscilloscope)</strong>
+            <p style="font-size:0.8rem; color:#64748B; margin:4px 0 0 0;">Visualisation de la courbe sinusoïdale</p>
+          </div>
+          <div class="interactive-card" onclick="showExplo(this, 'Une fréquence inadaptée ou une tension efficace supérieure à 35 V provoquerait des picotements douloureux ou des micro-brûlures de l\'épiderme.')">
+            <strong>Sécurité Cutanée en Milieu Tropical</strong>
+            <p style="font-size:0.8rem; color:#64748B; margin:4px 0 0 0;">Tolérance cutanée et conformité fabricant</p>
+          </div>
+          <div class="interactive-card" onclick="showExplo(this, 'Le secteur réunionnais EDF délivre 230 V efficaces à 50 Hz. Le transformateur interne de l\'appareil adapte cette tension pour fournir les signaux spécifiques requis pour le visage.')">
+            <strong>Alimentation Secteur EDF Réunion</strong>
+            <p style="font-size:0.8rem; color:#64748B; margin:4px 0 0 0;">Réseau 230 V / 50 Hz stabilisé</p>
+          </div>
+        </div>
+        <div id="exploDetail" class="highlight-box" style="display:none; margin-top:12px; border-left-color:var(--cma-red);"></div>
+
+        <div style="margin-top:20px; text-align:right;">
+          <button class="btn-primary" onclick="switchStep(2)">
+            Passer au Cours & Simulateur →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ÉTAPE 2 : COURS SCIENTIFIQUE & SIMULATEUR SUR-MESURE                     -->
+    <!-- ========================================================================= -->
+    <section id="step-2" class="step-section">
+      <div class="card">
+        <h2>
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Synthèse de Cours : Signaux Périodiques & Tensions Efficaces
+        </h2>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" onclick="toggleAcc(this)">
+            <span>1. Signal Alternatif Périodique & Période T</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-content open">
+            <p>Un signal alternatif périodique change régulièrement de sens et reproduit un <strong>motif élémentaire</strong> identique à intervalles de temps réguliers.</p>
+            <p>La <strong>période $T$</strong> représente la durée d'un motif élémentaire, exprimée en <strong>secondes (s)</strong> :</p>
+            <p style="text-align:center; font-weight:700; color:var(--cma-red);">$T = X \times S_h$</p>
+            <p><em>Rappel conversion :</em> $1\text{ ms} = 0{,}001\text{ s} = 10^{-3}\text{ s}$ &nbsp;|&nbsp; Pour convertir des $\text{ms}$ en $\text{s}$, on divise par $1000$.</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" onclick="toggleAcc(this)">
+            <span>2. Fréquence f (en Hertz - Hz)</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>La <strong>fréquence $f$</strong> correspond au nombre de motifs élémentaires réalisés en une seconde. Elle s'exprime en <strong>Hertz (Hz)</strong> :</p>
+            <p style="text-align:center; font-weight:700; color:var(--cma-red);">$f = \dfrac{1}{T}$ &nbsp;&nbsp; (avec $T$ obligatoirement en secondes)</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <button class="accordion-trigger" onclick="toggleAcc(this)">
+            <span>3. Tension Maximale $U_{\text{max}}$ et Tension Efficace $U_{\text{eff}}$</span>
+            <span>▼</span>
+          </button>
+          <div class="accordion-content">
+            <p>La <strong>tension maximale $U_{\text{max}}$</strong> (en volts $\text{V}$) est la valeur de crête mesurée sur l'oscilloscope :</p>
+            <p style="text-align:center; font-weight:700; color:var(--cma-red);">$U_{\text{max}} = Y \times S_v$</p>
+            <p>La <strong>tension efficace $U_{\text{eff}}$</strong> est la tension continue équivalente mesurée directement avec un multimètre (voltmètre AC) :</p>
+            <p style="text-align:center; font-weight:700; color:var(--cma-red);">$U_{\text{eff}} = \dfrac{U_{\text{max}}}{\sqrt{2}} \approx \dfrac{U_{\text{max}}}{1{,}414}$ &nbsp;&nbsp; ou &nbsp;&nbsp; $U_{\text{max}} = U_{\text{eff}} \times \sqrt{2} \approx U_{\text{eff}} \times 1{,}414$</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top:20px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Simulateur d'Oscilloscope Virtuel (Laboratoire Esthétique)
+        </h3>
+        <p>Ajustez les réglages de balayage ($S_h$) et de sensibilité ($S_v$) pour observer la déformation du signal et le calcul instantané des grandeurs électriques :</p>
+
+        <div class="oscillo-wrapper">
+          <div class="screen-container">
+            <canvas id="oscilloCanvas" width="700" height="260"></canvas>
+          </div>
+
+          <div class="oscillo-controls">
+            <div class="control-panel">
+              <label>
+                <span>Sensibilité verticale ($S_v$) :</span>
+                <span id="svLabel" style="color:var(--cma-red);">10 V/div</span>
+              </label>
+              <input type="range" class="range-slider" id="svRange" min="5" max="25" step="5" value="10" oninput="updateSim()">
+              
+              <label style="margin-top:12px;">
+                <span>Base de temps ($S_h$) :</span>
+                <span id="shLabel" style="color:var(--cma-red);">2,0 ms/div</span>
+              </label>
+              <input type="range" class="range-slider" id="shRange" min="1" max="10" step="0.5" value="2" oninput="updateSim()">
+            </div>
+
+            <div class="control-panel">
+              <label>
+                <span>Tension crête générateur :</span>
+                <span id="umaxGenLabel" style="color:var(--cma-red);">25 V</span>
+              </label>
+              <input type="range" class="range-slider" id="umaxGenRange" min="10" max="60" step="1" value="25" oninput="updateSim()">
+
+              <label style="margin-top:12px;">
+                <span>Fréquence du signal :</span>
+                <span id="fGenLabel" style="color:var(--cma-red);">100 Hz</span>
+              </label>
+              <input type="range" class="range-slider" id="fGenRange" min="25" max="250" step="5" value="100" oninput="updateSim()">
+            </div>
+          </div>
+
+          <div class="readings-grid">
+            <div class="reading-box">
+              <div class="val-title">Tension Max (Umax)</div>
+              <div class="val-num" id="simUmax">25.0 V</div>
+            </div>
+            <div class="reading-box">
+              <div class="val-title">Tension Efficace (Ueff)</div>
+              <div class="val-num" id="simUeff">17.7 V</div>
+            </div>
+            <div class="reading-box">
+              <div class="val-title">Période (T)</div>
+              <div class="val-num" id="simT">10.0 ms</div>
+            </div>
+            <div class="reading-box">
+              <div class="val-title">Fréquence (f)</div>
+              <div class="val-num" id="simF">100 Hz</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; text-align:right;">
+          <button class="btn-primary" onclick="switchStep(3)">
+            Accéder aux Exercices d'Entraînement →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ÉTAPE 3 : ENTRAÎNEMENT GAMIFIÉ SÉQUENTIEL (NIVEAUX 1, 2 ET 3)            -->
+    <!-- ========================================================================= -->
+    <section id="step-3" class="step-section">
+      <div class="card">
+        <h2>
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Parcours d'Entraînement & Validation des Compétences
+        </h2>
+        <p>Saisissez vos résultats numériques. La validation du <strong>Niveau 1</strong> débloque l'Attestation Officielle CAP à 100 %. Les Niveaux 2 et 3 récompensent l'excellence professionnelle.</p>
+
+        <!-- SÉLECTEUR DE NIVEAU -->
+        <div class="level-nav">
+          <button class="level-btn active" id="btnLvl1" onclick="switchLevel(1)">
+            <span>🟢 Niveau 1 (Socle CAP)</span>
+          </button>
+          <button class="level-btn locked" id="btnLvl2" onclick="switchLevel(2)">
+            <span>🟡 Niveau 2 (Avancé) 🔒</span>
+          </button>
+          <button class="level-btn locked" id="btnLvl3" onclick="switchLevel(3)">
+            <span>🔴 Niveau 3 (Expert) 🔒</span>
+          </button>
+        </div>
+
+        <!-- ==================== NIVEAU 1 ==================== -->
+        <div id="level-container-1">
+          <div class="card-header-badge" style="background:#DCFCE7; color:#166534;">
+            Socle Diplôme CAP Esthétique — 4 Exercices Directs
+          </div>
+
+          <!-- Exercice 1.1 -->
+          <div class="exercise-card" id="exo-1-1">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 1.1 : Stimulation galvanique</h3>
+            <p>Un appareil de stimulation galvanique en cabine émet un signal périodique de période $T = 0{,}04\text{ s}$.</p>
+            <div class="question-block">
+              <label>Calculer sa fréquence $f$ en Hertz (Hz) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-1">
+                <button class="btn-verify" onclick="checkExo('1-1', 25, 'Hz', 'f = 1 / 0,04 = 25 Hz')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-1"></div>
+            </div>
+          </div>
+
+          <!-- Exercice 1.2 -->
+          <div class="exercise-card" id="exo-1-2">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 1.2 : Réseau électrique Réunionnais (EDF)</h3>
+            <p>Le courant distribué par EDF à La Réunion a une fréquence $f = 50\text{ Hz}$.</p>
+            <div class="question-block">
+              <label>1. Calculer sa période $T$ en secondes (s) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-2-a">
+                <button class="btn-verify" onclick="checkExo('1-2-a', 0.02, 's', 'T = 1 / 50 = 0,02 s')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-2-a"></div>
+            </div>
+            <div class="question-block">
+              <label>2. Exprimer ce résultat en millisecondes (ms) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-2-b">
+                <button class="btn-verify" onclick="checkExo('1-2-b', 20, 'ms', '0,02 s x 1000 = 20 ms')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-2-b"></div>
+            </div>
+          </div>
+
+          <!-- Exercice 1.3 -->
+          <div class="exercise-card" id="exo-1-3">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 1.3 : Lampe-loupe de diagnostic cutané</h3>
+            <p>La lampe-loupe est alimentée par une tension alternative sinusoïdale de crête maximale $U_{\text{max}} = 17\text{ V}$.</p>
+            <div class="question-block">
+              <label>Calculer la tension efficace $U_{\text{eff}}$ en volts (arrondir au dixième) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-3">
+                <button class="btn-verify" onclick="checkExo('1-3', 12.0, 'V', 'Ueff = 17 / 1,414 = 12,0 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-3"></div>
+            </div>
+          </div>
+
+          <!-- Exercice 1.4 -->
+          <div class="exercise-card" id="exo-1-4">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 1.4 : Oscillogramme direct</h3>
+            <p>Sur un écran, un motif élémentaire occupe <strong>$4\text{ divisions}$</strong>. Le balayage horizontal est fixé à $S_h = 5\text{ ms/div}$.</p>
+            <div class="question-block">
+              <label>1. Calculer la période $T$ en millisecondes (ms) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-4-a">
+                <button class="btn-verify" onclick="checkExo('1-4-a', 20, 'ms', 'T = 4 div x 5 ms/div = 20 ms')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-4-a"></div>
+            </div>
+            <div class="question-block">
+              <label>2. Convertir $T$ en secondes (s) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-4-b">
+                <button class="btn-verify" onclick="checkExo('1-4-b', 0.02, 's', '20 ms / 1000 = 0,02 s')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-4-b"></div>
+            </div>
+            <div class="question-block">
+              <label>3. En déduire la fréquence $f$ en Hertz (Hz) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-1-4-c">
+                <button class="btn-verify" onclick="checkExo('1-4-c', 50, 'Hz', 'f = 1 / 0,02 = 50 Hz')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-1-4-c"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== NIVEAU 2 ==================== -->
+        <div id="level-container-2" style="display:none;">
+          <div class="card-header-badge" style="background:#FEF3C7; color:#92400E;">
+            Niveau 2 : Autonomie Professionnelle — 3 Exercices
+          </div>
+
+          <!-- Exercice 2.1 -->
+          <div class="exercise-card" id="exo-2-1">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 2.1 : Appareil d'ionophorèse anti-âge</h3>
+            <p>Réglages : $S_v = 5\text{ V/div}$ et $S_h = 2\text{ ms/div}$. La courbe monte à $2{,}8\text{ divisions}$ et un cycle complet dure $5\text{ divisions}$.</p>
+            <div class="question-block">
+              <label>1. Tension maximale $U_{\text{max}}$ (en V) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-1-a">
+                <button class="btn-verify" onclick="checkExo('2-1-a', 14, 'V', 'Umax = 2,8 x 5 = 14 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-1-a"></div>
+            </div>
+            <div class="question-block">
+              <label>2. Tension efficace $U_{\text{eff}}$ en V (arrondir au dixième) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-1-b">
+                <button class="btn-verify" onclick="checkExo('2-1-b', 9.9, 'V', 'Ueff = 14 / 1,414 = 9,9 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-1-b"></div>
+            </div>
+            <div class="question-block">
+              <label>3. Période $T$ en millisecondes (ms) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-1-c">
+                <button class="btn-verify" onclick="checkExo('2-1-c', 10, 'ms', 'T = 5 x 2 ms/div = 10 ms')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-1-c"></div>
+            </div>
+            <div class="question-block">
+              <label>4. Fréquence $f$ en Hertz (Hz) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-1-d">
+                <button class="btn-verify" onclick="checkExo('2-1-d', 100, 'Hz', 'f = 1 / 0,01 = 100 Hz')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-1-d"></div>
+            </div>
+          </div>
+
+          <!-- Exercice 2.2 -->
+          <div class="exercise-card" id="exo-2-2">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 2.2 : Sonde ultrasonore de cavitation</h3>
+            <p>Le générateur émet un signal de fréquence $f = 250\text{ Hz}$ et le voltmètre relève $U_{\text{eff}} = 24\text{ V}$.</p>
+            <div class="question-block">
+              <label>1. Période $T$ en secondes (s) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-2-a">
+                <button class="btn-verify" onclick="checkExo('2-2-a', 0.004, 's', 'T = 1 / 250 = 0,004 s')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-2-a"></div>
+            </div>
+            <div class="question-block">
+              <label>2. Période $T$ en millisecondes (ms) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-2-b">
+                <button class="btn-verify" onclick="checkExo('2-2-b', 4, 'ms', '0,004 s x 1000 = 4 ms')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-2-b"></div>
+            </div>
+            <div class="question-block">
+              <label>3. Valeur de crête maximale $U_{\text{max}}$ en V (arrondir au dixième) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-2-c">
+                <button class="btn-verify" onclick="checkExo('2-2-c', 33.9, 'V', 'Umax = 24 x 1,414 = 33,9 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-2-c"></div>
+            </div>
+          </div>
+
+          <!-- Exercice 2.3 -->
+          <div class="exercise-card" id="exo-2-3">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 2.3 : Vapozone à Sainte-Clotilde</h3>
+            <p>Une apprentie mesure une tension efficace de $230\text{ V}$ au multimètre sur la prise de son vapozone.</p>
+            <div class="question-block">
+              <label>Quelle valeur maximale $U_{\text{max}}$ (arrondie à l'unité en V) observerait-elle à l'oscilloscope ?</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-2-3">
+                <button class="btn-verify" onclick="checkExo('2-3', 325, 'V', 'Umax = 230 x 1,414 = 325 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-2-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== NIVEAU 3 ==================== -->
+        <div id="level-container-3" style="display:none;">
+          <div class="card-header-badge" style="background:#FEE2E2; color:#991B1B;">
+            Niveau 3 : Défi Excellence / Bac Pro — 2 Exercices Complexes
+          </div>
+
+          <!-- Exercice 3.1 -->
+          <div class="exercise-card" id="exo-3-1">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 3.1 : Diagnostic d'anomalie Haute Fréquence (Saint-Gilles)</h3>
+            <p>Notice constructeur : $U_{\text{max}} = 85\text{ V } (\pm 5\text{ V})$ et $f = 500\text{ Hz}$. Réglages oscilloscope : $S_v = 20\text{ V/div}$ et $S_h = 0{,}5\text{ ms/div}$. Mesures : $4{,}5\text{ divisions}$ en hauteur et $3{,}8\text{ divisions}$ en largeur.</p>
+            <div class="question-block">
+              <label>1. Tension maximale mesurée $U_{\text{max}}$ (en V) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-1-a">
+                <button class="btn-verify" onclick="checkExo('3-1-a', 90, 'V', 'Umax = 4,5 x 20 = 90 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-1-a"></div>
+            </div>
+            <div class="question-block">
+              <label>2. Période réelle $T$ en millisecondes (ms) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-1-b">
+                <button class="btn-verify" onclick="checkExo('3-1-b', 1.9, 'ms', 'T = 3,8 x 0,5 = 1,9 ms')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-1-b"></div>
+            </div>
+            <div class="question-block">
+              <label>3. Fréquence réelle $f$ en Hertz (Hz) arrondie à l'unité :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-1-c">
+                <button class="btn-verify" onclick="checkExo('3-1-c', 526, 'Hz', 'f = 1 / 0,0019 = 526,3 Hz')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-1-c"></div>
+            </div>
+          </div>
+
+          <!-- Exercice 3.2 -->
+          <div class="exercise-card" id="exo-3-2">
+            <h3><img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet"> Exercice 3.2 : Combiné visage bifréquence</h3>
+            <p>Mode 1 (Purifiant) : $T_1 = 10\text{ ms}$ et $U_{\text{max}1} = 45\text{ V}$. Mode 2 (Tonifiant) : $f_2 = 200\text{ Hz}$ et $U_{\text{eff}2} = 18\text{ V}$.</p>
+            <div class="question-block">
+              <label>1. Fréquence $f_1$ du Mode 1 en Hz :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-2-a">
+                <button class="btn-verify" onclick="checkExo('3-2-a', 100, 'Hz', 'f1 = 1 / 0,01 = 100 Hz')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-2-a"></div>
+            </div>
+            <div class="question-block">
+              <label>2. Tension efficace $U_{\text{eff}1}$ du Mode 1 en V (arrondir au dixième) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-2-b">
+                <button class="btn-verify" onclick="checkExo('3-2-b', 31.8, 'V', 'Ueff1 = 45 / 1,414 = 31,8 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-2-b"></div>
+            </div>
+            <div class="question-block">
+              <label>3. Période $T_2$ du Mode 2 en millisecondes (ms) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-2-c">
+                <button class="btn-verify" onclick="checkExo('3-2-c', 5, 'ms', 'T2 = 1 / 200 = 0,005 s = 5 ms')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-2-c"></div>
+            </div>
+            <div class="question-block">
+              <label>4. Tension maximale $U_{\text{max}2}$ du Mode 2 en V (arrondir au dixième) :</label>
+              <div class="input-row">
+                <input type="number" step="any" placeholder="Votre résultat..." id="input-3-2-d">
+                <button class="btn-verify" onclick="checkExo('3-2-d', 25.5, 'V', 'Umax2 = 18 x 1,414 = 25,5 V')">Valider</button>
+              </div>
+              <div class="feedback-msg" id="feedback-3-2-d"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+          <span id="scoreCapLabel" style="font-weight:700; font-size:0.9rem; color:var(--cma-red);">Score Socle CAP : 0 / 7</span>
+          <button class="btn-primary" onclick="switchStep(4)">
+            Accéder à l'Attestation Numérique →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ÉTAPE 4 : BILAN QUALIOPI & ATTESTATION NUMÉRIQUE OFFICIELLE              -->
+    <!-- ========================================================================= -->
+    <section id="step-4" class="step-section">
+      <div class="attestation-wrapper">
+        <div class="attestation-header">
+          <img src="logo.png" alt="Logo CMA Formation" style="max-height: 48px; margin-bottom: 8px;">
+          <div class="attestation-title">Attestation de Réussite Numérique</div>
+          <div class="attestation-subtitle">Chambre de Métiers et de l'Artisanat de La Réunion — CMA Formation Sainte-Clotilde</div>
+        </div>
+
+        <div class="student-id-grid">
+          <div>
+            <label style="font-size:0.75rem; font-weight:700; color:#64748B;">NOM & PRÉNOM DE L'APPRENTI(E) :</label>
+            <input type="text" id="attestName" placeholder="Entrez votre nom..." style="max-width:100%;" oninput="saveAttestData()">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; font-weight:700; color:#64748B;">DATE D'ÉVALUATION :</label>
+            <input type="text" id="attestDate" readonly style="max-width:100%; background:#F8FAFC;">
+          </div>
+        </div>
+
+        <div class="highlight-box" style="border-left-color:var(--cma-red);">
+          <p><strong>Formation :</strong> Certificat d'Aptitude Professionnelle (CAP) Esthétique Cosmétique Parfumerie</p>
+          <p><strong>Unité d'Enseignement :</strong> Physique-Chimie (Épreuve ponctuelle écrite EG2)</p>
+          <p><strong>Module :</strong> Séance A2 S3 P1 — Électricité : Période, Fréquence et Valeur Efficace</p>
+          <p><strong>Formateur Référent :</strong> Rachel Lamberet-Lezais</p>
+        </div>
+
+        <h3 style="font-size:0.95rem; margin-top:14px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Badges de Compétences Obtenus
+        </h3>
+
+        <div class="badges-flex">
+          <div class="badge-card" id="badgeCardCap">
+            <div class="badge-icon">🎓</div>
+            <div class="badge-name">Socle CAP 100%</div>
+            <div class="badge-status" id="badgeCapStatus">En cours</div>
+          </div>
+          <div class="badge-card" id="badgeCardLvl2">
+            <div class="badge-icon">⚡</div>
+            <div class="badge-name">Autonomie Métier</div>
+            <div class="badge-status" id="badgeLvl2Status">Verrouillé</div>
+          </div>
+          <div class="badge-card" id="badgeCardLvl3">
+            <div class="badge-icon">🏆</div>
+            <div class="badge-name">Excellence Bac Pro</div>
+            <div class="badge-status" id="badgeLvl3Status">Verrouillé</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:0.95rem; margin-top:14px;">
+          <img src="fleche_rouge.png" alt="Puce CMA" class="icon-bullet">
+          Grille d'Évaluation des Compétences (Norme Qualiopi)
+        </h3>
+
+        <table class="qualiopi-table">
+          <thead>
+            <tr>
+              <th>Compétence</th>
+              <th>Capacité Évaluée</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>C1 : S'informer</strong></td>
+              <td>Identifier la nature alternative périodique et lire les réglages ($S_v$, $S_h$).</td>
+              <td id="comp-c1"><span class="badge-soft">À évaluer</span></td>
+            </tr>
+            <tr>
+              <td><strong>C2 : Exécuter</strong></td>
+              <td>Relever $U_{\text{max}}$ et mesurer la période $T$ avec conversion en secondes.</td>
+              <td id="comp-c2"><span class="badge-soft">À évaluer</span></td>
+            </tr>
+            <tr>
+              <td><strong>C3 : Raisonner</strong></td>
+              <td>Calculer $f = 1/T$ et $U_{\text{eff}} = U_{\text{max}} / \sqrt{2}$.</td>
+              <td id="comp-c3"><span class="badge-soft">À évaluer</span></td>
+            </tr>
+            <tr>
+              <td><strong>C4 : Communiquer</strong></td>
+              <td>Valider la conformité de l'appareil par rapport aux normes de sécurité cutanée.</td>
+              <td id="comp-c4"><span class="badge-soft">À évaluer</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="font-size:0.75rem; color:#64748B; text-align:center; margin-top:14px;">
+          Document numérique certifié conforme — CMA Formation de Sainte-Clotilde (Île de La Réunion).
+        </div>
+
+        <div class="btn-action-row">
+          <button class="btn-primary" onclick="window.print()">
+            Imprimer / Enregistrer en PDF
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       GESTION DE LA NAVIGATION ET DE LA PROGRESSION
+       ========================================================================== */
+    let currentStep = 1;
+    const validatedExos = new Set();
+    const totalCapExos = 7; // 1-1, 1-2a, 1-2b, 1-3, 1-4a, 1-4b, 1-4c
+
+    function switchStep(stepNum) {
+      currentStep = stepNum;
+      document.querySelectorAll('.step-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      const targetSec = document.getElementById('step-' + stepNum);
+      const targetBtn = document.getElementById('tabBtn' + stepNum);
+      if (targetSec) targetSec.classList.add('active');
+      if (targetBtn) targetBtn.classList.add('active');
+
+      // Mise à jour de la barre de progression
+      const progressPercent = (stepNum / 4) * 100;
+      document.getElementById('globalProgressBar').style.width = progressPercent + '%';
+
+      if (stepNum === 2) {
+        setTimeout(initCanvas, 50);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleAcc(btn) {
+      const content = btn.nextElementSibling;
+      const isOpen = content.classList.contains('open');
+      document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('open'));
+      if (!isOpen) content.classList.add('open');
+    }
+
+    function showExplo(card, text) {
+      document.querySelectorAll('.interactive-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const box = document.getElementById('exploDetail');
+      box.style.display = 'block';
+      box.innerHTML = '<strong>Fiche Technique :</strong> ' + text;
+    }
+
+    /* ==========================================================================
+       GESTION DES NIVEAUX D'ENTRAÎNEMENT & VERROUILLAGE
+       ========================================================================== */
+    function switchLevel(lvl) {
+      if (lvl === 2 && !isLvl1Completed()) {
+        alert("Validez l'intégralité du Niveau 1 (Socle CAP) pour débloquer le Niveau 2 !");
+        return;
+      }
+      if (lvl === 3 && !isLvl2Completed()) {
+        alert("Validez le Niveau 2 pour accéder au Niveau 3 Expert !");
+        return;
+      }
+
+      document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btnLvl' + lvl).classList.add('active');
+
+      document.getElementById('level-container-1').style.display = (lvl === 1) ? 'block' : 'none';
+      document.getElementById('level-container-2').style.display = (lvl === 2) ? 'block' : 'none';
+      document.getElementById('level-container-3').style.display = (lvl === 3) ? 'block' : 'none';
+    }
+
+    function isLvl1Completed() {
+      const req = ['1-1', '1-2-a', '1-2-b', '1-3', '1-4-a', '1-4-b', '1-4-c'];
+      return req.every(id => validatedExos.has(id));
+    }
+
+    function isLvl2Completed() {
+      const req = ['2-1-a', '2-1-b', '2-1-c', '2-1-d', '2-2-a', '2-2-b', '2-2-c', '2-3'];
+      return req.every(id => validatedExos.has(id));
+    }
+
+    function isLvl3Completed() {
+      const req = ['3-1-a', '3-1-b', '3-1-c', '3-2-a', '3-2-b', '3-2-c', '3-2-d'];
+      return req.every(id => validatedExos.has(id));
+    }
+
+    /* ==========================================================================
+       VALIDATION BIENVEILLANTE DES RÉPONSES (AVEC TOLÉRANCE DÉCIMALE)
+       ========================================================================== */
+    function checkExo(id, targetVal, unit, explanation) {
+      const inputEl = document.getElementById('input-' + id);
+      const feedbackEl = document.getElementById('feedback-' + id);
+      if (!inputEl || !feedbackEl) return;
+
+      const rawVal = inputEl.value.trim().replace(',', '.');
+      if (rawVal === '') {
+        feedbackEl.className = 'feedback-msg error';
+        feedbackEl.innerHTML = '<strong>Attention :</strong> Veuillez saisir un résultat numérique avant de valider.';
+        return;
+      }
+
+      const userVal = parseFloat(rawVal);
+      // Tolérance bienveillante aux micro-arrondis
+      const tolerance = (targetVal < 0.1) ? 0.005 : 0.2;
+      const isCorrect = Math.abs(userVal - targetVal) <= tolerance;
+
+      if (isCorrect) {
+        feedbackEl.className = 'feedback-msg success';
+        feedbackEl.innerHTML = '<strong>Excellent !</strong> Réponse exacte : <em>' + userVal + ' ' + unit + '</em>.<br>Démarche : ' + explanation;
+        inputEl.style.borderColor = '#16A34A';
+        validatedExos.add(id);
+      } else {
+        feedbackEl.className = 'feedback-msg error';
+        feedbackEl.innerHTML = '<strong>Résultat incorrect :</strong> Vérifiez votre calcul ou la formule appliquée. Conseil : reprenez les données de l\'énoncé et les conversions.';
+        inputEl.style.borderColor = '#DC2626';
+      }
+
+      updateProgressAndBadges();
+    }
+
+    function updateProgressAndBadges() {
+      // Calcul du score Niveau 1 (Socle CAP)
+      const capExos = ['1-1', '1-2-a', '1-2-b', '1-3', '1-4-a', '1-4-b', '1-4-c'];
+      let capScore = 0;
+      capExos.forEach(id => {
+        if (validatedExos.has(id)) capScore++;
+      });
+      document.getElementById('scoreCapLabel').innerText = 'Score Socle CAP : ' + capScore + ' / ' + totalCapExos;
+
+      // Déblocage Niveau 2
+      if (isLvl1Completed()) {
+        const btnLvl2 = document.getElementById('btnLvl2');
+        btnLvl2.classList.remove('locked');
+        btnLvl2.innerHTML = '<span>🟡 Niveau 2 (Avancé)</span>';
+
+        // Badge CAP débloqué
+        const badgeCap = document.getElementById('badgeCardCap');
+        badgeCap.classList.add('unlocked');
+        document.getElementById('badgeCapStatus').innerText = 'Validé à 100%';
+        document.getElementById('badgeCapStatus').style.color = 'var(--cma-red)';
+      }
+
+      // Déblocage Niveau 3
+      if (isLvl2Completed()) {
+        const btnLvl3 = document.getElementById('btnLvl3');
+        btnLvl3.classList.remove('locked');
+        btnLvl3.innerHTML = '<span>🔴 Niveau 3 (Expert)</span>';
+
+        // Badge Niveau 2 débloqué
+        const badgeL2 = document.getElementById('badgeCardLvl2');
+        badgeL2.classList.add('unlocked');
+        document.getElementById('badgeLvl2Status').innerText = 'Validé';
+        document.getElementById('badgeLvl2Status').style.color = 'var(--cma-red)';
+      }
+
+      if (isLvl3Completed()) {
+        const badgeL3 = document.getElementById('badgeCardLvl3');
+        badgeL3.classList.add('unlocked');
+        document.getElementById('badgeLvl3Status').innerText = 'Validé (Excellence)';
+        document.getElementById('badgeLvl3Status').style.color = 'var(--cma-red)';
+      }
+
+      // Mise à jour Qualiopi
+      updateQualiopiTable(capScore);
+    }
+
+    function updateQualiopiTable(capScore) {
+      const c1 = document.getElementById('comp-c1');
+      const c2 = document.getElementById('comp-c2');
+      const c3 = document.getElementById('comp-c3');
+      const c4 = document.getElementById('comp-c4');
+
+      if (validatedExos.has('1-4-a') || validatedExos.has('2-1-c')) {
+        c1.innerHTML = '<span style="color:#16A34A; font-weight:700;">Acquis</span>';
+      }
+      if (validatedExos.has('1-3') && validatedExos.has('1-4-b')) {
+        c2.innerHTML = '<span style="color:#16A34A; font-weight:700;">Acquis</span>';
+      }
+      if (validatedExos.has('1-1') && validatedExos.has('1-4-c')) {
+        c3.innerHTML = '<span style="color:#16A34A; font-weight:700;">Acquis</span>';
+      }
+      if (isLvl1Completed()) {
+        c4.innerHTML = '<span style="color:#16A34A; font-weight:700;">Acquis</span>';
+      }
+    }
+
+    /* ==========================================================================
+       SIMULATEUR OSCILLOSCOPE HTML5 CANVAS
+       ========================================================================== */
+    const canvas = document.getElementById('oscilloCanvas');
+    let ctx = null;
+
+    function initCanvas() {
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      drawOscilloscope();
+    }
+
+    function updateSim() {
+      const sv = parseFloat(document.getElementById('svRange').value);
+      const sh = parseFloat(document.getElementById('shRange').value);
+      const umax = parseFloat(document.getElementById('umaxGenRange').value);
+      const f = parseFloat(document.getElementById('fGenRange').value);
+
+      document.getElementById('svLabel').innerText = sv + ' V/div';
+      document.getElementById('shLabel').innerText = sh.toFixed(1).replace('.', ',') + ' ms/div';
+      document.getElementById('umaxGenLabel').innerText = umax + ' V';
+      document.getElementById('fGenLabel').innerText = f + ' Hz';
+
+      const ueff = (umax / Math.SQRT2).toFixed(1);
+      const tMs = ((1 / f) * 1000).toFixed(1);
+
+      document.getElementById('simUmax').innerText = umax.toFixed(1) + ' V';
+      document.getElementById('simUeff').innerText = ueff + ' V';
+      document.getElementById('simT').innerText = tMs + ' ms';
+      document.getElementById('simF').innerText = f + ' Hz';
+
+      drawOscilloscope();
+    }
+
+    function drawOscilloscope() {
+      if (!ctx || !canvas) return;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Fond écran cathodique
+      ctx.fillStyle = '#03201a';
+      ctx.fillRect(0, 0, w, h);
+
+      // Grille (10 div horizontales x 8 div verticales)
+      const divX = 10;
+      const divY = 8;
+      const stepX = w / divX;
+      const stepY = h / divY;
+
+      ctx.strokeStyle = '#064e3b';
+      ctx.lineWidth = 1;
+
+      // Lignes de grille
+      for (let x = 0; x <= w; x += stepX) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= h; y += stepY) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Axes centraux renforcés avec graduations
+      ctx.strokeStyle = '#059669';
+      ctx.lineWidth = 1.5;
+      const midX = w / 2;
+      const midY = h / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(0, midY);
+      ctx.lineTo(w, midY);
+      ctx.moveTo(midX, 0);
+      ctx.lineTo(midX, h);
+      ctx.stroke();
+
+      // Courbe sinusoïdale
+      const sv = parseFloat(document.getElementById('svRange').value);
+      const sh = parseFloat(document.getElementById('shRange').value);
+      const umax = parseFloat(document.getElementById('umaxGenRange').value);
+      const f = parseFloat(document.getElementById('fGenRange').value);
+
+      const ampDiv = umax / sv;
+      const ampPixels = ampDiv * stepY;
+
+      const tSec = 1 / f;
+      const tMs = tSec * 1000;
+      const periodDiv = tMs / sh;
+      const periodPixels = periodDiv * stepX;
+
+      ctx.strokeStyle = '#34D399';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#10B981';
+      ctx.shadowBlur = 8;
+
+      ctx.beginPath();
+      for (let px = 0; px < w; px++) {
+        const timeRatio = (px / periodPixels) * 2 * Math.PI;
+        const py = midY - Math.sin(timeRatio) * ampPixels;
+        if (px === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0; // Réinitialisation de l'effet d'ombre
+    }
+
+    /* ==========================================================================
+       ATTESTATION ET PERSISTANCE LOCALE
+       ========================================================================== */
+    function saveAttestData() {
+      const name = document.getElementById('attestName').value;
+      localStorage.setItem('cma_apprentice_name', name);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Date du jour automatique
+      const now = new Date();
+      const options = { day: '2-digit', month: 'long', year: 'numeric' };
+      document.getElementById('attestDate').value = now.toLocaleDateString('fr-FR', options);
+
+      // Chargement du nom sauvegardé
+      const savedName = localStorage.getItem('cma_apprentice_name');
+      if (savedName) {
+        document.getElementById('attestName').value = savedName;
+      }
+
+      initCanvas();
+    });
+  </script>
+</body>
+</html>
