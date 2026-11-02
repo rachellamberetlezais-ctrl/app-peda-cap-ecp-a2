@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMA Formation - Comparaison de deux tarifs fournisseurs</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- MathJax v3 pour le rendu des formules statiques LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    /* Charte graphique officielle CMA Formation Sainte-Clotilde */
+    :root {
+      --cma-bordeaux: #A50F23;
+      --cma-corail: #EE3C3D;
+      --cma-bg: #F8FAFC;
+      --cma-text: #1E293B;
+    }
+
+    body {
+      font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--cma-bg);
+      color: var(--cma-text);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* En-tête officiel CMA Formation */
+    .app-header {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 20px;
+      background: linear-gradient(135deg, #7C0A1A 0%, #A50F23 55%, #B9132A 100%);
+    }
+
+    .app-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .icon-bullet {
+      height: 18px;
+      width: 18px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+
+    /* Ruban vague répétitif au bord inférieur du header (hauteur 14px) */
+    .cma-wave-border {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: 14px;
+      margin: 0;
+      border: 0;
+      background-image: url("ruban_vague.png");
+      background-repeat: repeat-x;
+      background-size: 102.941176px 102.941176px;
+      background-position: left -46.941176px;
+    }
+
+    /* Champs de saisie tactiles Mobile-First */
+    .cma-input {
+      min-height: 44px;
+      font-size: 16px;
+      border: 2px solid #CBD5E1;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s ease;
+      background-color: #FFFFFF;
+      color: #0F172A;
+    }
+    .cma-input:focus {
+      border-color: var(--cma-corail);
+      box-shadow: 0 0 0 3px rgba(238, 60, 61, 0.18);
+    }
+    .cma-input.valid {
+      border-color: #10B981;
+      background-color: #F0FDF4;
+    }
+    .cma-input.invalid {
+      border-color: #EF4444;
+      background-color: #FEF2F2;
+    }
+
+    /* Boutons tactiles (>= 44x44px) */
+    .cma-btn {
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      transition: background-color 0.15s ease, transform 0.05s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .cma-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Canvas interactif responsive */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      background-color: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 330px;
+    }
+
+    /* Masquer ascenseur horizontal */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Impression propre de l'attestation */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #print-area {
+        display: block !important;
+        position: static !important;
+        border: 2px solid #A50F23 !important;
+        padding: 24px !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ============================================================== -->
+  <!-- EN-TÊTE OFFICIEL CMA FORMATION SAINTE-CLOTILDE                 -->
+  <!-- ============================================================== -->
+  <header class="app-header text-white shadow-md no-print">
+    <div class="max-w-4xl mx-auto px-4 pt-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="logo.png" alt="Logo CMA Formation" class="app-logo" onerror="this.onerror=null; this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation';">
+        <div>
+          <span class="inline-block bg-white/20 text-xs px-2 py-0.5 rounded font-bold uppercase tracking-wide">CMA Sainte-Clotilde</span>
+          <h1 class="text-sm sm:text-base font-bold leading-tight">CAP Esthétique Cosmétique Parfumerie</h1>
+        </div>
+      </div>
+      <div class="text-right hidden sm:block">
+        <span class="text-xs text-red-100 block">Séance A2 S5 M2</span>
+        <span class="text-xs font-semibold text-white">Fonctions : Comparaison de deux tarifs</span>
+      </div>
+    </div>
+
+    <!-- Contexte pédagogique -->
+    <div class="max-w-4xl mx-auto px-4 mt-2 mb-1 flex items-center justify-between">
+      <div class="text-xs sm:text-sm text-red-100 font-medium">
+        <span>Arbitrage entre grossistes de cire à La Réunion (Le Port vs Saint-Denis)</span>
+      </div>
+      <span class="text-[11px] bg-white/10 px-2 py-0.5 rounded text-white/90 hidden sm:inline">Formatrice : Rachel Lamberet-Lezais</span>
+    </div>
+
+    <!-- Ruban Vague CMA (hauteur 14px) -->
+    <div class="cma-wave-border"></div>
+  </header>
+
+  <!-- Barre de progression générale (8px) -->
+  <div class="bg-slate-200 w-full h-2 sticky top-0 z-40 no-print">
+    <div id="global-progress" class="h-2 bg-gradient-to-r from-[#EE3C3D] to-[#A50F23] transition-all duration-500 ease-out" style="width: 0%;"></div>
+  </div>
+
+  <!-- Barre de navigation tactile horizontale 4 Étapes -->
+  <nav class="bg-white border-b border-slate-200 sticky top-2 z-30 shadow-sm no-print">
+    <div class="max-w-4xl mx-auto px-2 py-2 flex items-center space-x-2 overflow-x-auto no-scrollbar">
+      <button onclick="switchTab(1)" id="tab-btn-1" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-[#A50F23] text-white shadow">
+        1. Découverte
+      </button>
+      <button onclick="switchTab(2)" id="tab-btn-2" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">
+        2. Cours &amp; Simulateur
+      </button>
+      <button onclick="switchTab(3)" id="tab-btn-3" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">
+        3. Entraînement
+      </button>
+      <button onclick="switchTab(4)" id="tab-btn-4" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">
+        4. Bilan &amp; Attestation
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================== -->
+  <!-- CONTENEUR PRINCIPAL                                            -->
+  <!-- ============================================================== -->
+  <main class="flex-grow max-w-4xl w-full mx-auto p-3 sm:p-6 space-y-6">
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 1 : DÉCOUVERTE PROFESSIONNELLE                          -->
+    <!-- ============================================================== -->
+    <section id="stage-1" class="stage-container space-y-5">
+      <!-- Contexte professionnel local -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Situation Professionnelle : Institut « Éden Beauté » à Sainte-Clotilde
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          Vous êtes esthéticienne responsable des approvisionnements à l'institut <strong>« Éden Beauté »</strong> situé à Sainte-Clotilde (La Réunion). Pour ses soins d'épilation, l'institut consomme chaque mois des sachets de 1 kg de cire pelable tiède sans bandes et des consommables d'hygiène.
+        </p>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          La gérante met en concurrence deux grossistes locaux réputés sur l'île de La Réunion :
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <!-- Grossiste A -->
+          <div class="p-3 bg-red-50/70 rounded-lg border border-red-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-[#A50F23] uppercase">Grossiste A (Le Port)</span>
+              <span class="text-[10px] bg-[#A50F23] text-white px-2 py-0.5 rounded font-semibold">Fournisseur Océan Indien</span>
+            </div>
+            <p class="text-slate-700">• Prix unitaire : <strong>12 €</strong> par sachet de 1 kg.</p>
+            <p class="text-slate-700">• Acheminement sécurisé frigorifié : forfait fixe de <strong>60 €</strong> par commande.</p>
+            <div class="text-center font-bold text-[#A50F23] py-1 bg-white rounded border border-red-100">
+              $f(x) = 12x + 60$
+            </div>
+          </div>
+
+          <!-- Grossiste B -->
+          <div class="p-3 bg-blue-50/70 rounded-lg border border-blue-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-blue-900 uppercase">Grossiste B (Saint-Denis)</span>
+              <span class="text-[10px] bg-blue-700 text-white px-2 py-0.5 rounded font-semibold">Distributeur Esthétique Péi</span>
+            </div>
+            <p class="text-slate-700">• Prix unitaire : <strong>15 €</strong> par sachet de 1 kg.</p>
+            <p class="text-slate-700">• Livraison de proximité : forfait fixe de <strong>24 €</strong> par commande.</p>
+            <div class="text-center font-bold text-blue-800 py-1 bg-white rounded border border-blue-100">
+              $g(x) = 15x + 24$
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900">
+          <strong>Problématique professionnelle :</strong> Pour quel volume de commande $x$ les deux factures sont-elles exactement identiques ? Quel grossiste choisir pour 8 sachets ? et pour 20 sachets ?
+        </div>
+      </div>
+
+      <!-- Investigation & Démarche Mathématique -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Démarche d'Investigation &amp; Modélisation Mathématique
+        </h3>
+
+        <!-- Q4 : Coefficients des fonctions -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-[#A50F23] bg-red-100 px-2 py-0.5 rounded">C1 - S'informer &amp; C2 - Exécuter</span>
+          <p class="text-xs sm:text-sm text-slate-800 font-medium">
+            Q4. Les fonctions $f(x)=12x+60$ et $g(x)=15x+24$ sont des fonctions affines. Identifiez leurs caractéristiques :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <span class="font-bold text-[#A50F23] block">Grossiste A : $f(x)$</span>
+              <label class="block text-slate-600">Pente / Prix unitaire $a_1$ (€) :</label>
+              <input type="text" inputmode="decimal" id="inv-a1" class="cma-input" placeholder="Votre résultat...">
+              <label class="block text-slate-600 pt-1">Frais fixes $b_1$ (€) :</label>
+              <input type="text" inputmode="decimal" id="inv-b1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <span class="font-bold text-blue-800 block">Grossiste B : $g(x)$</span>
+              <label class="block text-slate-600">Pente / Prix unitaire $a_2$ (€) :</label>
+              <input type="text" inputmode="decimal" id="inv-a2" class="cma-input" placeholder="Votre résultat...">
+              <label class="block text-slate-600 pt-1">Frais fixes $b_2$ (€) :</label>
+              <input type="text" inputmode="decimal" id="inv-b2" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkInvQ4()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Valider les coefficients</button>
+            <div id="fb-inv-q4" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Q5 : Équation d'égalité et montant commun -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-[#A50F23] bg-red-100 px-2 py-0.5 rounded">C2 - Exécuter &amp; C3 - Raisonner</span>
+          <p class="text-xs sm:text-sm text-slate-800 font-medium">
+            Q5. Résolvez $f(x) = g(x) \iff 12x + 60 = 15x + 24$ pour trouver le nombre de sachets d'indifférence et le montant de la facture :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="space-y-1">
+              <label class="font-semibold text-slate-700 block">Quantité de sachets d'égalité $x$ :</label>
+              <input type="text" inputmode="decimal" id="inv-x-equil" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="space-y-1">
+              <label class="font-semibold text-slate-700 block">Montant commun payé (€) :</label>
+              <input type="text" inputmode="decimal" id="inv-cost-equil" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkInvQ5()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Valider l'équation</button>
+            <div id="fb-inv-q5" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Q7 : Tableau comparatif pour 8 et 20 sachets -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-[#A50F23] bg-red-100 px-2 py-0.5 rounded">C3 - Appliquer &amp; C4 - Communiquer</span>
+          <p class="text-xs sm:text-sm text-slate-800 font-medium">
+            Q7. Calculez les factures pour 8 sachets et 20 sachets afin d'arbitrer les commandes :
+          </p>
+          <div class="overflow-x-auto pb-1">
+            <table class="min-w-full text-xs text-center border-collapse">
+              <thead>
+                <tr class="bg-slate-200 text-slate-700">
+                  <th class="p-2 border border-slate-300">Commande</th>
+                  <th class="p-2 border border-slate-300">Grossiste A : $12x+60$</th>
+                  <th class="p-2 border border-slate-300">Grossiste B : $15x+24$</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border border-slate-300 font-semibold bg-white">8 sachets</td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-a-8" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-b-8" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                </tr>
+                <tr>
+                  <td class="p-2 border border-slate-300 font-semibold bg-white">20 sachets</td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-a-20" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-b-20" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkInvQ7()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Valider l'arbitrage</button>
+            <div id="fb-inv-q7" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button onclick="switchTab(2)" class="cma-btn px-5 py-2.5 bg-[#A50F23] text-white text-xs sm:text-sm shadow-md">
+            Passer à l'Étape 2 : Cours &amp; Simulateur →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 2 : COURS & SIMULATEUR INTERACTIF                       -->
+    <!-- ============================================================== -->
+    <section id="stage-2" class="stage-container space-y-5 hidden">
+      <!-- Synthèse de cours sous accordéons -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Synthèse de Cours : Comparaison de deux tarifs affines &amp; Intersection
+        </h2>
+
+        <!-- Accordéon 1 -->
+        <details class="group bg-slate-50 border border-slate-200 rounded-lg p-3" open>
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer flex justify-between items-center">
+            <span>1. Modélisation affine d'une formule commerciale</span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="mt-2 text-xs sm:text-sm text-slate-600 space-y-2">
+            <p>Dans un contrat commercial associant un coût variable par article et des frais fixes incompressibles :</p>
+            <div class="p-2 bg-white rounded border border-slate-200 text-center font-bold text-[#A50F23]">
+              $\text{Coût Total}(x) = (\text{Prix unitaire} \times x) + \text{Frais fixes} \implies f(x) = ax + b$
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-700">
+              <li><strong>$a$ (pente / coefficient directeur) :</strong> prix facturé pour chaque unité supplémentaire.</li>
+              <li><strong>$b$ (ordonnée à l'origine) :</strong> montant fixe facturé même si $x = 0$ (transport, abonnement).</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Accordéon 2 -->
+        <details class="group bg-slate-50 border border-slate-200 rounded-lg p-3" open>
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer flex justify-between items-center">
+            <span>2. Seuil d'indifférence et lecture graphique</span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="mt-2 text-xs sm:text-sm text-slate-600 space-y-2">
+            <p>Pour deux offres $f(x) = a_1 x + b_1$ et $g(x) = a_2 x + b_2$ (avec $a_1 \ne a_2$) :</p>
+            <ul class="list-disc list-inside space-y-1 text-slate-700">
+              <li>Le <strong>point d'intersection $I(x_I ; y_I)$</strong> correspond à l'égalité stricte des deux factures ($f(x) = g(x)$).</li>
+              <li><strong>Avant $x_I$ ($x < x_I$) :</strong> l'offre la plus économique est celle dont la droite est <em>située en dessous</em> (celle ayant les frais fixes les plus bas).</li>
+              <li><strong>Après $x_I$ ($x > x_I$) :</strong> l'offre la plus économique est celle dont la droite passe <em>en dessous</em> (celle ayant le tarif unitaire le plus bas).</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Accordéon 3 -->
+        <details class="group bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer flex justify-between items-center">
+            <span>3. Application directe au cas des grossistes en cire</span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="mt-2 text-xs sm:text-sm text-slate-600 space-y-1">
+            <p>Grossiste A : $f(x) = 12x + 60$ | Grossiste B : $g(x) = 15x + 24$</p>
+            <p>Équation : $12x + 60 = 15x + 24 \implies 60 - 24 = 15x - 12x \implies 36 = 3x \implies x = 12$ sachets.</p>
+            <p class="font-semibold text-[#A50F23]">Pour $x = 12$ sachets, la facture commune est de 204 €. Avant 12 sachets, le Grossiste B est moins cher ; au-delà de 12 sachets, le Grossiste A est le plus économique.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Simulateur Interactif Canvas 2D de Comparaison Tarifaire -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
+            <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+            Simulateur Graphique : Comparaison des deux droites en direct
+          </h3>
+          <span class="text-[11px] bg-red-100 text-[#A50F23] font-bold px-2 py-0.5 rounded">Canvas 2D</span>
+        </div>
+        <p class="text-xs text-slate-600">
+          Modifiez les paramètres des deux grossistes ou le volume commandé pour observer le déplacement du point d'intersection et la droite la plus économique :
+        </p>
+
+        <!-- Contrôles et Sliders -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+          <div class="flex justify-between items-center">
+            <button onclick="resetGrossistesCMA()" class="cma-btn px-3 py-1.5 text-xs bg-[#A50F23] text-white rounded-lg shadow">
+              ⚙️ Rétablir la situation réelle (A : 12x+60 | B : 15x+24)
+            </button>
+            <span class="text-xs text-slate-500">Intervalle d'étude : [0 ; 25] sachets</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <!-- Contrôles Grossiste A -->
+            <div class="p-3 bg-red-50/60 rounded-lg border border-red-200 space-y-2">
+              <span class="font-bold text-[#A50F23] block">Grossiste A (Rouge)</span>
+              <div>
+                <div class="flex justify-between">
+                  <label for="sim-a1">Prix unitaire $a_1$ :</label>
+                  <span id="disp-sim-a1" class="font-bold text-[#A50F23]">12 €</span>
+                </div>
+                <input type="range" id="sim-a1" min="5" max="25" step="1" value="12" class="w-full accent-[#A50F23] h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <label for="sim-b1">Frais fixes $b_1$ :</label>
+                  <span id="disp-sim-b1" class="font-bold text-[#A50F23]">60 €</span>
+                </div>
+                <input type="range" id="sim-b1" min="0" max="100" step="5" value="60" class="w-full accent-[#A50F23] h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+              </div>
+            </div>
+
+            <!-- Contrôles Grossiste B -->
+            <div class="p-3 bg-blue-50/60 rounded-lg border border-blue-200 space-y-2">
+              <span class="font-bold text-blue-900 block">Grossiste B (Bleu)</span>
+              <div>
+                <div class="flex justify-between">
+                  <label for="sim-a2">Prix unitaire $a_2$ :</label>
+                  <span id="disp-sim-a2" class="font-bold text-blue-800">15 €</span>
+                </div>
+                <input type="range" id="sim-a2" min="5" max="25" step="1" value="15" class="w-full accent-blue-600 h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <label for="sim-b2">Frais fixes $b_2$ :</label>
+                  <span id="disp-sim-b2" class="font-bold text-blue-800">24 €</span>
+                </div>
+                <input type="range" id="sim-b2" min="0" max="100" step="2" value="24" class="w-full accent-blue-600 h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Curseur quantité testée -->
+          <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+            <div class="flex justify-between text-xs font-semibold text-slate-700">
+              <label for="sim-x-cursor">Quantité de sachets commandés $x$ :</label>
+              <span id="disp-sim-x" class="text-[#A50F23] font-bold">12 sachets</span>
+            </div>
+            <input type="range" id="sim-x-cursor" min="0" max="25" step="1" value="12" class="w-full accent-slate-800 h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+          </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+          <canvas id="tarifsCanvas" width="700" height="330"></canvas>
+        </div>
+
+        <!-- Tableau de bord dynamique -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+          <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-center">
+            <span class="text-slate-500 block">Commande $x$</span>
+            <span id="stat-sim-x" class="text-sm font-bold text-slate-800">12 sachets</span>
+          </div>
+          <div class="bg-red-50 p-2.5 rounded-lg border border-red-200 text-center">
+            <span class="text-red-700 block">Facture Grossiste A</span>
+            <span id="stat-sim-costA" class="text-sm font-bold text-[#A50F23]">204 €</span>
+          </div>
+          <div class="bg-blue-50 p-2.5 rounded-lg border border-blue-200 text-center">
+            <span class="text-blue-700 block">Facture Grossiste B</span>
+            <span id="stat-sim-costB" class="text-sm font-bold text-blue-800">204 €</span>
+          </div>
+          <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-center">
+            <span class="text-emerald-700 block">Fournisseur Gagnant</span>
+            <span id="stat-sim-winner" class="text-xs font-bold text-emerald-800">Égalité parfaite</span>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-between">
+          <button onclick="switchTab(1)" class="cma-btn px-4 py-2 border border-slate-300 text-slate-700 text-xs sm:text-sm">
+            ← Étape 1 : Découverte
+          </button>
+          <button onclick="switchTab(3)" class="cma-btn px-5 py-2.5 bg-[#A50F23] text-white text-xs sm:text-sm shadow-md">
+            Passer à l'Étape 3 : Entraînement Gamifié →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 3 : ENTRAÎNEMENT GAMIFIÉ                                -->
+    <!-- ============================================================== -->
+    <section id="stage-3" class="stage-container space-y-6 hidden">
+      <!-- En-tête des paliers et scores -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Parcours d'Exercices Différenciés
+            </h2>
+            <p class="text-xs text-slate-500">Progression séquentielle : Le Niveau 1 valide à 100 % le socle CAP et débloque l'Attestation.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-center">
+              <span class="text-[10px] uppercase font-bold text-emerald-700 block">Socle CAP (N1)</span>
+              <span id="score-n1-display" class="text-sm font-bold text-emerald-800">0 / 5</span>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg text-center">
+              <span class="text-[10px] uppercase font-bold text-amber-700 block">Bonus N2</span>
+              <span id="score-n2-display" class="text-sm font-bold text-amber-800">0 / 4</span>
+            </div>
+            <div class="bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg text-center">
+              <span class="text-[10px] uppercase font-bold text-red-700 block">Bonus N3</span>
+              <span id="score-n3-display" class="text-sm font-bold text-red-800">0 / 3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons des 3 Paliers -->
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-100">
+          <button onclick="switchLevel(1)" id="lvl-btn-1" class="cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white">
+            <span>🟢 Niveau 1 : Débutant (Socle CAP)</span>
+          </button>
+          <button onclick="switchLevel(2)" id="lvl-btn-2" class="cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed" disabled>
+            <span>🔒 Niveau 2 : Avancé</span>
+          </button>
+          <button onclick="switchLevel(3)" id="lvl-btn-3" class="cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed" disabled>
+            <span>🔒 Niveau 3 : Expert</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PALLIER 1 : DÉBUTANT (SOCLE CAP - 5 EXERCICES)               -->
+      <!-- ============================================================ -->
+      <div id="level-container-1" class="space-y-4">
+        <div class="bg-emerald-50 border-l-4 border-emerald-600 p-3 rounded-r-lg text-xs text-emerald-800">
+          <strong>Objectif Socle CAP :</strong> Réussir les 5 exercices du Niveau 1 pour valider à 100 % le socle CAP et débloquer l'accès à l'Attestation Numérique !
+        </div>
+
+        <!-- Ex 1.1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.1 : Lecture graphique d'intersection (Gants de protection en nitrile)
+            </h4>
+            <span id="badge-ex1-1" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Sur un graphique représentant deux tarifs de gants de protection en nitrile, la droite $(d_1)$ du Fournisseur 1 et la droite $(d_2)$ du Fournisseur 2 se coupent au point $I(10 ; 150)$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">1. Quantité de boîtes $x$ pour laquelle les tarifs sont identiques :</label>
+              <input type="text" inputmode="decimal" id="ex1-1-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">2. Montant commun payé pour cette quantité (€) :</label>
+              <input type="text" inputmode="decimal" id="ex1-1-y" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_1()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.1</button>
+            <div id="fb-ex1-1" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.2 : Calcul algébrique de point d'intersection
+            </h4>
+            <span id="badge-ex1-2" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            On donne les fonctions tarifaires : $f(x) = 5x + 40$ et $g(x) = 8x + 10$. Résolvez l'équation $f(x) = g(x)$ en isolant $x$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur de l'abscisse d'égalité $x$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-2-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur commune correspondante $f(x) = g(x)$ (€) :</label>
+              <input type="text" inputmode="decimal" id="ex1-2-y" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_2()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.2</button>
+            <div id="fb-ex1-2" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.3 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.3 : Calculs ponctuels comparatifs (Serviettes jetables)
+            </h4>
+            <span id="badge-ex1-3" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Un institut compare deux offres pour l'achat de rouleaux de serviettes jetables :<br>
+            • Offre A : 4 € le rouleau + 25 € de livraison fixe.<br>
+            • Offre B : 6 € le rouleau sans frais de livraison (0 €).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Coût total pour 5 rouleaux avec l'Offre A (€) :</label>
+              <input type="text" inputmode="decimal" id="ex1-3-a" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Coût total pour 5 rouleaux avec l'Offre B (€) :</label>
+              <input type="text" inputmode="decimal" id="ex1-3-b" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_3()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.3</button>
+            <div id="fb-ex1-3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.4 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.4 : Modélisation d'une formule tarifaire (Lotion astringente)
+            </h4>
+            <span id="badge-ex1-4" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Un grossiste propose des flacons de lotion astringente à 8 € l'unité avec 15 € de frais fixes d'expédition. La fonction modélisant le coût total est $f(x) = ax + b$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur du coefficient directeur $a$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-4-a" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur de l'ordonnée à l'origine $b$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-4-b" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_4()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.4</button>
+            <div id="fb-ex1-4" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.5 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-5">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.5 : Vérification d'égalité d'une solution
+            </h4>
+            <span id="badge-ex1-5" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            On teste si la quantité $x = 8$ est solution de l'équation $14x + 20 = 10x + 52$. Calculez la valeur de chaque membre pour $x = 8$ :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Membre de gauche : $14 \times 8 + 20$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-5-g" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Membre de droite : $10 \times 8 + 52$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-5-d" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_5()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.5</button>
+            <div id="fb-ex1-5" class="text-xs font-medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PALLIER 2 : AVANCÉ / DÉPASSEMENT (4 EXERCICES)               -->
+      <!-- ============================================================ -->
+      <div id="level-container-2" class="space-y-4 hidden">
+        <div class="bg-amber-50 border-l-4 border-amber-600 p-3 rounded-r-lg text-xs text-amber-800">
+          <strong>Niveau 2 (Dépassement) :</strong> Situations professionnelles réelles (Draps d'examen jetables, huiles de massage Bourbon, location de combiné minceur et offres sans intersection).
+        </div>
+
+        <!-- Ex 2.1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.1 : Achat de draps d'examen jetables à Saint-Denis
+            </h4>
+            <span id="badge-ex2-1" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            • Distributeur Alpha : 20 € le carton + 50 € de port ($f(x) = 20x + 50$).<br>
+            • Distributeur Bêta : 25 € le carton + 20 € de port ($g(x) = 25x + 20$).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Nombre de cartons pour égalité $x$ ($20x+50 = 25x+20$) :</label>
+              <input type="text" inputmode="decimal" id="ex2-1-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Facture de l'offre la moins chère pour 10 cartons (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-1-cost" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_1()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.1</button>
+            <div id="fb-ex2-1" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 2.2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.2 : Huiles de massage à la vanille bourbon de La Réunion
+            </h4>
+            <span id="badge-ex2-2" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            • Fournisseur Réunionnais : $f(x) = 45x + 30$<br>
+            • Fournisseur Import : $g(x) = 35x + 110$
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Résoudre $f(x) = g(x)$ : quantité de bidons $x$ :</label>
+              <input type="text" inputmode="decimal" id="ex2-2-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Montant commun payé (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-2-y" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_2()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.2</button>
+            <div id="fb-ex2-2" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 2.3 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.3 : Location d'un combiné minceur pour les fêtes
+            </h4>
+            <span id="badge-ex2-3" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            • Formule 1 : Forfait fixe de 200 € + 15 € par heure d'utilisation ($200 + 15x$).<br>
+            • Formule 2 : Forfait fixe de 350 € + 10 € par heure d'utilisation ($350 + 10x$).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Seuil d'heures $x$ pour lequel les deux formules coûtent pareil :</label>
+              <input type="text" inputmode="decimal" id="ex2-3-h" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Coût total payé à ce seuil (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-3-cost" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_3()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.3</button>
+            <div id="fb-ex2-3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 2.4 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.4 : Interprétation d'offres à droites parallèles (Sans intersection)
+            </h4>
+            <span id="badge-ex2-4" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Soit $f(x) = 18x + 40$ et $g(x) = 18x + 90$. Les droites sont strictement parallèles car elles ont la même pente $a = 18$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Écart de prix constant entre les deux offres ($g(x) - f(x)$) en € :</label>
+              <input type="text" inputmode="decimal" id="ex2-4-diff" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Pour $x = 10$, quelle est la facture de l'offre $f(x)$ (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-4-val" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_4()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.4</button>
+            <div id="fb-ex2-4" class="text-xs font-medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PALLIER 3 : EXPERT / EXCELLENCE (3 EXERCICES)                -->
+      <!-- ============================================================ -->
+      <div id="level-container-3" class="space-y-4 hidden">
+        <div class="bg-red-50 border-l-4 border-red-600 p-3 rounded-r-lg text-xs text-red-800">
+          <strong>Niveau 3 (Excellence) :</strong> Arbitrage tri-fournisseurs de vernis UV, commande de cire avec remise de palier, et impact économique fret maritime vs aérien à La Réunion.
+        </div>
+
+        <!-- Ex 3.1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex3-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 3.1 : Arbitrage tri-fournisseurs de vernis UV à Sainte-Clotilde
+            </h4>
+            <span id="badge-ex3-1" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            • Offre A : $10x + 60$ | • Offre B : $14x + 12$ | • Offre C : $8x + 110$.<br>
+            Trouvez les deux seuils de bascule successifs :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">1er seuil : bascule entre Offre B et Offre A ($14x+12 = 10x+60$) :</label>
+              <input type="text" inputmode="decimal" id="ex3-1-s1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">2nd seuil : bascule entre Offre A et Offre C ($10x+60 = 8x+110$) :</label>
+              <input type="text" inputmode="decimal" id="ex3-1-s2" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx3_1()" class="cma-btn px-4 bg-red-800 text-white text-xs sm:text-sm">Vérifier l'Exercice 3.1</button>
+            <div id="fb-ex3-1" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 3.2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex3-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 3.2 : Commande groupée de cire avec remise de palier
+            </h4>
+            <span id="badge-ex3-2" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            • Tarif 1 (standard) : $f(x) = 16x + 30$.<br>
+            • Tarif 2 (remise à partir de 15 cartons) : $g(x) = 13x + 40$ pour $x \ge 15$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Facture Tarif 1 pour 22 cartons ($16 \times 22 + 30$) en € :</label>
+              <input type="text" inputmode="decimal" id="ex3-2-t1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Économie réalisée en choisissant le Tarif 2 ($13 \times 22 + 40$) en € :</label>
+              <input type="text" inputmode="decimal" id="ex3-2-gain" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx3_2()" class="cma-btn px-4 bg-red-800 text-white text-xs sm:text-sm">Vérifier l'Exercice 3.2</button>
+            <div id="fb-ex3-2" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 3.3 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex3-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 3.3 : Impact logistique : Fret Maritime vs Aérien Express à La Réunion
+            </h4>
+            <span id="badge-ex3-3" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            • Fret maritime (4 semaines) : Coût fixe = 120 €, prix unitaire = 22 € par pot ($22x + 120$).<br>
+            • Fret aérien express (72 h) : Coût fixe = 270 €, prix négocié = 17 € par pot ($17x + 270$).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Seuil critique en nombre de pots ($22x+120 = 17x+270$) :</label>
+              <input type="text" inputmode="decimal" id="ex3-3-seuil" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Coût total du Fret Aérien pour 40 pots d'urgence (€) :</label>
+              <input type="text" inputmode="decimal" id="ex3-3-air" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx3_3()" class="cma-btn px-4 bg-red-800 text-white text-xs sm:text-sm">Vérifier l'Exercice 3.3</button>
+            <div id="fb-ex3-3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 flex justify-between">
+        <button onclick="switchTab(2)" class="cma-btn px-4 py-2 border border-slate-300 text-slate-700 text-xs sm:text-sm">
+          ← Étape 2 : Cours
+        </button>
+        <button onclick="switchTab(4)" class="cma-btn px-5 py-2.5 bg-[#A50F23] text-white text-xs sm:text-sm shadow-md">
+          Passer à l'Étape 4 : Bilan &amp; Attestation →
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 4 : BILAN, ÉVALUATION ET ATTESTATION                    -->
+    <!-- ============================================================== -->
+    <section id="stage-4" class="stage-container space-y-6 hidden">
+      <!-- Synthèse Bilan & Badges -->
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-4 no-print">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Bilan Pédagogique &amp; Progression
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center">
+            <span class="text-3xl block mb-1">🎓</span>
+            <span class="text-xs font-bold text-emerald-800 uppercase block">Socle CAP (Niveau 1)</span>
+            <span id="bilan-socle-status" class="text-sm font-extrabold text-emerald-700">0% complété</span>
+            <span class="text-[11px] text-slate-500 block mt-1">Requis pour l'attestation</span>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+            <span class="text-3xl block mb-1">⚡</span>
+            <span class="text-xs font-bold text-amber-800 uppercase block">Bonus Avancé (N2)</span>
+            <span id="bilan-bonus-n2" class="text-sm font-extrabold text-amber-700">0 / 4 exercices</span>
+            <span class="text-[11px] text-slate-500 block mt-1">Dépassement de compétences</span>
+          </div>
+
+          <div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center">
+            <span class="text-3xl block mb-1">🏆</span>
+            <span class="text-xs font-bold text-red-800 uppercase block">Bonus Expert (N3)</span>
+            <span id="bilan-bonus-n3" class="text-sm font-extrabold text-red-700">0 / 3 exercices</span>
+            <span class="text-[11px] text-slate-500 block mt-1">Analyse logistique &amp; gestion</span>
+          </div>
+        </div>
+
+        <!-- Évaluation formelle sommative (Sur 10 points) -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Évaluation Formelle Sommative (Sur 10 points) : Kits d'épilation jetables
+            </h3>
+            <span id="eval-score-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700">Note : 0 / 10 pts</span>
+          </div>
+          <p class="text-xs text-slate-600">
+            • Fournisseur 1 (Nord Réunion) : $C_1(x) = 16x + 50$<br>
+            • Fournisseur 2 (Sud Réunion) : $C_2(x) = 21x + 15$
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">1. Quantité seuil d'égalité $x$ ($16x+50 = 21x+15$) (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">2. Coût total commun payé à ce seuil (€) (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q2" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">3. Fournisseur 1 : Coût pour 5 kits ($C_1(5)$) en € (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q3" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">4. Fournisseur 2 : Coût pour 5 kits ($C_2(5)$) en € (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q4" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1 sm:col-span-2">
+              <label class="font-semibold text-slate-700 block">5. Pour 12 kits (haute saison), quel est le coût de l'offre la moins chère (€) (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q5" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkEvaluation()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Corriger l'Évaluation</button>
+            <div id="fb-eval" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Saisie du Nom pour l'Attestation -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+          <label for="student-name-input" class="text-xs sm:text-sm font-bold text-slate-800 block">
+            Nom et Prénom de l'apprenant(e) pour l'Attestation Numérique :
+          </label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="text" id="student-name-input" class="cma-input" placeholder="Ex: Chloé HOARAU" oninput="updateStudentName(this.value)">
+            <button onclick="window.print()" id="btn-print" class="cma-btn px-6 bg-[#A50F23] text-white text-xs sm:text-sm whitespace-nowrap shadow" disabled>
+              🖨️ Imprimer / Enregistrer en PDF
+            </button>
+          </div>
+          <p id="attestation-lock-notice" class="text-xs text-red-600 font-medium">
+            ⚠️ L'attestation est réservée aux alternants ayant validé les 5 exercices du Niveau 1 (Socle CAP).
+          </p>
+        </div>
+      </div>
+
+      <!-- ATTESTATION NUMÉRIQUE OFFICIELLE IMPRIMABLE -->
+      <div id="print-area" class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border-2 border-[#A50F23] space-y-6">
+        <!-- En-tête officiel -->
+        <div class="flex items-center justify-between border-b-2 border-red-100 pb-4">
+          <img src="logo.png" alt="Logo CMA Formation" style="max-height: 48px; width: auto; object-fit: contain;" onerror="this.onerror=null; this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation';">
+          <div class="text-right">
+            <span class="text-[11px] text-slate-400 uppercase tracking-widest block font-bold">CMA FORMATION SAINTE-CLOTILDE</span>
+            <span class="text-xs text-slate-600 font-semibold">Île de La Réunion</span>
+          </div>
+        </div>
+
+        <!-- Titre de l'attestation -->
+        <div class="text-center space-y-2 pt-1">
+          <span class="text-xs uppercase tracking-widest text-[#EE3C3D] font-extrabold">Attestation Pédagogique de Réussite</span>
+          <h3 class="text-xl sm:text-2xl font-bold text-[#A50F23]">Fonctions : Comparaison de deux tarifs fournisseurs</h3>
+          <p class="text-xs text-slate-500">Module de Mathématiques appliquées • CAP Esthétique Cosmétique Parfumerie (Groupement 1)</p>
+        </div>
+
+        <!-- Nom apprenant et date -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-2">
+          <p class="text-xs sm:text-sm text-slate-600">Attestation décernée avec succès à :</p>
+          <div id="cert-student-name" class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-wide uppercase">
+            [Nom de l'apprenant(e)]
+          </div>
+          <p class="text-xs text-slate-500">
+            pour avoir validé les compétences de la séance pédagogique du <span id="cert-date" class="font-bold text-slate-700"></span>.
+          </p>
+        </div>
+
+        <!-- Grille des compétences C1 à C4 -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold text-slate-800 uppercase block tracking-wide">Compétences du Référentiel Évaluées :</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C1 - S'informer :</strong> Identifier les variables et modéliser les tarifs par des fonctions affines</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C2 - Exécuter :</strong> Résoudre l'équation d'égalité $ax+b=cx+d$ et calculer le montant commun</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C3 - Raisonner :</strong> Interpréter graphiquement le point d'intersection et les zones d'économie</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C4 - Communiquer :</strong> Arbitrer et justifier le choix du grossiste selon le volume de commande</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scores Breakdown -->
+        <div class="p-3 bg-red-50/50 rounded-lg border border-red-100 flex items-center justify-between text-xs">
+          <div>
+            <span class="text-slate-600 font-medium">Socle fondamental CAP : </span>
+            <strong id="cert-socle-perc" class="text-emerald-700 font-bold">0 %</strong>
+          </div>
+          <div>
+            <span class="text-slate-600 font-medium">Défis Bonus accomplis : </span>
+            <strong id="cert-bonus-pts" class="text-amber-800 font-bold">0 / 7</strong>
+          </div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="pt-6 flex items-center justify-between text-xs text-slate-600 border-t border-slate-200">
+          <div>
+            <p class="font-bold text-slate-800">Formatrice référente</p>
+            <p>Rachel Lamberet-Lezais</p>
+            <p class="text-[10px] text-slate-400">CMA Formation Sainte-Clotilde</p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-slate-800">Sceau Pédagogique</p>
+            <div class="inline-block px-3 py-1 bg-red-100 text-[#A50F23] font-bold rounded text-[11px] mt-1">
+              CONFORME CAP EG2
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- PIED DE PAGE                                                   -->
+  <!-- ============================================================== -->
+  <footer class="bg-white border-t border-slate-200 py-3 mt-8 no-print">
+    <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-1">
+      <div>CMA Formation Sainte-Clotilde • Mathématiques CAP Esthétique</div>
+      <div>Auteur : Rachel Lamberet-Lezais • Séance A2 S5 M2</div>
+    </div>
+  </footer>
+
+  <!-- ============================================================== -->
+  <!-- LOGIQUE JAVASCRIPT & VALIDATION NUMÉRIQUE STRICTE             -->
+  <!-- ============================================================== -->
+  <script>
+    /* État global de l'application */
+    const appState = {
+      currentTab: 1,
+      currentLevel: 1,
+      studentName: '',
+      investigation: { q4: false, q5: false, q7: false },
+      n1: { ex1: false, ex2: false, ex3: false, ex4: false, ex5: false },
+      n2: { ex1: false, ex2: false, ex3: false, ex4: false },
+      n3: { ex1: false, ex2: false, ex3: false },
+      evaluation: false
+    };
+
+    /* Parser numérique acceptant virgules et points */
+    function parseNum(val) {
+      if (val === null || val === undefined) return NaN;
+      const clean = String(val).trim().replace(',', '.');
+      if (clean === '') return NaN;
+      return parseFloat(clean);
+    }
+
+    /* Comparaison avec tolérance aux arrondis */
+    function near(val, target, tol = 0.15) {
+      return Math.abs(val - target) <= tol;
+    }
+
+    /* Navigation entre les 4 étapes */
+    function switchTab(tabIndex) {
+      appState.currentTab = tabIndex;
+      document.querySelectorAll('.stage-container').forEach((el, idx) => {
+        el.classList.toggle('hidden', idx + 1 !== tabIndex);
+      });
+
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`tab-btn-${i}`);
+        if (i === tabIndex) {
+          btn.className = "cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-[#A50F23] text-white shadow";
+        } else {
+          btn.className = "cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200";
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (tabIndex === 2) {
+        setTimeout(initSimulation, 100);
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(() => {});
+      }
+    }
+
+    /* Gestion des 3 niveaux de l'Étape 3 */
+    function switchLevel(lvl) {
+      appState.currentLevel = lvl;
+      document.getElementById('level-container-1').classList.toggle('hidden', lvl !== 1);
+      document.getElementById('level-container-2').classList.toggle('hidden', lvl !== 2);
+      document.getElementById('level-container-3').classList.toggle('hidden', lvl !== 3);
+
+      const b1 = document.getElementById('lvl-btn-1');
+      const b2 = document.getElementById('lvl-btn-2');
+      const b3 = document.getElementById('lvl-btn-3');
+
+      b1.className = (lvl === 1) ? 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white' : 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-800';
+      if (!b2.disabled) {
+        b2.className = (lvl === 2) ? 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-700 text-white' : 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-100 text-amber-800';
+      }
+      if (!b3.disabled) {
+        b3.className = (lvl === 3) ? 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-red-700 text-white' : 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-red-100 text-red-800';
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(() => {});
+      }
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 1 : INVESTIGATION SITUATION REUNIONNAISE                 */
+    /* ============================================================== */
+    function checkInvQ4() {
+      const a1 = parseNum(document.getElementById('inv-a1').value);
+      const b1 = parseNum(document.getElementById('inv-b1').value);
+      const a2 = parseNum(document.getElementById('inv-a2').value);
+      const b2 = parseNum(document.getElementById('inv-b2').value);
+      const fb = document.getElementById('fb-inv-q4');
+
+      if (isNaN(a1) || isNaN(b1) || isNaN(a2) || isNaN(b2)) {
+        fb.innerHTML = '<span class="text-amber-600">Complétez tous les coefficients.</span>';
+        return;
+      }
+
+      if (near(a1, 12) && near(b1, 60) && near(a2, 15) && near(b2, 24)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Exact ! Grossiste A : a1 = 12 €/sachet, b1 = 60 € | Grossiste B : a2 = 15 €/sachet, b2 = 24 €.</span>';
+        document.getElementById('inv-a1').classList.add('valid');
+        document.getElementById('inv-b1').classList.add('valid');
+        document.getElementById('inv-a2').classList.add('valid');
+        document.getElementById('inv-b2').classList.add('valid');
+        appState.investigation.q4 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Valeurs attendues : Grossiste A (a=12, b=60) et Grossiste B (a=15, b=24).</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkInvQ5() {
+      const x = parseNum(document.getElementById('inv-x-equil').value);
+      const cost = parseNum(document.getElementById('inv-cost-equil').value);
+      const fb = document.getElementById('fb-inv-q5');
+
+      if (isNaN(x) || isNaN(cost)) {
+        fb.innerHTML = '<span class="text-amber-600">Complétez les deux champs.</span>';
+        return;
+      }
+
+      // 12x + 60 = 15x + 24 => 3x = 36 => x = 12 sachets. Coût = 12*12 + 60 = 204 €
+      if (near(x, 12) && near(cost, 204)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Bravo ! 60 − 24 = 15x − 12x donne 36 = 3x, soit x = 12 sachets pour un coût commun de 204 €.</span>';
+        document.getElementById('inv-x-equil').classList.add('valid');
+        document.getElementById('inv-cost-equil').classList.add('valid');
+        appState.investigation.q5 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résolution : x = 12 sachets et Coût = 12 × 12 + 60 = 204 €.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkInvQ7() {
+      const a8 = parseNum(document.getElementById('inv-a-8').value);
+      const b8 = parseNum(document.getElementById('inv-b-8').value);
+      const a20 = parseNum(document.getElementById('inv-a-20').value);
+      const b20 = parseNum(document.getElementById('inv-b-20').value);
+      const fb = document.getElementById('fb-inv-q7');
+
+      if (isNaN(a8) || isNaN(b8) || isNaN(a20) || isNaN(b20)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les 4 calculs du tableau.</span>';
+        return;
+      }
+
+      // 8 sachets : A = 12*8 + 60 = 156 € ; B = 15*8 + 24 = 144 € (B moins cher)
+      // 20 sachets : A = 12*20 + 60 = 300 € ; B = 15*20 + 24 = 324 € (A moins cher)
+      if (near(a8, 156) && near(b8, 144) && near(a20, 300) && near(b20, 324)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Parfait ! Pour 8 sachets : Grossiste B est moins cher (144 € vs 156 €). Pour 20 sachets : Grossiste A est plus économique (300 € vs 324 €).</span>';
+        document.getElementById('inv-a-8').classList.add('valid');
+        document.getElementById('inv-b-8').classList.add('valid');
+        document.getElementById('inv-a-20').classList.add('valid');
+        document.getElementById('inv-b-20').classList.add('valid');
+        appState.investigation.q7 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Valeurs attendues : Pour 8 sachets (A: 156 €, B: 144 €) ; Pour 20 sachets (A: 300 €, B: 324 €).</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 2 : SIMULATEUR CANVAS 2D DE DROITES TARIFAIRES           */
+    /* ============================================================== */
+    let canvas, ctx;
+
+    function initSimulation() {
+      canvas = document.getElementById('tarifsCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      drawSimulation();
+    }
+
+    function resetGrossistesCMA() {
+      document.getElementById('sim-a1').value = 12;
+      document.getElementById('sim-b1').value = 60;
+      document.getElementById('sim-a2').value = 15;
+      document.getElementById('sim-b2').value = 24;
+      document.getElementById('sim-x-cursor').value = 12;
+      drawSimulation();
+    }
+
+    function drawSimulation() {
+      if (!canvas) {
+        canvas = document.getElementById('tarifsCanvas');
+        if (canvas) ctx = canvas.getContext('2d');
+      }
+      if (!ctx) return;
+
+      const a1 = parseFloat(document.getElementById('sim-a1').value);
+      const b1 = parseFloat(document.getElementById('sim-b1').value);
+      const a2 = parseFloat(document.getElementById('sim-a2').value);
+      const b2 = parseFloat(document.getElementById('sim-b2').value);
+      const xCur = parseFloat(document.getElementById('sim-x-cursor').value);
+
+      document.getElementById('disp-sim-a1').textContent = `${a1} €`;
+      document.getElementById('disp-sim-b1').textContent = `${b1} €`;
+      document.getElementById('disp-sim-a2').textContent = `${a2} €`;
+      document.getElementById('disp-sim-b2').textContent = `${b2} €`;
+      document.getElementById('disp-sim-x').textContent = `${xCur} sachets`;
+
+      // Coûts actuels
+      const costA = a1 * xCur + b1;
+      const costB = a2 * xCur + b2;
+
+      document.getElementById('stat-sim-x').textContent = `${xCur} sachets`;
+      document.getElementById('stat-sim-costA').textContent = `${costA.toFixed(0)} €`;
+      document.getElementById('stat-sim-costB').textContent = `${costB.toFixed(0)} €`;
+
+      const winnerEl = document.getElementById('stat-sim-winner');
+      if (Math.abs(costA - costB) < 0.1) {
+        winnerEl.textContent = 'Égalité parfaite';
+        winnerEl.className = 'text-xs font-bold text-slate-800';
+      } else if (costA < costB) {
+        winnerEl.textContent = `Grossiste A (−${(costB - costA).toFixed(0)} €)`;
+        winnerEl.className = 'text-xs font-bold text-[#A50F23]';
+      } else {
+        winnerEl.textContent = `Grossiste B (−${(costA - costB).toFixed(0)} €)`;
+        winnerEl.className = 'text-xs font-bold text-blue-700';
+      }
+
+      // Point d'intersection théorique
+      let hasIntersection = false;
+      let xI = 0, yI = 0;
+      if (a1 !== a2) {
+        xI = (b2 - b1) / (a1 - a2);
+        yI = a1 * xI + b1;
+        if (xI >= 0 && xI <= 25) {
+          hasIntersection = true;
+        }
+      }
+
+      // Rendu cartésien Canvas
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const minX = 0, maxX = 25;
+      const minY = 0, maxY = 420;
+
+      function toX(x) { return ((x - minX) / (maxX - minX)) * (w - 70) + 50; }
+      function toY(y) { return h - 35 - ((y - minY) / (maxY - minY)) * (h - 55); }
+
+      // Grille
+      ctx.strokeStyle = '#F1F5F9';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= 25; x += 5) {
+        ctx.beginPath();
+        ctx.moveTo(toX(x), 20);
+        ctx.lineTo(toX(x), h - 35);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= 400; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(50, toY(y));
+        ctx.lineTo(w - 20, toY(y));
+        ctx.stroke();
+      }
+
+      // Axes
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 1.5;
+      // Axe X
+      ctx.beginPath();
+      ctx.moveTo(50, toY(0));
+      ctx.lineTo(w - 20, toY(0));
+      ctx.stroke();
+      // Axe Y
+      ctx.beginPath();
+      ctx.moveTo(50, 20);
+      ctx.lineTo(50, h - 35);
+      ctx.stroke();
+
+      // Graduations
+      ctx.fillStyle = '#64748B';
+      ctx.font = '10px Arial';
+      for (let x = 0; x <= 25; x += 5) {
+        ctx.fillText(x, toX(x) - 4, h - 20);
+      }
+      for (let y = 50; y <= 400; y += 100) {
+        ctx.fillText(y, 18, toY(y) + 3);
+      }
+
+      // Droite A (Rouge Bordeaux CMA #A50F23) : f(x) = a1*x + b1
+      ctx.strokeStyle = '#A50F23';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(toX(0), toY(b1));
+      ctx.lineTo(toX(25), toY(a1 * 25 + b1));
+      ctx.stroke();
+
+      // Droite B (Bleu Océan) : g(x) = a2*x + b2
+      ctx.strokeStyle = '#2563EB';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(toX(0), toY(b2));
+      ctx.lineTo(toX(25), toY(a2 * 25 + b2));
+      ctx.stroke();
+
+      // Point d'intersection
+      if (hasIntersection) {
+        const sxI = toX(xI);
+        const syI = toY(yI);
+
+        ctx.strokeStyle = '#10B981';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(sxI, toY(0));
+        ctx.lineTo(sxI, syI);
+        ctx.lineTo(toX(0), syI);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#10B981';
+        ctx.beginPath();
+        ctx.arc(sxI, syI, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText(`I (${xI.toFixed(1)} ; ${yI.toFixed(0)}€)`, sxI + 8, syI - 6);
+      }
+
+      // Point quantité actuelle
+      const sxCur = toX(xCur);
+      ctx.strokeStyle = '#64748B';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(sxCur, toY(0));
+      ctx.lineTo(sxCur, toY(Math.max(costA, costB)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Point A
+      ctx.fillStyle = '#A50F23';
+      ctx.beginPath();
+      ctx.arc(sxCur, toY(costA), 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Point B
+      ctx.fillStyle = '#2563EB';
+      ctx.beginPath();
+      ctx.arc(sxCur, toY(costB), 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 3 : VÉRIFICATION DU NIVEAU 1 (SOCLE CAP - 5 EXERCICES)  */
+    /* ============================================================== */
+    function checkEx1_1() {
+      const x = parseNum(document.getElementById('ex1-1-x').value);
+      const y = parseNum(document.getElementById('ex1-1-y').value);
+      const fb = document.getElementById('fb-ex1-1');
+
+      if (isNaN(x) || isNaN(y)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez la quantité et le montant.</span>';
+        return;
+      }
+      if (near(x, 10) && near(y, 150)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Bravo ! Point I(10 ; 150) : tarifs identiques pour 10 boîtes au montant de 150 €.</span>';
+        document.getElementById('badge-ex1-1').textContent = 'Validé';
+        document.getElementById('badge-ex1-1').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex1 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Coordonnées du point : x = 10 boîtes et montant = 150 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_2() {
+      const x = parseNum(document.getElementById('ex1-2-x').value);
+      const y = parseNum(document.getElementById('ex1-2-y').value);
+      const fb = document.getElementById('fb-ex1-2');
+
+      if (isNaN(x) || isNaN(y)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez x et la valeur commune.</span>';
+        return;
+      }
+      // 5x + 40 = 8x + 10 => 3x = 30 => x = 10. f(10) = 5*10 + 40 = 90 €
+      if (near(x, 10) && near(y, 90)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Exact ! 40 − 10 = 8x − 5x donne 30 = 3x, soit x = 10 et montant commun = 90 €.</span>';
+        document.getElementById('badge-ex1-2').textContent = 'Validé';
+        document.getElementById('badge-ex1-2').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résolution : x = 10 et montant = 5 × 10 + 40 = 90 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_3() {
+      const a = parseNum(document.getElementById('ex1-3-a').value);
+      const b = parseNum(document.getElementById('ex1-3-b').value);
+      const fb = document.getElementById('fb-ex1-3');
+
+      if (isNaN(a) || isNaN(b)) {
+        fb.innerHTML = '<span class="text-amber-600">Calculez le coût des deux offres.</span>';
+        return;
+      }
+      // Offre A : 4*5 + 25 = 45 € ; Offre B : 6*5 = 30 €
+      if (near(a, 45) && near(b, 30)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Parfait ! Offre A = 45 €, Offre B = 30 €. Pour 5 rouleaux, l\'Offre B est la plus économique.</span>';
+        document.getElementById('badge-ex1-3').textContent = 'Validé';
+        document.getElementById('badge-ex1-3').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Calculs : Offre A = 4 × 5 + 25 = 45 € et Offre B = 6 × 5 = 30 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_4() {
+      const a = parseNum(document.getElementById('ex1-4-a').value);
+      const b = parseNum(document.getElementById('ex1-4-b').value);
+      const fb = document.getElementById('fb-ex1-4');
+
+      if (isNaN(a) || isNaN(b)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez a et b.</span>';
+        return;
+      }
+      if (near(a, 8) && near(b, 15)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Bravo ! Formule affine f(x) = 8x + 15 (a = 8 €/flacon et b = 15 € fixes).</span>';
+        document.getElementById('badge-ex1-4').textContent = 'Validé';
+        document.getElementById('badge-ex1-4').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex4 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Coefficients : a = 8 € (prix unitaire) et b = 15 € (frais fixes).</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_5() {
+      const g = parseNum(document.getElementById('ex1-5-g').value);
+      const d = parseNum(document.getElementById('ex1-5-d').value);
+      const fb = document.getElementById('fb-ex1-5');
+
+      if (isNaN(g) || isNaN(d)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les deux calculs.</span>';
+        return;
+      }
+      // 14*8 + 20 = 112 + 20 = 132 ; 10*8 + 52 = 80 + 52 = 132
+      if (near(g, 132) && near(d, 132)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Très bien ! Les deux membres valent 132 : x = 8 est bien la solution exacte de l\'égalité.</span>';
+        document.getElementById('badge-ex1-5').textContent = 'Validé';
+        document.getElementById('badge-ex1-5').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex5 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Calcul : 14 × 8 + 20 = 132 et 10 × 8 + 52 = 132.</span>';
+      }
+      updateScores();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 3 : VÉRIFICATION DU NIVEAU 2 (AVANCÉ - 4 EXERCICES)     */
+    /* ============================================================== */
+    function checkEx2_1() {
+      const x = parseNum(document.getElementById('ex2-1-x').value);
+      const cost = parseNum(document.getElementById('ex2-1-cost').value);
+      const fb = document.getElementById('fb-ex2-1');
+
+      if (isNaN(x) || isNaN(cost)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les deux champs.</span>';
+        return;
+      }
+      // 20x + 50 = 25x + 20 => 5x = 30 => x = 6 cartons. Pour 10 cartons : Alpha = 20*10+50 = 250 € (Bêta = 270 €)
+      if (near(x, 6) && near(cost, 250)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Bravo ! Égalité à x = 6 cartons. Pour 10 cartons (>6), le Distributeur Alpha est le moins cher à 250 €.</span>';
+        document.getElementById('badge-ex2-1').textContent = 'Validé';
+        document.getElementById('badge-ex2-1').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex1 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résultats : x = 6 cartons. Pour 10 cartons, Alpha coûte 20 × 10 + 50 = 250 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx2_2() {
+      const x = parseNum(document.getElementById('ex2-2-x').value);
+      const y = parseNum(document.getElementById('ex2-2-y').value);
+      const fb = document.getElementById('fb-ex2-2');
+
+      if (isNaN(x) || isNaN(y)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez x et le montant.</span>';
+        return;
+      }
+      // 45x + 30 = 35x + 110 => 10x = 80 => x = 8 bidons. y = 45*8 + 30 = 390 €
+      if (near(x, 8) && near(y, 390)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Parfait ! x = 8 bidons d\'huile de massage pour un montant commun de 390 €.</span>';
+        document.getElementById('badge-ex2-2').textContent = 'Validé';
+        document.getElementById('badge-ex2-2').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Équation : 10x = 80 => x = 8 bidons et Montant = 45 × 8 + 30 = 390 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx2_3() {
+      const h = parseNum(document.getElementById('ex2-3-h').value);
+      const cost = parseNum(document.getElementById('ex2-3-cost').value);
+      const fb = document.getElementById('fb-ex2-3');
+
+      if (isNaN(h) || isNaN(cost)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les heures et le coût.</span>';
+        return;
+      }
+      // 200 + 15x = 350 + 10x => 5x = 150 => x = 30 heures. Coût = 200 + 15*30 = 650 €
+      if (near(h, 30) && near(cost, 650)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Exact ! À 30 heures d\'utilisation, le coût est identique (650 €). Au-delà de 30 h, la Formule 2 est plus avantageuse.</span>';
+        document.getElementById('badge-ex2-3').textContent = 'Validé';
+        document.getElementById('badge-ex2-3').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résolution : x = 30 heures et Coût commun = 200 + 15 × 30 = 650 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx2_4() {
+      const diff = parseNum(document.getElementById('ex2-4-diff').value);
+      const val = parseNum(document.getElementById('ex2-4-val').value);
+      const fb = document.getElementById('fb-ex2-4');
+
+      if (isNaN(diff) || isNaN(val)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez l\'écart et la facture.</span>';
+        return;
+      }
+      // Écart = 90 - 40 = 50 € ; Pour 10 : f(10) = 18*10 + 40 = 220 €
+      if (near(diff, 50) && near(val, 220)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Bravo ! Écart constant de 50 €. f(x) est toujours strictement inférieure à g(x) (f(10) = 220 €).</span>';
+        document.getElementById('badge-ex2-4').textContent = 'Validé';
+        document.getElementById('badge-ex2-4').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex4 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résultats : Écart = 90 − 40 = 50 € et f(10) = 18 × 10 + 40 = 220 €.</span>';
+      }
+      updateScores();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 3 : VÉRIFICATION DU NIVEAU 3 (EXPERT - 3 EXERCICES)     */
+    /* ============================================================== */
+    function checkEx3_1() {
+      const s1 = parseNum(document.getElementById('ex3-1-s1').value);
+      const s2 = parseNum(document.getElementById('ex3-1-s2').value);
+      const fb = document.getElementById('fb-ex3-1');
+
+      if (isNaN(s1) || isNaN(s2)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les deux seuils de bascule.</span>';
+        return;
+      }
+      // Seuil 1 : 14x + 12 = 10x + 60 => 4x = 48 => x = 12 flacons
+      // Seuil 2 : 10x + 60 = 8x + 110 => 2x = 50 => x = 25 flacons
+      if (near(s1, 12) && near(s2, 25)) {
+        fb.innerHTML = '<span class="text-red-800 font-bold">✓ Remarquable ! Seuil 1 = 12 flacons, Seuil 2 = 25 flacons. Choix optimal : B pour &lt;12, A pour [12; 25], C pour &gt;25.</span>';
+        document.getElementById('badge-ex3-1').textContent = 'Validé';
+        document.getElementById('badge-ex3-1').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800';
+        appState.n3.ex1 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Seuils : 4x = 48 => x = 12 flacons et 2x = 50 => x = 25 flacons.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx3_2() {
+      const t1 = parseNum(document.getElementById('ex3-2-t1').value);
+      const gain = parseNum(document.getElementById('ex3-2-gain').value);
+      const fb = document.getElementById('fb-ex3-2');
+
+      if (isNaN(t1) || isNaN(gain)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez la facture et l\'économie.</span>';
+        return;
+      }
+      // Pour 22 cartons : T1 = 16*22 + 30 = 352 + 30 = 382 €
+      // T2 = 13*22 + 40 = 286 + 40 = 326 €
+      // Économie = 382 - 326 = 56 €
+      if (near(t1, 382) && near(gain, 56)) {
+        fb.innerHTML = '<span class="text-red-800 font-bold">✓ Excellent ! Tarif 1 = 382 €, Tarif 2 = 326 €. Économie nette réalisée = 56 €.</span>';
+        document.getElementById('badge-ex3-2').textContent = 'Validé';
+        document.getElementById('badge-ex3-2').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800';
+        appState.n3.ex2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Calculs : T1 = 382 €, T2 = 326 €, Économie = 382 − 326 = 56 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx3_3() {
+      const seuil = parseNum(document.getElementById('ex3-3-seuil').value);
+      const air = parseNum(document.getElementById('ex3-3-air').value);
+      const fb = document.getElementById('fb-ex3-3');
+
+      if (isNaN(seuil) || isNaN(air)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez le seuil et le coût aérien.</span>';
+        return;
+      }
+      // 22x + 120 = 17x + 270 => 5x = 150 => x = 30 pots
+      // Pour 40 pots : Fret Aérien = 17*40 + 270 = 680 + 270 = 950 € (Maritime = 22*40 + 120 = 1 000 €)
+      if (near(seuil, 30) && near(air, 950)) {
+        fb.innerHTML = '<span class="text-red-800 font-bold">✓ Magnifique ! Seuil = 30 pots. Pour 40 pots d\'urgence, le fret aérien est à la fois plus rapide (72 h vs 4 sem.) et moins cher (950 € vs 1 000 €).</span>';
+        document.getElementById('badge-ex3-3').textContent = 'Validé';
+        document.getElementById('badge-ex3-3').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800';
+        appState.n3.ex3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résultats : 5x = 150 => Seuil = 30 pots et Coût Aérien (40) = 17 × 40 + 270 = 950 €.</span>';
+      }
+      updateScores();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 4 : ÉVALUATION SOMMATIVE (SUR 10 POINTS)                 */
+    /* ============================================================== */
+    function checkEvaluation() {
+      const q1 = parseNum(document.getElementById('eval-q1').value);
+      const q2 = parseNum(document.getElementById('eval-q2').value);
+      const q3 = parseNum(document.getElementById('eval-q3').value);
+      const q4 = parseNum(document.getElementById('eval-q4').value);
+      const q5 = parseNum(document.getElementById('eval-q5').value);
+      const fb = document.getElementById('fb-eval');
+
+      if (isNaN(q1) || isNaN(q2) || isNaN(q3) || isNaN(q4) || isNaN(q5)) {
+        fb.innerHTML = '<span class="text-amber-600">Veuillez répondre aux 5 questions de l\'évaluation.</span>';
+        return;
+      }
+
+      let pts = 0;
+      // 16x + 50 = 21x + 15 => 5x = 35 => x = 7 kits (2 pts)
+      if (near(q1, 7)) pts += 2;
+      // Coût à 7 : 16*7 + 50 = 112 + 50 = 162 € (2 pts)
+      if (near(q2, 162)) pts += 2;
+      // Pour 5 kits : C1(5) = 16*5 + 50 = 130 € (2 pts)
+      if (near(q3, 130)) pts += 2;
+      // Pour 5 kits : C2(5) = 21*5 + 15 = 120 € (2 pts)
+      if (near(q4, 120)) pts += 2;
+      // Pour 12 kits (>7) : C1 est moins cher : C1(12) = 16*12 + 50 = 192 + 50 = 242 € (2 pts)
+      if (near(q5, 242)) pts += 2;
+
+      document.getElementById('eval-score-badge').textContent = `Note : ${pts} / 10 pts`;
+      if (pts >= 8) {
+        document.getElementById('eval-score-badge').className = 'text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        fb.innerHTML = `<span class="text-emerald-700 font-bold">✓ Félicitations ! Évaluation validée avec un score de ${pts} / 10.</span>`;
+        appState.evaluation = true;
+      } else {
+        document.getElementById('eval-score-badge').className = 'text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        fb.innerHTML = `<span class="text-amber-700">Score : ${pts} / 10. Vous pouvez réviser vos calculs et retenter.</span>`;
+      }
+      updateGlobalProgress();
+    }
+
+    /* ============================================================== */
+    /* GESTION GLOBALE DES SCORES ET DÉBLOCAGES                       */
+    /* ============================================================== */
+    function updateScores() {
+      const n1Count = Object.values(appState.n1).filter(Boolean).length;
+      document.getElementById('score-n1-display').textContent = `${n1Count} / 5`;
+      const percN1 = Math.round((n1Count / 5) * 100);
+      document.getElementById('bilan-socle-status').textContent = `${percN1}% complété`;
+      document.getElementById('cert-socle-perc').textContent = `${percN1} %`;
+
+      // Déblocage Niveau 2 et Attestation à 100% de N1
+      if (n1Count === 5) {
+        const b2 = document.getElementById('lvl-btn-2');
+        if (b2.disabled) {
+          b2.disabled = false;
+          b2.classList.remove('cursor-not-allowed', 'text-slate-400');
+          b2.classList.add('bg-amber-100', 'text-amber-800');
+          b2.innerHTML = '<span>🟡 Niveau 2 : Avancé</span>';
+        }
+        document.getElementById('btn-print').disabled = false;
+        document.getElementById('attestation-lock-notice').className = 'text-xs text-emerald-600 font-bold';
+        document.getElementById('attestation-lock-notice').innerHTML = '✓ Félicitations ! Votre socle CAP est validé à 100 %. Vous pouvez renseigner votre nom et imprimer l\'attestation.';
+      }
+
+      const n2Count = Object.values(appState.n2).filter(Boolean).length;
+      document.getElementById('score-n2-display').textContent = `${n2Count} / 4`;
+      document.getElementById('bilan-bonus-n2').textContent = `${n2Count} / 4 exercices`;
+
+      // Déblocage Niveau 3 à 100% de N2
+      if (n2Count === 4) {
+        const b3 = document.getElementById('lvl-btn-3');
+        if (b3.disabled) {
+          b3.disabled = false;
+          b3.classList.remove('cursor-not-allowed', 'text-slate-400');
+          b3.classList.add('bg-red-100', 'text-red-800');
+          b3.innerHTML = '<span>🔴 Niveau 3 : Expert</span>';
+        }
+      }
+
+      const n3Count = Object.values(appState.n3).filter(Boolean).length;
+      document.getElementById('score-n3-display').textContent = `${n3Count} / 3`;
+      document.getElementById('bilan-bonus-n3').textContent = `${n3Count} / 3 exercices`;
+
+      document.getElementById('cert-bonus-pts').textContent = `${n2Count + n3Count} / 7`;
+
+      updateGlobalProgress();
+    }
+
+    function updateGlobalProgress() {
+      const invCount = Object.values(appState.investigation).filter(Boolean).length;
+      const n1Count = Object.values(appState.n1).filter(Boolean).length;
+      const n2Count = Object.values(appState.n2).filter(Boolean).length;
+      const n3Count = Object.values(appState.n3).filter(Boolean).length;
+      const evalPts = appState.evaluation ? 1 : 0;
+
+      // 3 inv + 5 N1 + 4 N2 + 3 N3 + 1 eval = 16 jalons
+      const total = invCount + n1Count + n2Count + n3Count + evalPts;
+      const perc = Math.round((total / 16) * 100);
+      document.getElementById('global-progress').style.width = `${perc}%`;
+    }
+
+    function updateStudentName(val) {
+      appState.studentName = val.trim();
+      const display = document.getElementById('cert-student-name');
+      display.textContent = appState.studentName ? appState.studentName : "[Nom de l'apprenant(e)]";
+    }
+
+    function initDate() {
+      const today = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('cert-date').textContent = today.toLocaleDateString('fr-FR', options);
+    }
+
+    window.addEventListener('load', function() {
+      initDate();
+      initSimulation();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(() => {});
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      if (appState.currentTab === 2) {
+        drawSimulation();
+      }
+    });
+  </script>
+</body>
+</html>

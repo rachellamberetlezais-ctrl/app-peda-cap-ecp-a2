@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMA Formation - Fonctions : Recherche d'optimum & maximum</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- MathJax v3 pour le rendu des formules statiques LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    /* Charte graphique officielle CMA Formation Sainte-Clotilde */
+    :root {
+      --cma-bordeaux: #A50F23;
+      --cma-corail: #EE3C3D;
+      --cma-bg: #F8FAFC;
+      --cma-text: #1E293B;
+    }
+
+    body {
+      font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--cma-bg);
+      color: var(--cma-text);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* En-tête officiel CMA Formation */
+    .app-header {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 20px;
+      background: linear-gradient(135deg, #7C0A1A 0%, #A50F23 55%, #B9132A 100%);
+    }
+
+    .app-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .icon-bullet {
+      height: 18px;
+      width: 18px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+
+    /* Ruban vague répétitif au bord inférieur du header (hauteur 14px) */
+    .cma-wave-border {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: 14px;
+      margin: 0;
+      border: 0;
+      background-image: url("ruban_vague.png");
+      background-repeat: repeat-x;
+      background-size: 102.941176px 102.941176px;
+      background-position: left -46.941176px;
+    }
+
+    /* Champs de saisie tactiles Mobile-First */
+    .cma-input {
+      min-height: 44px;
+      font-size: 16px;
+      border: 2px solid #CBD5E1;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s ease;
+      background-color: #FFFFFF;
+      color: #0F172A;
+    }
+    .cma-input:focus {
+      border-color: var(--cma-corail);
+      box-shadow: 0 0 0 3px rgba(238, 60, 61, 0.18);
+    }
+    .cma-input.valid {
+      border-color: #10B981;
+      background-color: #F0FDF4;
+    }
+    .cma-input.invalid {
+      border-color: #EF4444;
+      background-color: #FEF2F2;
+    }
+
+    /* Boutons tactiles (>= 44x44px) */
+    .cma-btn {
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      transition: background-color 0.15s ease, transform 0.05s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .cma-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Canvas interactif responsive */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      background-color: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 330px;
+    }
+
+    /* Masquer ascenseur horizontal */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Impression propre de l'attestation */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #print-area {
+        display: block !important;
+        position: static !important;
+        border: 2px solid #A50F23 !important;
+        padding: 24px !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ============================================================== -->
+  <!-- EN-TÊTE OFFICIEL CMA FORMATION SAINTE-CLOTILDE                 -->
+  <!-- ============================================================== -->
+  <header class="app-header text-white shadow-md no-print">
+    <div class="max-w-4xl mx-auto px-4 pt-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="logo.png" alt="Logo CMA Formation" class="app-logo" onerror="this.onerror=null; this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation';">
+        <div>
+          <span class="inline-block bg-white/20 text-xs px-2 py-0.5 rounded font-bold uppercase tracking-wide">CMA Sainte-Clotilde</span>
+          <h1 class="text-sm sm:text-base font-bold leading-tight">CAP Esthétique Cosmétique Parfumerie</h1>
+        </div>
+      </div>
+      <div class="text-right hidden sm:block">
+        <span class="text-xs text-red-100 block">Séance A2 S5 M1</span>
+        <span class="text-xs font-semibold text-white">Fonctions : Recherche d'optimum & maximum</span>
+      </div>
+    </div>
+
+    <!-- Sous-titre et contexte pédagogique -->
+    <div class="max-w-4xl mx-auto px-4 mt-2 mb-1 flex items-center justify-between">
+      <div class="text-xs sm:text-sm text-red-100 font-medium">
+        <span>Optimisation du planning de cabines à Sainte-Clotilde</span>
+      </div>
+      <span class="text-[11px] bg-white/10 px-2 py-0.5 rounded text-white/90 hidden sm:inline">Formatrice : Rachel Lamberet-Lezais</span>
+    </div>
+
+    <!-- Ruban Vague CMA (hauteur 14px) -->
+    <div class="cma-wave-border"></div>
+  </header>
+
+  <!-- Barre de progression générale (8px) -->
+  <div class="bg-slate-200 w-full h-2 sticky top-0 z-40 no-print">
+    <div id="global-progress" class="h-2 bg-gradient-to-r from-[#EE3C3D] to-[#A50F23] transition-all duration-500 ease-out" style="width: 0%;"></div>
+  </div>
+
+  <!-- Barre de navigation tactile horizontale 4 Étapes -->
+  <nav class="bg-white border-b border-slate-200 sticky top-2 z-30 shadow-sm no-print">
+    <div class="max-w-4xl mx-auto px-2 py-2 flex items-center space-x-2 overflow-x-auto no-scrollbar">
+      <button onclick="switchTab(1)" id="tab-btn-1" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-[#A50F23] text-white shadow">
+        1. Découverte
+      </button>
+      <button onclick="switchTab(2)" id="tab-btn-2" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">
+        2. Cours & Simulateur
+      </button>
+      <button onclick="switchTab(3)" id="tab-btn-3" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">
+        3. Entraînement
+      </button>
+      <button onclick="switchTab(4)" id="tab-btn-4" class="cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200">
+        4. Bilan & Attestation
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================== -->
+  <!-- CONTENEUR PRINCIPAL                                            -->
+  <!-- ============================================================== -->
+  <main class="flex-grow max-w-4xl w-full mx-auto p-3 sm:p-6 space-y-6">
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 1 : DÉCOUVERTE PROFESSIONNELLE                          -->
+    <!-- ============================================================== -->
+    <section id="stage-1" class="stage-container space-y-5">
+      <!-- Contexte professionnel local -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Situation Professionnelle : Institut « Beauté Zen & Spa » à Sainte-Clotilde
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          Vous exercez comme esthéticienne responsable adjointe à l'institut <strong>« Beauté Zen & Spa »</strong> situé dans la zone d'activité de Sainte-Clotilde (La Réunion). L'institut est ouvert en continu de <strong>8 h 00 à 18 h 00</strong> (amplitude de 10 heures).
+        </p>
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          Sous le climat réunionnais, les habitudes de la clientèle varient au cours de la journée en raison de la chaleur de mi-journée et des horaires de sortie de bureau.
+        </p>
+        <div class="p-3.5 bg-red-50 rounded-lg border border-red-200 text-xs sm:text-sm text-slate-800 space-y-1">
+          <p class="font-semibold text-[#A50F23]">Modélisation de la fréquentation journalière :</p>
+          <p>Le nombre de clientes présentes simultanément à l'heure $t$ ($t \in [8; 18]$) est donné par la fonction :</p>
+          <div class="text-center font-bold text-[#A50F23] py-1 bg-white rounded border border-red-100">
+            $$f(t) = -0,5(t - 14)^2 + 8 \quad \text{ou} \quad f(t) = -0,5t^2 + 14t - 90$$
+          </div>
+          <p class="text-xs text-slate-500 pt-1">
+            <strong>Règle de gestion :</strong> Une esthéticienne prend en charge au maximum <strong>2 clientes par heure</strong> en rotation cabines.
+          </p>
+        </div>
+      </div>
+
+      <!-- Investigation & Exploitation Graphique -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Démarche d'Investigation & Exploitation Mathématique
+        </h3>
+
+        <!-- Q1 & Q2 : Amplitude et fermeture -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-[#A50F23] bg-red-100 px-2 py-0.5 rounded">C1 - S'informer &amp; C2 - Exécuter</span>
+          <p class="text-xs sm:text-sm text-slate-800 font-medium">
+            Q1 &amp; Q2. L'institut ouvre de 8 h à 18 h. Calculez le nombre de clientes à la fermeture à 18 h en évaluant $f(18) = -0,5(18 - 14)^2 + 8$ :
+          </p>
+          <div class="flex items-center space-x-2">
+            <input type="text" inputmode="decimal" id="inv-q2" class="cma-input max-w-[160px]" placeholder="Votre résultat...">
+            <span class="text-xs sm:text-sm font-semibold text-slate-600">cliente(s)</span>
+            <button onclick="checkInvQ2()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Valider</button>
+          </div>
+          <div id="fb-inv-q2" class="text-xs pt-1"></div>
+        </div>
+
+        <!-- Q3 : Tableau de valeurs dynamique -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-[#A50F23] bg-red-100 px-2 py-0.5 rounded">C2 - Exécuter</span>
+          <p class="text-xs sm:text-sm text-slate-800 font-medium">
+            Q3. Complétez le tableau de valeurs de la fréquentation $f(t)$ pour $t \in \{10; 12; 14; 16\}$ :
+          </p>
+          <div class="overflow-x-auto pb-1">
+            <table class="min-w-full text-xs text-center border-collapse">
+              <thead>
+                <tr class="bg-slate-200 text-slate-700">
+                  <th class="p-2 border border-slate-300">Heure $t$</th>
+                  <th class="p-2 border border-slate-300">10 h</th>
+                  <th class="p-2 border border-slate-300">12 h</th>
+                  <th class="p-2 border border-slate-300">14 h (Pic)</th>
+                  <th class="p-2 border border-slate-300">16 h</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border border-slate-300 font-semibold bg-white">Clientes $f(t)$</td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-t10" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-t12" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-t14" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                  <td class="p-1 border border-slate-300 bg-white"><input type="text" inputmode="decimal" id="inv-t16" class="cma-input text-xs text-center" placeholder="Votre résultat..."></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkInvQ3()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Valider le tableau</button>
+            <div id="fb-inv-q3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Q5 & Q7 : Coordonnées du sommet et effectif requis -->
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+          <span class="text-xs font-bold text-[#A50F23] bg-red-100 px-2 py-0.5 rounded">C3 - Raisonner &amp; C4 - Communiquer</span>
+          <p class="text-xs sm:text-sm text-slate-800 font-medium">
+            Q5 &amp; Q7. Repérez le sommet $S(t_{\max}; y_{\max})$ et déterminez l'équipe minimale requise (1 esthéticienne pour 2 clientes) :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div class="space-y-1">
+              <label class="font-semibold text-slate-700 block">Heure de pointe $t_{\max}$ (h) :</label>
+              <input type="text" inputmode="decimal" id="inv-tmax" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="space-y-1">
+              <label class="font-semibold text-slate-700 block">Nombre max de clientes $y_{\max}$ :</label>
+              <input type="text" inputmode="decimal" id="inv-ymax" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="space-y-1">
+              <label class="font-semibold text-slate-700 block">Esthéticiennes nécessaires :</label>
+              <input type="text" inputmode="decimal" id="inv-staff" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkInvQ5_7()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Valider la conclusion</button>
+            <div id="fb-inv-q5" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button onclick="switchTab(2)" class="cma-btn px-5 py-2.5 bg-[#A50F23] text-white text-xs sm:text-sm shadow-md">
+            Passer à l'Étape 2 : Cours & Simulateur →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 2 : COURS & SIMULATEUR INTERACTIF                       -->
+    <!-- ============================================================== -->
+    <section id="stage-2" class="stage-container space-y-5 hidden">
+      <!-- Synthèse de cours sous accordéons -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Synthèse de Cours : Recherche d'Extremum & Exploitation d'un Maximum
+        </h2>
+
+        <!-- Accordéon 1 -->
+        <details class="group bg-slate-50 border border-slate-200 rounded-lg p-3" open>
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer flex justify-between items-center">
+            <span>1. Définition mathématique d'un extremum</span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="mt-2 text-xs sm:text-sm text-slate-600 space-y-2">
+            <p>Soit $f$ une fonction définie sur un intervalle $[a; b]$ :</p>
+            <ul class="list-disc list-inside space-y-1 text-slate-700">
+              <li><strong>Maximum :</strong> La plus grande valeur atteinte par $f(x)$ en $x_0$. Pour tout $x \in [a; b]$, on a $f(x) \le f(x_0) = M$.</li>
+              <li><strong>Minimum :</strong> La plus petite valeur atteinte par $f(x)$ en $x_1$. Pour tout $x \in [a; b]$, on a $f(x) \ge f(x_1) = m$.</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Accordéon 2 -->
+        <details class="group bg-slate-50 border border-slate-200 rounded-lg p-3" open>
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer flex justify-between items-center">
+            <span>2. Lecture graphique et tableau de variations</span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="mt-2 text-xs sm:text-sm text-slate-600 space-y-2">
+            <p>Graphiquement, le maximum correspond au <strong>point le plus haut</strong> de la courbe (le sommet $S$) :</p>
+            <ul class="list-disc list-inside space-y-1 text-slate-700">
+              <li>L'abscisse $x_0$ indique <em>le moment</em> ou <em>la quantité</em> optimale.</li>
+              <li>L'ordonnée $y_0 = f(x_0)$ indique <em>la valeur maximale</em> de la grandeur étudiée.</li>
+              <li>Le <strong>tableau de variations</strong> résume l'évolution avec une flèche croissante (↗) puis décroissante (↘).</li>
+            </ul>
+          </div>
+        </details>
+
+        <!-- Accordéon 3 -->
+        <details class="group bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer flex justify-between items-center">
+            <span>3. Application directe au planning de l'institut</span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="mt-2 text-xs sm:text-sm text-slate-600 space-y-1">
+            <p>Pour $f(t) = -0,5(t - 14)^2 + 8$ :</p>
+            <p>• Le carré $(t - 14)^2$ est toujours positif ou nul, donc $-0,5(t - 14)^2 \le 0$.</p>
+            <p>• La valeur maximale est atteinte quand $(t - 14) = 0$, soit à <strong>$t = 14$ h</strong>.</p>
+            <p class="font-semibold text-[#A50F23]">Ce maximum vaut 8 clientes, nécessitant $8 / 2 = 4$ esthéticiennes en poste.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Simulateur Interactif Canvas de la Parabole & Planning -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
+            <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+            Simulateur Dynamique : Courbe d'affluence et rotation cabines
+          </h3>
+          <span class="text-[11px] bg-red-100 text-[#A50F23] font-bold px-2 py-0.5 rounded">Canvas 2D</span>
+        </div>
+        <p class="text-xs text-slate-600">
+          Ajustez les paramètres de la fonction $f(t) = a(t - t_{\max})^2 + y_{\max}$ et déplacez le curseur horaire pour visualiser l'affluence et le personnel requis :
+        </p>
+
+        <!-- Commandes & Sliders -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+          <div class="flex justify-between items-center">
+            <button onclick="resetModelInstitut()" class="cma-btn px-3 py-1.5 text-xs bg-[#A50F23] text-white rounded-lg shadow">
+              ⚙️ Rétablir le modèle de l'institut ($t_{\max}=14$ h, $y_{\max}=8$)
+            </button>
+            <span class="text-xs text-slate-500">Amplitude : 8 h à 18 h</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <div class="flex justify-between text-xs font-semibold text-slate-700">
+                <label for="sim-tmax">Heure du pic $t_{\max}$ :</label>
+                <span id="disp-tmax" class="text-[#A50F23] font-bold">14 h</span>
+              </div>
+              <input type="range" id="sim-tmax" min="10" max="16" step="0.5" value="14" class="w-full accent-[#A50F23] h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+            </div>
+
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <div class="flex justify-between text-xs font-semibold text-slate-700">
+                <label for="sim-ymax">Pic de clientes $y_{\max}$ :</label>
+                <span id="disp-ymax" class="text-[#A50F23] font-bold">8</span>
+              </div>
+              <input type="range" id="sim-ymax" min="4" max="14" step="1" value="8" class="w-full accent-[#A50F23] h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+            </div>
+
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <div class="flex justify-between text-xs font-semibold text-slate-700">
+                <label for="sim-time">Heure testée $t$ :</label>
+                <span id="disp-time" class="text-[#A50F23] font-bold">14 h 00</span>
+              </div>
+              <input type="range" id="sim-time" min="8" max="18" step="0.5" value="14" class="w-full accent-slate-800 h-2 bg-slate-200 rounded cursor-pointer" oninput="drawSimulation()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+          <canvas id="optCanvas" width="700" height="330"></canvas>
+        </div>
+
+        <!-- Tableau de bord dynamique -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
+            <span class="text-slate-500 block">Heure sélectionnée</span>
+            <span id="sim-stat-t" class="text-sm font-bold text-slate-800">14 h 00</span>
+          </div>
+          <div class="bg-red-50 p-3 rounded-lg border border-red-200 text-center">
+            <span class="text-red-600 block">Clientes en cabines</span>
+            <span id="sim-stat-f" class="text-sm font-bold text-[#A50F23]">8.0 clientes</span>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200 text-center">
+            <span class="text-emerald-700 block">Esthéticiennes requises</span>
+            <span id="sim-stat-staff" class="text-sm font-bold text-emerald-800">4 professionnelles</span>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-between">
+          <button onclick="switchTab(1)" class="cma-btn px-4 py-2 border border-slate-300 text-slate-700 text-xs sm:text-sm">
+            ← Étape 1 : Découverte
+          </button>
+          <button onclick="switchTab(3)" class="cma-btn px-5 py-2.5 bg-[#A50F23] text-white text-xs sm:text-sm shadow-md">
+            Passer à l'Étape 3 : Entraînement Gamifié →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 3 : ENTRAÎNEMENT GAMIFIÉ                                -->
+    <!-- ============================================================== -->
+    <section id="stage-3" class="stage-container space-y-6 hidden">
+      <!-- En-tête des paliers et scores -->
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Parcours d'Exercices Différenciés
+            </h2>
+            <p class="text-xs text-slate-500">Progression séquentielle : Le Niveau 1 valide à 100 % le socle CAP et débloque l'Attestation.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-center">
+              <span class="text-[10px] uppercase font-bold text-emerald-700 block">Socle CAP (N1)</span>
+              <span id="score-n1-display" class="text-sm font-bold text-emerald-800">0 / 5</span>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg text-center">
+              <span class="text-[10px] uppercase font-bold text-amber-700 block">Bonus N2</span>
+              <span id="score-n2-display" class="text-sm font-bold text-amber-800">0 / 4</span>
+            </div>
+            <div class="bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg text-center">
+              <span class="text-[10px] uppercase font-bold text-red-700 block">Bonus N3</span>
+              <span id="score-n3-display" class="text-sm font-bold text-red-800">0 / 3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons des 3 Paliers -->
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-100">
+          <button onclick="switchLevel(1)" id="lvl-btn-1" class="cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white">
+            <span>🟢 Niveau 1 : Débutant (Socle CAP)</span>
+          </button>
+          <button onclick="switchLevel(2)" id="lvl-btn-2" class="cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed" disabled>
+            <span>🔒 Niveau 2 : Avancé</span>
+          </button>
+          <button onclick="switchLevel(3)" id="lvl-btn-3" class="cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed" disabled>
+            <span>🔒 Niveau 3 : Expert</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PALLIER 1 : DÉBUTANT (SOCLE CAP - 5 EXERCICES)               -->
+      <!-- ============================================================ -->
+      <div id="level-container-1" class="space-y-4">
+        <div class="bg-emerald-50 border-l-4 border-emerald-600 p-3 rounded-r-lg text-xs text-emerald-800">
+          <strong>Objectif Socle CAP :</strong> Réussir les 5 exercices du Niveau 1 pour valider à 100 % le socle CAP et débloquer l'accès à l'Attestation Numérique !
+        </div>
+
+        <!-- Ex 1.1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.1 : Lecture graphique de maximum (Parfumerie à Saint-Denis)
+            </h4>
+            <span id="badge-ex1-1" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Sur la courbe de recette horaire d'une parfumerie de Saint-Denis entre 9 h et 19 h, le sommet a pour coordonnées $S(17; 450)$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Heure de recette maximale (h) :</label>
+              <input type="text" inputmode="decimal" id="ex1-1-t" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Montant de cette recette maximale (€) :</label>
+              <input type="text" inputmode="decimal" id="ex1-1-y" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_1()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.1</button>
+            <div id="fb-ex1-1" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.2 : Lecture graphique de minimum (Spa à Sainte-Marie)
+            </h4>
+            <span id="badge-ex1-2" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            La consommation électrique journalière d'un spa de Sainte-Marie est modélisée par une courbe dont le point le plus bas est $B(4; 120)$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Heure de consommation minimale (h) :</label>
+              <input type="text" inputmode="decimal" id="ex1-2-t" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur minimale (en Watts) :</label>
+              <input type="text" inputmode="decimal" id="ex1-2-y" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_2()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.2</button>
+            <div id="fb-ex1-2" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.3 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.3 : Calcul d'images et comparaison ($g(x) = -(x - 5)^2 + 16$)
+            </h4>
+            <span id="badge-ex1-3" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Soit $g(x) = -(x - 5)^2 + 16$ sur $[1; 9]$. Calculez les images suivantes :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">1. Valeur de $g(1)$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-3-g1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">2. Valeur de $g(5)$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-3-g5" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">3. Valeur de $g(9)$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-3-g9" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_3()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.3</button>
+            <div id="fb-ex1-3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.4 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.4 : Tableau de variations et maximum
+            </h4>
+            <span id="badge-ex1-4" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Une fonction $h$ définie sur $[0; 12]$ est croissante de 0 à 6 ($h(0)=2$ à $h(6)=10$), puis décroissante de 6 à 12 ($h(6)=10$ à $h(12)=4$).
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Abscisse $x$ où le maximum est atteint :</label>
+              <input type="text" inputmode="decimal" id="ex1-4-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur du maximum $h(x)$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-4-max" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_4()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.4</button>
+            <div id="fb-ex1-4" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 1.5 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex1-5">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 1.5 : Vérification numérique d'extremum ($f(x) = -2x^2 + 8x + 10$)
+            </h4>
+            <span id="badge-ex1-5" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Soit $f(x) = -2x^2 + 8x + 10$ sur $[0; 4]$. Calculez $f(2)$ et $f(1)$ pour comparer :
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur de $f(2)$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-5-f2" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Valeur de $f(1)$ :</label>
+              <input type="text" inputmode="decimal" id="ex1-5-f1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx1_5()" class="cma-btn px-4 bg-emerald-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 1.5</button>
+            <div id="fb-ex1-5" class="text-xs font-medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PALLIER 2 : AVANCÉ / DÉPASSEMENT (4 EXERCICES)               -->
+      <!-- ============================================================ -->
+      <div id="level-container-2" class="space-y-4 hidden">
+        <div class="bg-amber-50 border-l-4 border-amber-600 p-3 rounded-r-lg text-xs text-amber-800">
+          <strong>Niveau 2 (Dépassement) :</strong> Situations professionnelles réelles (Bénéfice soin éclat, chauffe de cire pelable, coût de stockage et rentabilité horaire).
+        </div>
+
+        <!-- Ex 2.1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.1 : Bénéfice d'un soin visage éclat à Saint-Denis
+            </h4>
+            <span id="badge-ex2-1" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Le bénéfice mensuel en euros pour $x$ forfaits vendus est $B(x) = -x^2 + 60x - 500$ sur $[10; 50]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Quantité optimale de forfaits $x_{\text{opt}}$ :</label>
+              <input type="text" inputmode="decimal" id="ex2-1-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Bénéfice maximal $B(x_{\text{opt}})$ (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-1-b" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_1()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.1</button>
+            <div id="fb-ex2-1" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 2.2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.2 : Pic de température d'un appareil à cire pelable
+            </h4>
+            <span id="badge-ex2-2" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            La température en °C après $t$ minutes est $T(t) = -0,2t^2 + 4t + 25$ pour $t \in [0; 20]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Temps pour atteindre le pic (minutes) :</label>
+              <input type="text" inputmode="decimal" id="ex2-2-t" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Température maximale atteinte (°C) :</label>
+              <input type="text" inputmode="decimal" id="ex2-2-temp" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_2()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.2</button>
+            <div id="fb-ex2-2" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 2.3 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.3 : Optimisation du stock d'huile de Calophylle
+            </h4>
+            <span id="badge-ex2-3" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Le coût de stockage en euros pour $q$ dizaines de flacons est $C(q) = 2q^2 - 16q + 50$ pour $q \in [1; 7]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Quantité optimale $q$ (en dizaines) :</label>
+              <input type="text" inputmode="decimal" id="ex2-3-q" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Coût minimal de stockage (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-3-c" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_3()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.3</button>
+            <div id="fb-ex2-3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 2.4 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex2-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 2.4 : Plage horaire rentable d'un institut
+            </h4>
+            <span id="badge-ex2-4" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            La rentabilité horaire est $R(h) = -h^2 + 26h - 160$ pour $h \in [9; 17]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Heure $h$ de rentabilité maximale :</label>
+              <input type="text" inputmode="decimal" id="ex2-4-h" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Rentabilité maximale atteinte (€) :</label>
+              <input type="text" inputmode="decimal" id="ex2-4-r" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx2_4()" class="cma-btn px-4 bg-amber-700 text-white text-xs sm:text-sm">Vérifier l'Exercice 2.4</button>
+            <div id="fb-ex2-4" class="text-xs font-medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PALLIER 3 : EXPERT / EXCELLENCE (3 EXERCICES)                -->
+      <!-- ============================================================ -->
+      <div id="level-container-3" class="space-y-4 hidden">
+        <div class="bg-red-50 border-l-4 border-red-600 p-3 rounded-r-lg text-xs text-red-800">
+          <strong>Niveau 3 (Excellence) :</strong> Optimisation géométrique d'espace cabine, stratégie tarifaire de soin signature et régulation énergétique sous climat tropical.
+        </div>
+
+        <!-- Ex 3.1 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex3-1">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 3.1 : Optimisation de surface d'un espace pédicure
+            </h4>
+            <span id="badge-ex3-1" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Une cloison de 16 m délimite un espace rectangulaire adossé à un mur ($L = 16 - 2x$). L'aire est $A(x) = -2x^2 + 16x$ sur $[1; 7]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Largeur optimale $x_{\text{opt}}$ (m) :</label>
+              <input type="text" inputmode="decimal" id="ex3-1-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Surface maximale $A_{\max}$ (m²) :</label>
+              <input type="text" inputmode="decimal" id="ex3-1-a" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx3_1()" class="cma-btn px-4 bg-red-800 text-white text-xs sm:text-sm">Vérifier l'Exercice 3.1</button>
+            <div id="fb-ex3-1" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 3.2 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex3-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 3.2 : Optimisation tarifaire du soin signature vanille
+            </h4>
+            <span id="badge-ex3-2" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            La recette mensuelle pour $x$ baisses de 2 € est $R(x) = -20x^2 + 300x + 5000$ sur $[0; 15]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Nombre optimal de baisses $x$ (7 ou 8) :</label>
+              <input type="text" inputmode="decimal" id="ex3-2-x" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Recette mensuelle maximale (€) :</label>
+              <input type="text" inputmode="decimal" id="ex3-2-r" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx3_2()" class="cma-btn px-4 bg-red-800 text-white text-xs sm:text-sm">Vérifier l'Exercice 3.2</button>
+            <div id="fb-ex3-2" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Ex 3.3 -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3" id="card-ex3-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Exercice 3.3 : Climatisation tropicale & Régulation de puissance
+            </h4>
+            <span id="badge-ex3-3" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">En attente</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            La puissance en kW est $P(t) = -0,8t^2 + 22,4t - 130$ pour $t \in [10; 18]$.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Heure de pic de puissance (h) :</label>
+              <input type="text" inputmode="decimal" id="ex3-3-t" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">Puissance maximale requise (kW) :</label>
+              <input type="text" inputmode="decimal" id="ex3-3-p" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <button onclick="checkEx3_3()" class="cma-btn px-4 bg-red-800 text-white text-xs sm:text-sm">Vérifier l'Exercice 3.3</button>
+            <div id="fb-ex3-3" class="text-xs font-medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 flex justify-between">
+        <button onclick="switchTab(2)" class="cma-btn px-4 py-2 border border-slate-300 text-slate-700 text-xs sm:text-sm">
+          ← Étape 2 : Cours
+        </button>
+        <button onclick="switchTab(4)" class="cma-btn px-5 py-2.5 bg-[#A50F23] text-white text-xs sm:text-sm shadow-md">
+          Passer à l'Étape 4 : Bilan & Attestation →
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- ÉTAPE 4 : BILAN, ÉVALUATION ET ATTESTATION                    -->
+    <!-- ============================================================== -->
+    <section id="stage-4" class="stage-container space-y-6 hidden">
+      <!-- Synthèse Bilan & Badges -->
+      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-4 no-print">
+        <h2 class="text-base sm:text-lg font-bold text-[#A50F23] flex items-center">
+          <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+          Bilan Pédagogique & Progression
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center">
+            <span class="text-3xl block mb-1">🎓</span>
+            <span class="text-xs font-bold text-emerald-800 uppercase block">Socle CAP (Niveau 1)</span>
+            <span id="bilan-socle-status" class="text-sm font-extrabold text-emerald-700">0% complété</span>
+            <span class="text-[11px] text-slate-500 block mt-1">Requis pour l'attestation</span>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+            <span class="text-3xl block mb-1">⚡</span>
+            <span class="text-xs font-bold text-amber-800 uppercase block">Bonus Avancé (N2)</span>
+            <span id="bilan-bonus-n2" class="text-sm font-extrabold text-amber-700">0 / 4 exercices</span>
+            <span class="text-[11px] text-slate-500 block mt-1">Dépassement de compétences</span>
+          </div>
+
+          <div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center">
+            <span class="text-3xl block mb-1">🏆</span>
+            <span class="text-xs font-bold text-red-800 uppercase block">Bonus Expert (N3)</span>
+            <span id="bilan-bonus-n3" class="text-sm font-extrabold text-red-700">0 / 3 exercices</span>
+            <span class="text-[11px] text-slate-500 block mt-1">Analyse critique & gestion</span>
+          </div>
+        </div>
+
+        <!-- Évaluation formelle sommative (Sur 10 points) -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
+              <img src="fleche_rouge.png" alt="" class="icon-bullet" onerror="this.onerror=null; this.style.display='none';">
+              Évaluation Formelle Sommative (Sur 10 points) : Flux du Samedi
+            </h3>
+            <span id="eval-score-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-700">Note : 0 / 10 pts</span>
+          </div>
+          <p class="text-xs text-slate-600">
+            Le flux du samedi est modélisé par $N(t) = -(t - 15)^2 + 9$ sur $[9; 19]$. Règle : 1 esthéticienne pour au maximum 3 clientes.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">1. Clientes à la fermeture $N(19)$ (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q1" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">2. Valeur de $N(13)$ (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q2" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">3. Heure d'affluence maximale $t_{\max}$ (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q3" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1">
+              <label class="font-semibold text-slate-700 block">4. Nombre maximal de clientes $N_{\max}$ (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q4" class="cma-input" placeholder="Votre résultat...">
+            </div>
+            <div class="p-2.5 bg-white rounded border border-slate-200 space-y-1 sm:col-span-2">
+              <label class="font-semibold text-slate-700 block">5. Nombre d'esthéticiennes nécessaires à 15 h (1 pour 3 clientes) (2 pts) :</label>
+              <input type="text" inputmode="decimal" id="eval-q5" class="cma-input" placeholder="Votre résultat...">
+            </div>
+          </div>
+
+          <div class="pt-1 flex items-center justify-between">
+            <button onclick="checkEvaluation()" class="cma-btn px-4 bg-[#A50F23] text-white text-xs sm:text-sm">Corriger l'Évaluation</button>
+            <div id="fb-eval" class="text-xs font-medium"></div>
+          </div>
+        </div>
+
+        <!-- Saisie du Nom pour l'Attestation -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+          <label for="student-name-input" class="text-xs sm:text-sm font-bold text-slate-800 block">
+            Nom et Prénom de l'apprenant(e) pour l'Attestation Numérique :
+          </label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="text" id="student-name-input" class="cma-input" placeholder="Ex: Sarah DIJOUX" oninput="updateStudentName(this.value)">
+            <button onclick="window.print()" id="btn-print" class="cma-btn px-6 bg-[#A50F23] text-white text-xs sm:text-sm whitespace-nowrap shadow" disabled>
+              🖨️ Imprimer / Enregistrer en PDF
+            </button>
+          </div>
+          <p id="attestation-lock-notice" class="text-xs text-red-600 font-medium">
+            ⚠️ L'attestation est réservée aux alternants ayant validé les 5 exercices du Niveau 1 (Socle CAP).
+          </p>
+        </div>
+      </div>
+
+      <!-- ATTESTATION NUMÉRIQUE OFFICIELLE IMPRIMABLE -->
+      <div id="print-area" class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border-2 border-[#A50F23] space-y-6">
+        <!-- En-tête officiel -->
+        <div class="flex items-center justify-between border-b-2 border-red-100 pb-4">
+          <img src="logo.png" alt="Logo CMA Formation" style="max-height: 48px; width: auto; object-fit: contain;" onerror="this.onerror=null; this.src='https://placehold.co/120x48/A50F23/FFFFFF?text=CMA+Formation';">
+          <div class="text-right">
+            <span class="text-[11px] text-slate-400 uppercase tracking-widest block font-bold">CMA FORMATION SAINTE-CLOTILDE</span>
+            <span class="text-xs text-slate-600 font-semibold">Île de La Réunion</span>
+          </div>
+        </div>
+
+        <!-- Titre de l'attestation -->
+        <div class="text-center space-y-2 pt-1">
+          <span class="text-xs uppercase tracking-widest text-[#EE3C3D] font-extrabold">Attestation Pédagogique de Réussite</span>
+          <h3 class="text-xl sm:text-2xl font-bold text-[#A50F23]">Fonctions : Recherche d'Optimum &amp; Maximum</h3>
+          <p class="text-xs text-slate-500">Module de Mathématiques appliquées • CAP Esthétique Cosmétique Parfumerie (Groupement 1)</p>
+        </div>
+
+        <!-- Nom apprenant et date -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-2">
+          <p class="text-xs sm:text-sm text-slate-600">Attestation décernée avec succès à :</p>
+          <div id="cert-student-name" class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-wide uppercase">
+            [Nom de l'apprenant(e)]
+          </div>
+          <p class="text-xs text-slate-500">
+            pour avoir validé les compétences de la séance pédagogique du <span id="cert-date" class="font-bold text-slate-700"></span>.
+          </p>
+        </div>
+
+        <!-- Grille des compétences C1 à C4 -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold text-slate-800 uppercase block tracking-wide">Compétences du Référentiel Évaluées :</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C1 - S'informer :</strong> Identifier la variable d'étude, l'intervalle et repérer le sommet</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C2 - Exécuter :</strong> Calculer des images et compléter un tableau de valeurs</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C3 - Raisonner :</strong> Interpréter les variations, extremums et tableaux de variations</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded border border-emerald-200 flex items-center justify-between">
+              <span><strong>C4 - Communiquer :</strong> Déterminer l'effectif optimal requis pour l'institut</span>
+              <span class="text-emerald-700 font-bold">✓ Validé</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scores Breakdown -->
+        <div class="p-3 bg-red-50/50 rounded-lg border border-red-100 flex items-center justify-between text-xs">
+          <div>
+            <span class="text-slate-600 font-medium">Socle fondamental CAP : </span>
+            <strong id="cert-socle-perc" class="text-emerald-700 font-bold">0 %</strong>
+          </div>
+          <div>
+            <span class="text-slate-600 font-medium">Défis Bonus accomplis : </span>
+            <strong id="cert-bonus-pts" class="text-amber-800 font-bold">0 / 7</strong>
+          </div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="pt-6 flex items-center justify-between text-xs text-slate-600 border-t border-slate-200">
+          <div>
+            <p class="font-bold text-slate-800">Formatrice référente</p>
+            <p>Rachel Lamberet-Lezais</p>
+            <p class="text-[10px] text-slate-400">CMA Formation Sainte-Clotilde</p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-slate-800">Sceau Pédagogique</p>
+            <div class="inline-block px-3 py-1 bg-red-100 text-[#A50F23] font-bold rounded text-[11px] mt-1">
+              CONFORME CAP EG2
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- PIED DE PAGE                                                   -->
+  <!-- ============================================================== -->
+  <footer class="bg-white border-t border-slate-200 py-3 mt-8 no-print">
+    <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-1">
+      <div>CMA Formation Sainte-Clotilde • Mathématiques CAP Esthétique</div>
+      <div>Auteur : Rachel Lamberet-Lezais • Séance A2 S5 M1</div>
+    </div>
+  </footer>
+
+  <!-- ============================================================== -->
+  <!-- LOGIQUE JAVASCRIPT & VALIDATION NUMÉRIQUE STRICTE             -->
+  <!-- ============================================================== -->
+  <script>
+    /* État global de l'application */
+    const appState = {
+      currentTab: 1,
+      currentLevel: 1,
+      studentName: '',
+      investigation: { q2: false, q3: false, q5: false },
+      n1: { ex1: false, ex2: false, ex3: false, ex4: false, ex5: false },
+      n2: { ex1: false, ex2: false, ex3: false, ex4: false },
+      n3: { ex1: false, ex2: false, ex3: false },
+      evaluation: false
+    };
+
+    /* Parser numérique acceptant virgules et points */
+    function parseNum(val) {
+      if (val === null || val === undefined) return NaN;
+      const clean = String(val).trim().replace(',', '.');
+      if (clean === '') return NaN;
+      return parseFloat(clean);
+    }
+
+    /* Comparaison avec tolérance aux arrondis */
+    function near(val, target, tol = 0.15) {
+      return Math.abs(val - target) <= tol;
+    }
+
+    /* Navigation entre les 4 étapes */
+    function switchTab(tabIndex) {
+      appState.currentTab = tabIndex;
+      document.querySelectorAll('.stage-container').forEach((el, idx) => {
+        el.classList.toggle('hidden', idx + 1 !== tabIndex);
+      });
+
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`tab-btn-${i}`);
+        if (i === tabIndex) {
+          btn.className = "cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-[#A50F23] text-white shadow";
+        } else {
+          btn.className = "cma-btn flex-shrink-0 px-3.5 py-2 text-xs sm:text-sm rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200";
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (tabIndex === 2) {
+        setTimeout(initSimulation, 100);
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(() => {});
+      }
+    }
+
+    /* Gestion des paliers de l'Étape 3 */
+    function switchLevel(lvl) {
+      appState.currentLevel = lvl;
+      document.getElementById('level-container-1').classList.toggle('hidden', lvl !== 1);
+      document.getElementById('level-container-2').classList.toggle('hidden', lvl !== 2);
+      document.getElementById('level-container-3').classList.toggle('hidden', lvl !== 3);
+
+      const b1 = document.getElementById('lvl-btn-1');
+      const b2 = document.getElementById('lvl-btn-2');
+      const b3 = document.getElementById('lvl-btn-3');
+
+      b1.className = (lvl === 1) ? 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white' : 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-100 text-emerald-800';
+      if (!b2.disabled) {
+        b2.className = (lvl === 2) ? 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-700 text-white' : 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-100 text-amber-800';
+      }
+      if (!b3.disabled) {
+        b3.className = (lvl === 3) ? 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-red-700 text-white' : 'cma-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-red-100 text-red-800';
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(() => {});
+      }
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 1 : INVESTIGATION INSTITUT BEAUTÉ ZEN & SPA              */
+    /* ============================================================== */
+    function checkInvQ2() {
+      const v = parseNum(document.getElementById('inv-q2').value);
+      const fb = document.getElementById('fb-inv-q2');
+      if (isNaN(v)) {
+        fb.innerHTML = '<span class="text-amber-600">Saisissez une valeur numérique.</span>';
+        return;
+      }
+      if (near(v, 0)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Exact ! f(18) = −0,5(4)² + 8 = −8 + 8 = 0 cliente à la fermeture.</span>';
+        document.getElementById('inv-q2').classList.add('valid');
+        appState.investigation.q2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Calcul : −0,5 × 16 + 8 = −8 + 8 = 0 cliente.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkInvQ3() {
+      const t10 = parseNum(document.getElementById('inv-t10').value);
+      const t12 = parseNum(document.getElementById('inv-t12').value);
+      const t14 = parseNum(document.getElementById('inv-t14').value);
+      const t16 = parseNum(document.getElementById('inv-t16').value);
+      const fb = document.getElementById('fb-inv-q3');
+
+      if (isNaN(t10) || isNaN(t12) || isNaN(t14) || isNaN(t16)) {
+        fb.innerHTML = '<span class="text-amber-600">Complétez toutes les cases du tableau.</span>';
+        return;
+      }
+
+      if (near(t10, 0) && near(t12, 6) && near(t14, 8) && near(t16, 6)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Bravo ! Valeurs exactes : f(10)=0, f(12)=6, f(14)=8, f(16)=6.</span>';
+        document.getElementById('inv-t10').classList.add('valid');
+        document.getElementById('inv-t12').classList.add('valid');
+        document.getElementById('inv-t14').classList.add('valid');
+        document.getElementById('inv-t16').classList.add('valid');
+        appState.investigation.q3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Valeurs attendues : 10 h -> 0, 12 h -> 6, 14 h -> 8, 16 h -> 6.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    function checkInvQ5_7() {
+      const tmax = parseNum(document.getElementById('inv-tmax').value);
+      const ymax = parseNum(document.getElementById('inv-ymax').value);
+      const staff = parseNum(document.getElementById('inv-staff').value);
+      const fb = document.getElementById('fb-inv-q5');
+
+      if (isNaN(tmax) || isNaN(ymax) || isNaN(staff)) {
+        fb.innerHTML = '<span class="text-amber-600">Complétez les trois champs.</span>';
+        return;
+      }
+
+      if (near(tmax, 14) && near(ymax, 8) && near(staff, 4)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Parfait ! Sommet S(14 ; 8) : pic à 14 h avec 8 clientes, nécessitant 8 / 2 = 4 esthéticiennes.</span>';
+        document.getElementById('inv-tmax').classList.add('valid');
+        document.getElementById('inv-ymax').classList.add('valid');
+        document.getElementById('inv-staff').classList.add('valid');
+        appState.investigation.q5 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Sommet : t = 14 h, y = 8 clientes. Effectif : 8 / 2 = 4 esthéticiennes.</span>';
+      }
+      updateGlobalProgress();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 2 : SIMULATEUR CANVAS 2D DE LA PARABOLE                 */
+    /* ============================================================== */
+    let canvas, ctx;
+
+    function initSimulation() {
+      canvas = document.getElementById('optCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      drawSimulation();
+    }
+
+    function resetModelInstitut() {
+      document.getElementById('sim-tmax').value = 14;
+      document.getElementById('sim-ymax').value = 8;
+      document.getElementById('sim-time').value = 14;
+      drawSimulation();
+    }
+
+    function drawSimulation() {
+      if (!canvas) {
+        canvas = document.getElementById('optCanvas');
+        if (canvas) ctx = canvas.getContext('2d');
+      }
+      if (!ctx) return;
+
+      const tmax = parseFloat(document.getElementById('sim-tmax').value);
+      const ymax = parseFloat(document.getElementById('sim-ymax').value);
+      const tCur = parseFloat(document.getElementById('sim-time').value);
+
+      document.getElementById('disp-tmax').textContent = `${tmax} h`;
+      document.getElementById('disp-ymax').textContent = `${ymax}`;
+      document.getElementById('disp-time').textContent = `${tCur.toFixed(1)} h`;
+
+      // Formule f(t) = -0.5(t - tmax)^2 + ymax
+      const fCur = Math.max(0, -0.5 * Math.pow(tCur - tmax, 2) + ymax);
+      const staffCur = Math.ceil(fCur / 2);
+
+      document.getElementById('sim-stat-t').textContent = `${tCur.toFixed(1)} h`;
+      document.getElementById('sim-stat-f').textContent = `${fCur.toFixed(1)} clientes`;
+      document.getElementById('sim-stat-staff').textContent = `${staffCur} professionnelles`;
+
+      // Paramètres repère cartésien
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const minX = 7, maxX = 19;
+      const minY = -2, maxY = 12;
+
+      function toScreenX(x) {
+        return ((x - minX) / (maxX - minX)) * w;
+      }
+      function toScreenY(y) {
+        return h - ((y - minY) / (maxY - minY)) * h;
+      }
+
+      // Grille
+      ctx.strokeStyle = '#F1F5F9';
+      ctx.lineWidth = 1;
+      for (let x = 8; x <= 18; x += 1) {
+        ctx.beginPath();
+        ctx.moveTo(toScreenX(x), 0);
+        ctx.lineTo(toScreenX(x), h);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= 10; y += 2) {
+        ctx.beginPath();
+        ctx.moveTo(0, toScreenY(y));
+        ctx.lineTo(w, toScreenY(y));
+        ctx.stroke();
+      }
+
+      // Axes principaux
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 1.5;
+      // Axe X
+      ctx.beginPath();
+      ctx.moveTo(0, toScreenY(0));
+      ctx.lineTo(w, toScreenY(0));
+      ctx.stroke();
+      // Axe Y
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(minX), 0);
+      ctx.lineTo(toScreenX(minX), h);
+      ctx.stroke();
+
+      // Graduations
+      ctx.fillStyle = '#64748B';
+      ctx.font = '10px Arial';
+      for (let x = 8; x <= 18; x += 2) {
+        ctx.fillText(`${x}h`, toScreenX(x) - 8, toScreenY(0) + 14);
+      }
+      for (let y = 2; y <= 10; y += 2) {
+        ctx.fillText(y, toScreenX(minX) + 6, toScreenY(y) + 3);
+      }
+
+      // Tracé de la courbe f(t) (Corail CMA #EE3C3D)
+      ctx.strokeStyle = '#EE3C3D';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      let started = false;
+      for (let x = 8; x <= 18; x += 0.1) {
+        const val = -0.5 * Math.pow(x - tmax, 2) + ymax;
+        const clampedY = Math.max(0, val);
+        const sx = toScreenX(x);
+        const sy = toScreenY(clampedY);
+        if (!started) {
+          ctx.moveTo(sx, sy);
+          started = true;
+        } else {
+          ctx.lineTo(sx, sy);
+        }
+      }
+      ctx.stroke();
+
+      // Sommet S (Bordeaux CMA #A50F23)
+      const sxSommet = toScreenX(tmax);
+      const sySommet = toScreenY(ymax);
+      ctx.fillStyle = '#A50F23';
+      ctx.beginPath();
+      ctx.arc(sxSommet, sySommet, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = 'bold 11px Arial';
+      ctx.fillText(`Sommet S(${tmax}h ; ${ymax})`, sxSommet + 8, sySommet - 6);
+
+      // Point testé actuel
+      const sxCur = toScreenX(tCur);
+      const syCur = toScreenY(fCur);
+
+      // Lignes de rappel pointillées
+      ctx.strokeStyle = '#1E293B';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(sxCur, toScreenY(0));
+      ctx.lineTo(sxCur, syCur);
+      ctx.lineTo(toScreenX(minX), syCur);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#1E293B';
+      ctx.beginPath();
+      ctx.arc(sxCur, syCur, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillText(`M (${tCur.toFixed(1)}h ; ${fCur.toFixed(1)})`, sxCur + 8, syCur + 14);
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 3 : VÉRIFICATION DU NIVEAU 1 (SOCLE CAP - 5 EXERCICES)  */
+    /* ============================================================== */
+    function checkEx1_1() {
+      const t = parseNum(document.getElementById('ex1-1-t').value);
+      const y = parseNum(document.getElementById('ex1-1-y').value);
+      const fb = document.getElementById('fb-ex1-1');
+
+      if (isNaN(t) || isNaN(y)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez l\'heure et la recette.</span>';
+        return;
+      }
+      if (near(t, 17) && near(y, 450)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Bravo ! Sommet S(17 ; 450) : recette maximale à 17 h s\'élevant à 450 €.</span>';
+        document.getElementById('badge-ex1-1').textContent = 'Validé';
+        document.getElementById('badge-ex1-1').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex1 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Coordonnées du sommet : t = 17 h et y = 450 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_2() {
+      const t = parseNum(document.getElementById('ex1-2-t').value);
+      const y = parseNum(document.getElementById('ex1-2-y').value);
+      const fb = document.getElementById('fb-ex1-2');
+
+      if (isNaN(t) || isNaN(y)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez l\'heure et la valeur.</span>';
+        return;
+      }
+      if (near(t, 4) && near(y, 120)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Exact ! Point le plus bas B(4 ; 120) : consommation minimale à 4 h du matin s\'élevant à 120 W.</span>';
+        document.getElementById('badge-ex1-2').textContent = 'Validé';
+        document.getElementById('badge-ex1-2').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Minimum : 4 h du matin et 120 Watts.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_3() {
+      const g1 = parseNum(document.getElementById('ex1-3-g1').value);
+      const g5 = parseNum(document.getElementById('ex1-3-g5').value);
+      const g9 = parseNum(document.getElementById('ex1-3-g9').value);
+      const fb = document.getElementById('fb-ex1-3');
+
+      if (isNaN(g1) || isNaN(g5) || isNaN(g9)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les 3 images.</span>';
+        return;
+      }
+      if (near(g1, 0) && near(g5, 16) && near(g9, 0)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Parfait ! g(1)=0, g(5)=16 et g(9)=0. Le maximum est bien 16 atteint en x = 5.</span>';
+        document.getElementById('badge-ex1-3').textContent = 'Validé';
+        document.getElementById('badge-ex1-3').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Calculs : g(1) = −16 + 16 = 0, g(5) = 16, g(9) = −16 + 16 = 0.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_4() {
+      const x = parseNum(document.getElementById('ex1-4-x').value);
+      const max = parseNum(document.getElementById('ex1-4-max').value);
+      const fb = document.getElementById('fb-ex1-4');
+
+      if (isNaN(x) || isNaN(max)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez les deux champs.</span>';
+        return;
+      }
+      if (near(x, 6) && near(max, 10)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Bravo ! La fonction croît jusqu\'à x = 6 puis décroît : le maximum est 10 atteint en x = 6.</span>';
+        document.getElementById('badge-ex1-4').textContent = 'Validé';
+        document.getElementById('badge-ex1-4').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex4 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">La transition croissante/décroissante se produit en x = 6 avec un sommet à 10.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx1_5() {
+      const f2 = parseNum(document.getElementById('ex1-5-f2').value);
+      const f1 = parseNum(document.getElementById('ex1-5-f1').value);
+      const fb = document.getElementById('fb-ex1-5');
+
+      if (isNaN(f2) || isNaN(f1)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez f(2) et f(1).</span>';
+        return;
+      }
+      if (near(f2, 18) && near(f1, 16)) {
+        fb.innerHTML = '<span class="text-emerald-700 font-bold">✓ Très bien ! f(2) = −8 + 16 + 10 = 18 et f(1) = 16. On a 16 &lt; 18 : le maximum est bien en x = 2.</span>';
+        document.getElementById('badge-ex1-5').textContent = 'Validé';
+        document.getElementById('badge-ex1-5').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        appState.n1.ex5 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Calcul : f(2) = 18 et f(1) = 16.</span>';
+      }
+      updateScores();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 3 : VÉRIFICATION DU NIVEAU 2 (AVANCÉ - 4 EXERCICES)     */
+    /* ============================================================== */
+    function checkEx2_1() {
+      const x = parseNum(document.getElementById('ex2-1-x').value);
+      const b = parseNum(document.getElementById('ex2-1-b').value);
+      const fb = document.getElementById('fb-ex2-1');
+
+      if (isNaN(x) || isNaN(b)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez la quantité et le bénéfice.</span>';
+        return;
+      }
+      if (near(x, 30) && near(b, 400)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Bravo ! x_opt = 30 forfaits et Bénéfice maximal = −900 + 1800 − 500 = 400 €.</span>';
+        document.getElementById('badge-ex2-1').textContent = 'Validé';
+        document.getElementById('badge-ex2-1').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex1 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Sommet : x = −60 / (−2) = 30 forfaits pour un bénéfice de 400 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx2_2() {
+      const t = parseNum(document.getElementById('ex2-2-t').value);
+      const temp = parseNum(document.getElementById('ex2-2-temp').value);
+      const fb = document.getElementById('fb-ex2-2');
+
+      if (isNaN(t) || isNaN(temp)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez le temps et la température.</span>';
+        return;
+      }
+      if (near(t, 10) && near(temp, 45)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Parfait ! Pic atteint en t = 10 min avec T(10) = 45 °C (conforme à la plage de sécurité).</span>';
+        document.getElementById('badge-ex2-2').textContent = 'Validé';
+        document.getElementById('badge-ex2-2').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Sommet : t = −4 / (−0,4) = 10 minutes. T(10) = −20 + 40 + 25 = 45 °C.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx2_3() {
+      const q = parseNum(document.getElementById('ex2-3-q').value);
+      const c = parseNum(document.getElementById('ex2-3-c').value);
+      const fb = document.getElementById('fb-ex2-3');
+
+      if (isNaN(q) || isNaN(c)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez q et le coût minimal.</span>';
+        return;
+      }
+      if (near(q, 4) && near(c, 18)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Exact ! Parabole vers le haut : minimum en q = 4 dizaines avec C(4) = 32 − 64 + 50 = 18 €.</span>';
+        document.getElementById('badge-ex2-3').textContent = 'Validé';
+        document.getElementById('badge-ex2-3').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Minimum : q = −(−16) / (2×2) = 4 dizaines et C(4) = 18 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx2_4() {
+      const h = parseNum(document.getElementById('ex2-4-h').value);
+      const r = parseNum(document.getElementById('ex2-4-r').value);
+      const fb = document.getElementById('fb-ex2-4');
+
+      if (isNaN(h) || isNaN(r)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez l\'heure et la rentabilité.</span>';
+        return;
+      }
+      if (near(h, 13) && near(r, 9)) {
+        fb.innerHTML = '<span class="text-amber-800 font-bold">✓ Bravo ! Sommet en h = 13 h avec R(13) = −169 + 338 − 160 = 9 €.</span>';
+        document.getElementById('badge-ex2-4').textContent = 'Validé';
+        document.getElementById('badge-ex2-4').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        appState.n2.ex4 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Sommet : h = −26 / (−2) = 13 h et R(13) = 9 €.</span>';
+      }
+      updateScores();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 3 : VÉRIFICATION DU NIVEAU 3 (EXPERT - 3 EXERCICES)     */
+    /* ============================================================== */
+    function checkEx3_1() {
+      const x = parseNum(document.getElementById('ex3-1-x').value);
+      const a = parseNum(document.getElementById('ex3-1-a').value);
+      const fb = document.getElementById('fb-ex3-1');
+
+      if (isNaN(x) || isNaN(a)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez la largeur et l\'aire maximale.</span>';
+        return;
+      }
+      if (near(x, 4) && near(a, 32)) {
+        fb.innerHTML = '<span class="text-red-800 font-bold">✓ Excellent ! x_opt = −16 / (−4) = 4 m, Longueur = 8 m et Surface maximale = 4 × 8 = 32 m².</span>';
+        document.getElementById('badge-ex3-1').textContent = 'Validé';
+        document.getElementById('badge-ex3-1').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800';
+        appState.n3.ex1 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Résolution : x = 4 mètres et A(4) = 32 m².</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx3_2() {
+      const x = parseNum(document.getElementById('ex3-2-x').value);
+      const r = parseNum(document.getElementById('ex3-2-r').value);
+      const fb = document.getElementById('fb-ex3-2');
+
+      if (isNaN(x) || isNaN(r)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez x et la recette maximale.</span>';
+        return;
+      }
+      if ((near(x, 7) || near(x, 7.5) || near(x, 8)) && near(r, 6120, 20)) {
+        fb.innerHTML = '<span class="text-red-800 font-bold">✓ Remarquable ! Sommet en x = 7,5 baisses (7 ou 8 en pratique) générant une recette record de 6 120 €.</span>';
+        document.getElementById('badge-ex3-2').textContent = 'Validé';
+        document.getElementById('badge-ex3-2').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800';
+        appState.n3.ex2 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Sommet : x = 7,5 (ou 7/8 baisses) et Recette max = 6 120 €.</span>';
+      }
+      updateScores();
+    }
+
+    function checkEx3_3() {
+      const t = parseNum(document.getElementById('ex3-3-t').value);
+      const p = parseNum(document.getElementById('ex3-3-p').value);
+      const fb = document.getElementById('fb-ex3-3');
+
+      if (isNaN(t) || isNaN(p)) {
+        fb.innerHTML = '<span class="text-amber-600">Renseignez l\'heure et la puissance.</span>';
+        return;
+      }
+      if (near(t, 14) && near(p, 26.8)) {
+        fb.innerHTML = '<span class="text-red-800 font-bold">✓ Magnifique ! Pic de climatisation à 14 h avec une puissance maximale de P(14) = 26,8 kW.</span>';
+        document.getElementById('badge-ex3-3').textContent = 'Validé';
+        document.getElementById('badge-ex3-3').className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800';
+        appState.n3.ex3 = true;
+      } else {
+        fb.innerHTML = '<span class="text-red-600">Pic à t = −22,4 / (−1,6) = 14 h et P(14) = 26,8 kW.</span>';
+      }
+      updateScores();
+    }
+
+    /* ============================================================== */
+    /* ÉTAPE 4 : ÉVALUATION SOMMATIVE (SUR 10 POINTS)                 */
+    /* ============================================================== */
+    function checkEvaluation() {
+      const q1 = parseNum(document.getElementById('eval-q1').value);
+      const q2 = parseNum(document.getElementById('eval-q2').value);
+      const q3 = parseNum(document.getElementById('eval-q3').value);
+      const q4 = parseNum(document.getElementById('eval-q4').value);
+      const q5 = parseNum(document.getElementById('eval-q5').value);
+      const fb = document.getElementById('fb-eval');
+
+      if (isNaN(q1) || isNaN(q2) || isNaN(q3) || isNaN(q4) || isNaN(q5)) {
+        fb.innerHTML = '<span class="text-amber-600">Veuillez répondre aux 5 questions de l\'évaluation.</span>';
+        return;
+      }
+
+      let pts = 0;
+      // Q1: N(19) = -(19-15)^2 + 9 = -16 + 9 = -7 (théorique, 0 cliente en pratique)
+      if (near(q1, 0) || near(q1, -7)) pts += 2;
+      // Q2: N(13) = -(13-15)^2 + 9 = -4 + 9 = 5 clientes
+      if (near(q2, 5)) pts += 2;
+      // Q3: t_max = 15 h
+      if (near(q3, 15)) pts += 2;
+      // Q4: N_max = 9 clientes
+      if (near(q4, 9)) pts += 2;
+      // Q5: 9 clientes / 3 clientes par esthéticienne = 3 esthéticiennes
+      if (near(q5, 3)) pts += 2;
+
+      document.getElementById('eval-score-badge').textContent = `Note : ${pts} / 10 pts`;
+      if (pts >= 8) {
+        document.getElementById('eval-score-badge').className = 'text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        fb.innerHTML = `<span class="text-emerald-700 font-bold">✓ Félicitations ! Évaluation validée avec un score de ${pts} / 10.</span>`;
+        appState.evaluation = true;
+      } else {
+        document.getElementById('eval-score-badge').className = 'text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+        fb.innerHTML = `<span class="text-amber-700">Score : ${pts} / 10. Vous pouvez réviser vos calculs et retenter.</span>`;
+      }
+      updateGlobalProgress();
+    }
+
+    /* ============================================================== */
+    /* GESTION GLOBALE DES SCORES ET DÉBLOCAGES                       */
+    /* ============================================================== */
+    function updateScores() {
+      const n1Count = Object.values(appState.n1).filter(Boolean).length;
+      document.getElementById('score-n1-display').textContent = `${n1Count} / 5`;
+      const percN1 = Math.round((n1Count / 5) * 100);
+      document.getElementById('bilan-socle-status').textContent = `${percN1}% complété`;
+      document.getElementById('cert-socle-perc').textContent = `${percN1} %`;
+
+      // Déblocage Niveau 2 et Attestation à 100% de N1
+      if (n1Count === 5) {
+        const b2 = document.getElementById('lvl-btn-2');
+        if (b2.disabled) {
+          b2.disabled = false;
+          b2.classList.remove('cursor-not-allowed', 'text-slate-400');
+          b2.classList.add('bg-amber-100', 'text-amber-800');
+          b2.innerHTML = '<span>🟡 Niveau 2 : Avancé</span>';
+        }
+        document.getElementById('btn-print').disabled = false;
+        document.getElementById('attestation-lock-notice').className = 'text-xs text-emerald-600 font-bold';
+        document.getElementById('attestation-lock-notice').innerHTML = '✓ Félicitations ! Votre socle CAP est validé à 100 %. Vous pouvez renseigner votre nom et imprimer l\'attestation.';
+      }
+
+      const n2Count = Object.values(appState.n2).filter(Boolean).length;
+      document.getElementById('score-n2-display').textContent = `${n2Count} / 4`;
+      document.getElementById('bilan-bonus-n2').textContent = `${n2Count} / 4 exercices`;
+
+      // Déblocage Niveau 3 à 100% de N2
+      if (n2Count === 4) {
+        const b3 = document.getElementById('lvl-btn-3');
+        if (b3.disabled) {
+          b3.disabled = false;
+          b3.classList.remove('cursor-not-allowed', 'text-slate-400');
+          b3.classList.add('bg-red-100', 'text-red-800');
+          b3.innerHTML = '<span>🔴 Niveau 3 : Expert</span>';
+        }
+      }
+
+      const n3Count = Object.values(appState.n3).filter(Boolean).length;
+      document.getElementById('score-n3-display').textContent = `${n3Count} / 3`;
+      document.getElementById('bilan-bonus-n3').textContent = `${n3Count} / 3 exercices`;
+
+      document.getElementById('cert-bonus-pts').textContent = `${n2Count + n3Count} / 7`;
+
+      updateGlobalProgress();
+    }
+
+    function updateGlobalProgress() {
+      const invCount = Object.values(appState.investigation).filter(Boolean).length;
+      const n1Count = Object.values(appState.n1).filter(Boolean).length;
+      const n2Count = Object.values(appState.n2).filter(Boolean).length;
+      const n3Count = Object.values(appState.n3).filter(Boolean).length;
+      const evalPts = appState.evaluation ? 1 : 0;
+
+      // 3 inv + 5 N1 + 4 N2 + 3 N3 + 1 eval = 16 jalons
+      const total = invCount + n1Count + n2Count + n3Count + evalPts;
+      const perc = Math.round((total / 16) * 100);
+      document.getElementById('global-progress').style.width = `${perc}%`;
+    }
+
+    function updateStudentName(val) {
+      appState.studentName = val.trim();
+      const display = document.getElementById('cert-student-name');
+      display.textContent = appState.studentName ? appState.studentName : "[Nom de l'apprenant(e)]";
+    }
+
+    function initDate() {
+      const today = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('cert-date').textContent = today.toLocaleDateString('fr-FR', options);
+    }
+
+    window.addEventListener('load', function() {
+      initDate();
+      initSimulation();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(() => {});
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      if (appState.currentTab === 2) {
+        drawSimulation();
+      }
+    });
+  </script>
+</body>
+</html>

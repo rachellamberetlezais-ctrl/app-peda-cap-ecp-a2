@@ -60,5 +60,38 @@ window.APPLICATIONS = [
     "titre": "Réflexion de la lumière & miroirs",
     "description": "Étudier les lois de la réflexion et les miroirs à l’institut Fleur de Lotus.",
     "lien": "./applications/A2S4P1/index.html"
-  }
+  },
+{
+  "code": "A2S5M1",
+  "annee": 2,
+  "semaine": 5,
+  "discipline": "M",
+  "activite": 1,
+  "titre": "Fonctions : recherche d’un optimum et d’un maximum",
+  "description": "Lire un graphique pour déterminer un optimum.",
+  "lien": "./applications/A2S5M1/index.html",
+  "publication": "2026-11-03T07:45:00+04:00"
+},
+{
+  "code": "A2S5M2",
+  "annee": 2,
+  "semaine": 5,
+  "discipline": "M",
+  "activite": 2,
+  "titre": "Comparaison de deux tarifs fournisseurs",
+  "description": "Comparer deux offres et déterminer la plus avantageuse.",
+  "lien": "./applications/A2S5M2/index.html",
+  "publication": "2026-11-04T07:45:00+04:00"
+},
+{
+  "code": "A2S5P1",
+  "annee": 2,
+  "semaine": 5,
+  "discipline": "P",
+  "activite": 1,
+  "titre": "Optique : réfraction et indices des milieux",
+  "description": "Étudier la déviation de la lumière entre deux milieux.",
+  "lien": "./applications/A2S5P1/index.html",
+  "publication": "2026-11-04T07:45:00+04:00"
+}
 ];
