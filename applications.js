@@ -104,5 +104,16 @@ window.APPLICATIONS = [
   "description": "Décomposer les contours, calculer les arcs et préparer les commandes de LED et de frises en institut.",
   "lien": "./applications/A2S6M1/index.html",
   "publication": "2026-11-23T07:50:00+04:00"
+},
+{
+  "code": "A2S6P1",
+  "annee": 2,
+  "semaine": 6,
+  "discipline": "P",
+  "activite": 1,
+  "titre": "Optique : spectre de la lumière blanche, UV et IR",
+  "description": "Explorer la dispersion, classer les rayonnements et argumenter la photoprotection.",
+  "lien": "./applications/A2S6P1/index.html",
+  "publication": "2026-11-23T13:30:00+04:00"
 }
 ];
