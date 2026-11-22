@@ -93,5 +93,16 @@ window.APPLICATIONS = [
   "description": "Étudier la déviation de la lumière entre deux milieux.",
   "lien": "./applications/A2S5P1/index.html",
   "publication": "2026-11-04T07:45:00+04:00"
+},
+{
+  "code": "A2S6M1",
+  "annee": 2,
+  "semaine": 6,
+  "discipline": "M",
+  "activite": 1,
+  "titre": "Géométrie : périmètres complexes et frises",
+  "description": "Décomposer les contours, calculer les arcs et préparer les commandes de LED et de frises en institut.",
+  "lien": "./applications/A2S6M1/index.html",
+  "publication": "2026-11-23T07:50:00+04:00"
 }
 ];
