@@ -115,5 +115,16 @@ window.APPLICATIONS = [
   "description": "Explorer la dispersion, classer les rayonnements et argumenter la photoprotection.",
   "lien": "./applications/A2S6P1/index.html",
   "publication": "2026-11-23T13:30:00+04:00"
+},
+{
+  "code": "A2S6M2",
+  "annee": 2,
+  "semaine": 6,
+  "discipline": "M",
+  "activite": 2,
+  "titre": "Aires composées et métrés du spa",
+  "description": "Calculer les surfaces utiles du spa, déduire les réservations et préparer les commandes.",
+  "lien": "./applications/A2S6M2/index.html",
+  "publication": "2026-11-24T07:45:00+04:00"
 }
 ];
